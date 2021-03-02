@@ -60,21 +60,33 @@ game.settings.register('TokensVisible', 'pushhotkey', {
   scope: 'client',   
   config: true,      
   type: String,     
-  default: "Z",
+  default: "z",
   
   onChange: value => { tokensVisible.pushhotkey = value // value is the new value of the setting
   }
 });
 
-game.settings.register('TokensVisible', 'toggleActiveRGB', {
-	name: 'Toggle Active Background Color'
-  hint: 'Background Color of Toggled Active controls',
-  scope: 'client',   
+game.settings.register('TokensVisible', 'toggleActiveBG', {
+	name: 'Active Toggle-Button -  Background Color',
+  hint: 'Background Color of active toggle-controls',
+  scope: 'world',   
   config: true,      
   type: String,     
-  default: document.querySelector('#controls .control-tool.toggle.active').style.getPropertyValue('background'),
+  default: "",
   
 	onChange: value => { document.querySelector('#controls .control-tool.toggle.active').style.setProperty('background',value); }
+  }
+);
+
+game.settings.register('TokensVisible', 'toggleActiveFG', {
+	name: 'Active Toggle-Button -  Color',
+  hint: 'Pen Color of active toggle-controls',
+  scope: 'world',   
+  config: true,      
+  type: String,     
+  default: "",
+  
+	onChange: value => { document.querySelector('#controls .control-tool.toggle.active').style.setProperty('color',value); }
   }
 );
 
@@ -104,7 +116,24 @@ r.style.setProperty('--alienfont', game.settings.get('alienrpg', 'fontStyle'));
 
 });
 
+Hooks.on('renderSceneControls', () => {
+	console.warn('scene controls',game.ready);
+	
+	//if (game.ready) {
+	  const toggleActiveBG =  game.settings.get('TokensVisible', 'toggleActiveBG');
+	  if (toggleActiveBG) {
+		  const toggleActive = document.querySelectorAll('#controls .control-tool.toggle.active');
+		  if(toggleActive.length) toggleActive.forEach(e=>e.style.setProperty('background',toggleActiveBG ));
+      }
+	  
+	  const toggleActiveFG =  game.settings.get('TokensVisible', 'toggleActiveFG');
+	  if (toggleActiveFG) {
+		  const toggleActive = document.querySelectorAll('#controls .control-tool.toggle.active');
+		  if(toggleActive.length) toggleActive.forEach(e=>e.style.setProperty('color',toggleActiveFG ));
+      }
 
+  //  }
+});
 
 
 

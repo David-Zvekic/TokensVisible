@@ -1,9 +1,9 @@
 {
   "name": "TokensVisible",
-  "title": "See what you need to see. No more, and no less!",
-  "description": "Usability and visibility enhancements for Tokens and your VTT.",
+  "title": "Your Tokens Visible",
+  "description": "Usability and visibility enhancements for your Tokens in VTT.",
   "author": "David Zvekic",
-  "version": "1.0.0",
+  "version": "0.5.1",
   "compatibleCoreVersion": "0.7.9",
   "url":"https://github.com/David-Zvekic/TokensVisible",
   "manifest": "https://github.com/David-Zvekic/TokensVisible/releases/download/master/module.json",
