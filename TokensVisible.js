@@ -72,7 +72,7 @@ game.settings.register('TokensVisible', 'toggleActiveFG', {
   scope: 'world',   
   config: true,      
   type: String,     
-  default: "",
+  default: "#ffffff",
   
 	onChange: value => { document.querySelector('#controls .control-tool.toggle.active').style.setProperty('color',value); }
   }
@@ -133,7 +133,36 @@ game.settings.register('TokensVisible', 'autopanningMargin', {
 
 
 
+game.settings.register("TokensVisible", "hiddenCanLight", {
+       name: "Hidden Tokens can emit light.",
+       hint: "This setting allows tokens to emit light even if their visibility is set off.",
+       scope: "world",
+       config: true,
+       type: String,
+       choices: {
+           "Yes": "Hidden tokens can emit light :",
+           "No": "Hidden tokens never emit light."
+           
+       },
+       default: "Yes",
+       onChange: value => { tokensVisible.hiddenCanLight = value  }
+   });
 
+
+   game.settings.register("TokensVisible", "wallsCancelAnimation", {
+          name: "Tokens will not fly : ",
+          hint: "Normally if Token Vision Animation is turned on, tokens may seem to fly over walls if the GM relocates the token to another part of the map. This causes problems if the GM does not intend to reveal those parts of the map. This setting will turn off animation if a GM movement intersects any walls.",
+          scope: "world",
+          config: true,
+          type: String,
+          choices: {
+              "Yes": "GM movement that intersects walls, cancels Token Vision Animation",
+              "No": "Token Vision Animation follows player's system settings."
+           
+          },
+          default: "Yes",
+          onChange: value => { tokensVisible.wallsCancelAnimation= value  }
+      });
 
 
 
@@ -289,7 +318,7 @@ async function ReplaceTokenSetPosition(x, y, {animate=true}={}) {
 
     // Create the movement ray
     let ray = new Ray(origin, target);
-    const hasCollision = this.checkCollision(target); // note: checkCollision must be called before _validPosition is updated.
+    const hasCollision = (tokensVisible.wallsCancelAnimation=="Yes" &&  this.checkCollision(target)); // note: checkCollision must be called before _validPosition is updated.
 
     // Update the new valid position
     this._validPosition = target;
@@ -345,7 +374,7 @@ async function ReplaceTokenSetPosition(x, y, {animate=true}={}) {
 
     // Update light source
 	//DZ VERSION
-	const isLightSource = this.emitsLight;
+	const isLightSource = this.emitsLight && ((tokensVisible.hiddenCanLight=="Yes") || (!this.data.hidden));
     //DZ VERSION
     //const isLightSource = this.emitsLight && !this.data.hidden;
     if ( isLightSource && !deleted ) {
