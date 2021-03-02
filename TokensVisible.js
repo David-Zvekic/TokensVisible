@@ -3,69 +3,15 @@
 // permission granted to use and distribute as per LICENSE file
 
 
-let pushTokenBack = new Object();
-pushTokenBack.hoverToken= new Object();
-pushTokenBack.hoverToken.hoveredTarget=0;
-pushTokenBack.hotkey='';
+let tokensVisible= new Object();
+tokensVisible.hoverToken= new Object();
+tokensVisible.hoverToken.hoveredTarget=0;
+tokensVisible.pushhotkey='';
 
+tokensVisible.pushToBack=function() {
 
-
-
-Hooks.on('init', () => {
-
-game.settings.register('pushTokenBack', 'hotkey', {
-  name: game.i18n.localize("PUSHTOKENBACK.SelectHotKey"),
-  hint: game.i18n.localize("PUSHTOKENBACK.SelectHotKeyHelp"),
-  scope: 'client',   
-  config: true,      
-  type: String,     
-  default: "Z",
-  
-  onChange: value => { pushTokenBack.hotkey = value // value is the new value of the setting
-    console.log(value)
-  }
-});
-
-pushTokenBack.hotkey=game.settings.get('pushTokenBack', 'hotkey');
-
-
-});
-
-
-
-
-
-
-pushTokenBack.pushTokenBackListener = function(event){
-    if ( event.isComposing ) return; 
-  
-   if (event.key==pushTokenBack.hotkey && !event.repeat) pushToBack();
-
-};
-
- 
-
-pushTokenBack.hoverToken.hook= Hooks.on('hoverToken',(token,hoverON)=>{
-	
-if (hoverON) {
-	pushTokenBack.hoverToken.hoveredTarget=token;
-	window.addEventListener('keydown', pushTokenBack.pushTokenBackListener );
-}
-else {
-    window.removeEventListener('keydown', pushTokenBack.pushTokenBackListener );
-	delete pushTokenBack.hoverToken.hoveredTarget;
-}
-});
-
-
-function pushToBack()
-{ if (typeof pushTokenBack == "undefined") {
-    console.warn("Module pushTokenBack is not installed.");
-    return;
-  }
-
-  if ( pushTokenBack?.hoverToken?.hoveredTarget instanceof Token) { 
-    const token = pushTokenBack.hoverToken.hoveredTarget; 
+  if ( tokensVisible?.hoverToken?.hoveredTarget instanceof Token) { 
+    const token = tokensVisible.hoverToken.hoveredTarget; 
     let position = 0;
     var foundchild;
     for (const x of canvas.tokens.children[0].children) {
@@ -79,10 +25,88 @@ function pushToBack()
       canvas.tokens.children[0].children.unshift(token);
     }
   } else {
-    console.warn('pushtoback - invalid target', pushTokenBack.hoverToken.hoveredTarget);
+    console.warn('TokensVisible - invalid target', tokensVisible.hoverToken.hoveredTarget);
   } 
 
 };
+
+
+tokensVisible.pushTokenBackListener = function(event){
+    if ( event.isComposing ) return; 
+  
+   if (event.key==tokensVisible.pushhotkey && !event.repeat) tokensVisible.pushToBack();
+
+};
+ 
+
+tokensVisible.hoverToken.hook= Hooks.on('hoverToken',(token,hoverON)=>{
+	
+if (hoverON) {
+	tokensVisible.hoverToken.hoveredTarget=token;
+	window.addEventListener('keydown', tokensVisible.pushTokenBackListener );
+}
+else {
+    window.removeEventListener('keydown', tokensVisible.pushTokenBackListener );
+	delete tokensVisible.hoverToken.hoveredTarget;
+}
+});
+
+
+Hooks.on('init', () => {
+
+game.settings.register('TokensVisible', 'pushhotkey', {
+  name: game.i18n.localize("TOKENSVISIBLE.SelectHotKey"),
+  hint: game.i18n.localize("TOKENSVISIBLE.SelectHotKeyHelp"),
+  scope: 'client',   
+  config: true,      
+  type: String,     
+  default: "Z",
+  
+  onChange: value => { tokensVisible.pushhotkey = value // value is the new value of the setting
+  }
+});
+
+game.settings.register('TokensVisible', 'toggleActiveRGB', {
+	name: 'Toggle Active Background Color'
+  hint: 'Background Color of Toggled Active controls',
+  scope: 'client',   
+  config: true,      
+  type: String,     
+  default: document.querySelector('#controls .control-tool.toggle.active').style.getPropertyValue('background'),
+  
+	onChange: value => { document.querySelector('#controls .control-tool.toggle.active').style.setProperty('background',value); }
+  }
+);
+
+
+tokensVisible.pushhotkey=game.settings.get('TokensVisible', 'pushhotkey');
+
+
+/*
+
+
+#controls .control-tool.toggle.active
+ {
+  background: rgba(3, 150, 3, 0.9);
+  box-shadow: 0 0 10px #9b8dff;
+}
+
+$(".control-tool.tool.active").setAttributeValue
+
+let r = document.querySelector('#controls.control-tool.toggle.active').style.setProperty('background',)
+r.style.setProperty('--aliengreen', game.settings.get('alienrpg', 'fontColour'));
+r.style.setProperty('--alienfont', game.settings.get('alienrpg', 'fontStyle'));
+
+*/
+
+
+
+
+});
+
+
+
+
 
 // override some bugs in Foundry VTT Token class that cause players to be unable to see their own tokens if the visibility is turned off
 // this is supposed to make the token invisible to others, not to make the player blind and lose control of their own token.

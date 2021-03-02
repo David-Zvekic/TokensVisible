@@ -1,4 +1,4 @@
 {
-	"PUSHTOKENBACK.SelectHotKey" : "Hotkey to trigger push (case sensitive):",
-    "PUSHTOKENBACK.SelectHotKeyHelp": "When floating the mouse cursor over a token that is obstructing your view of other tokens, pressing this key will push the token to the bottom of the render stack, allowing you to access any tokens which were beneath it."
+	"TOKENSVISIBLE.SelectHotKey" : "Push Token Back - Hotkey (case sensitive):",
+    "TOKENSVISIBLE.SelectHotKeyHelp": "When floating the mouse cursor over a token that is obstructing your view of other tokens, pressing this key will push the token to the bottom of the render stack, allowing you to access any tokens which were beneath it."
 }
