@@ -66,18 +66,6 @@ game.settings.register('TokensVisible', 'pushhotkey', {
   }
 });
 
-game.settings.register('TokensVisible', 'toggleActiveBG', {
-	name: 'Active Toggle-Button -  Background Color',
-  hint: 'Background Color of active toggle-controls',
-  scope: 'world',   
-  config: true,      
-  type: String,     
-  default: "",
-  
-	onChange: value => { document.querySelector('#controls .control-tool.toggle.active').style.setProperty('background',value); }
-  }
-);
-
 game.settings.register('TokensVisible', 'toggleActiveFG', {
 	name: 'Active Toggle-Button -  Color',
   hint: 'Pen Color of active toggle-controls',
@@ -90,9 +78,67 @@ game.settings.register('TokensVisible', 'toggleActiveFG', {
   }
 );
 
+game.settings.register('TokensVisible', 'toggleActiveBG', {
+	name: 'Active Toggle-Button -  Background Color',
+  hint: 'Background Color of active toggle-controls',
+  scope: 'world',   
+  config: true,      
+  type: String,     
+  default: "",
+  
+	onChange: value => { document.querySelector('#controls .control-tool.toggle.active').style.setProperty('background',value); }
+  }
+);
+
+
+
+
+game.settings.register('TokensVisible', 'activeFG', {
+	name: 'Active Control -  Color',
+  hint: 'Pen Color of an active control',
+  scope: 'world',   
+  config: true,      
+  type: String,     
+  default: "",
+  
+	onChange: value => { document.querySelector('#controls .control-tool.active').style.setProperty('color',value); }
+  }
+);
+
+
+game.settings.register('TokensVisible', 'activeBG', {
+	name: 'Active Control -  Background Color',
+  hint: 'Background Color of active control',
+  scope: 'world',   
+  config: true,      
+  type: String,     
+  default: "",
+  
+	onChange: value => { document.querySelector('#controls .control-tool.active').style.setProperty('background',value); }
+  }
+);
+
+
+game.settings.register('TokensVisible', 'autopanningMargin', {
+  name: 'Automatic Pan Margin',
+  hint: 'How many pixels of margin until canvas pans to keep token centered in view',
+  scope: 'client',   
+  config: true,      
+  type: Number,     
+  default: "200",
+  
+  onChange: value => { tokensVisible.autopanMargin = value // value is the new value of the setting
+  }
+});
+
+
+
+
+
+
 
 tokensVisible.pushhotkey=game.settings.get('TokensVisible', 'pushhotkey');
-
+tokensVisible.autopanMargin= game.settings.get('TokensVisible', 'autopanningMargin');
 
 /*
 
@@ -117,9 +163,10 @@ r.style.setProperty('--alienfont', game.settings.get('alienrpg', 'fontStyle'));
 });
 
 Hooks.on('renderSceneControls', () => {
-	console.warn('scene controls',game.ready);
+	
 	
 	//if (game.ready) {
+	
 	  const toggleActiveBG =  game.settings.get('TokensVisible', 'toggleActiveBG');
 	  if (toggleActiveBG) {
 		  const toggleActive = document.querySelectorAll('#controls .control-tool.toggle.active');
@@ -131,6 +178,22 @@ Hooks.on('renderSceneControls', () => {
 		  const toggleActive = document.querySelectorAll('#controls .control-tool.toggle.active');
 		  if(toggleActive.length) toggleActive.forEach(e=>e.style.setProperty('color',toggleActiveFG ));
       }
+	  
+	  
+	  const activeBG =  game.settings.get('TokensVisible', 'activeBG');
+	  if (activeBG) {
+		  const active = document.querySelectorAll('#controls .control-tool.active:not(.toggle)');
+		  if(active.length) active.forEach(e=>e.style.setProperty('background',activeBG ));
+      }
+	  
+	  const activeFG =  game.settings.get('TokensVisible', 'activeFG');
+	  if (activeFG) {
+		  const active = document.querySelectorAll('#controls .control-tool.active:not(.toggle)');
+		  if(active.length) active.forEach(e=>e.style.setProperty('color',activeFG ));
+      }
+	  
+	  
+	  
 
   //  }
 });
@@ -241,8 +304,7 @@ async function ReplaceTokenSetPosition(x, y, {animate=true}={}) {
     if ( this.hasActiveHUD ) this.layer.hud.clear();
 
     // Either animate movement to the destination position, or set it directly if animation is disabled
-	
-	console.warn('check collision', hasCollision, target, origin);
+
     if ( animate && !hasCollision ) await this.animateMovement(new Ray(this.position, ray.B));
     else this.position.set(x, y);
 	if (hasCollision && animate) {
@@ -257,7 +319,7 @@ async function ReplaceTokenSetPosition(x, y, {animate=true}={}) {
 //      if ((gp.x < pad) || (gp.x > window.innerWidth - pad) || (gp.y < pad) || (gp.y > window.innerHeight - pad)) {
 //        canvas.animatePan(this.center);
 // }
-      let pad = 500;
+      let pad = tokensVisible.autopanMargin;
       let gp = this.getGlobalPosition();
       if ((gp.x < pad) || (gp.x > window.innerWidth - pad) || (gp.y < pad) || (gp.y > window.innerHeight - pad)) {
         canvas.animatePan(this.center);
