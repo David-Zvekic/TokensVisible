@@ -1,5 +1,5 @@
-# TokensVisible v1.0.0
-**Your Tokens Visible** - See what you need to see. No more, no less!
+# Your Tokens Visible v1.0.0
+**See what you need to see. No more, no less!
 ***
 A module for Foundry VTT.
 
