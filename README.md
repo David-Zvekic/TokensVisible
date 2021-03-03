@@ -15,13 +15,13 @@ The default hotkey is lowercase "z", but this can be reconfigured.
 
 Note: This module replicates 100% of the functionality of the moduled called Push Tokens Back (which I also wrote). If you use 'Your Tokens Visible', you do not need PushTokensBack.
 
-2. "Hidden Tokens Can See" - Activate this setting and when the GM turns off visibility for a Token it will no longer lose vision. 
+2. "Hidden Tokens Can See" - Activate this setting and when the GM turns off visibility for a Token, it will no longer lose vision. 
 
 3. "Hidden Tokens Can Emit Light" - Hidden tokens are no longer prevented from emitting light.  
 
-4. "Tokens Don't Fly" - Currently when the GM moves a token, and it's owner has Animated Token Movement enabled, they will see their token fly through walls and reveal everything in the path between the start and destination. With this feature turned on, tokens that would cross a wall, will not use animated movement, but will simply  reappear at their destination without revealing the intermediary map at all.  Movement that intersects no barriers will use normal Animated Movement preferences.
+4. "Tokens Don't Fly" - Currently when the GM moves a token, and it's owner has Animated Token Movement enabled, they may see their token fly through walls and reveal the map along the movement path.  The GM may not have intended to reveal that path.  With this feature turned on, tokens that would cross a wall, will not use animated movement, but will simply  reappear at their destination without revealing the intermediary map.  Movement that intersects no barriers will use normal Animated Movement preferences.
 
-5. Control Tools Color Assignment - assign colours to your control tools status buttons. This can help make them easier to see.  
+5. Control Tools Color Assignment - assign colours to your control tools status buttons. This can help make them easier to see. 
 
 6. Configure Auto-pan Margin: Clients can each configure how wide of a margin they want around their tokens before the canvas automatically re-centres.  
 
