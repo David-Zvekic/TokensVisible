@@ -67,26 +67,24 @@ game.settings.register('TokensVisible', 'pushhotkey', {
 });
 
 game.settings.register('TokensVisible', 'toggleActiveFG', {
-	name: 'Active Toggle-Button -  Color',
-  hint: 'Pen Color of active toggle-controls',
-  scope: 'world',   
-  config: true,      
-  type: String,     
-  default: "#ffffff",
-  
-	onChange: value => { document.querySelector('#controls .control-tool.toggle.active').style.setProperty('color',value); }
-  }
-);
-
-game.settings.register('TokensVisible', 'toggleActiveBG', {
-	name: 'Active Toggle-Button -  Background Color',
-  hint: 'Background Color of active toggle-controls',
+  name: game.i18n.localize("TOKENSVISIBLE.toggleActiveFG"),
   scope: 'world',   
   config: true,      
   type: String,     
   default: "",
-  
-	onChange: value => { document.querySelector('#controls .control-tool.toggle.active').style.setProperty('background',value); }
+	onChange: value => {  document.querySelectorAll('#controls .control-tool.toggle.active').forEach(e=>e.style.setProperty('color',value ));}
+  }
+);
+
+game.settings.register('TokensVisible', 'toggleActiveBG', {
+  name: game.i18n.localize("TOKENSVISIBLE.toggleActiveBG"),
+  scope: 'world',   
+  config: true,      
+  type: String,     
+  default: "",
+  onChange: value => {
+	   document.querySelectorAll('#controls .control-tool.toggle.active').forEach(e=>e.style.setProperty('background',value ));
+	 }
   }
 );
 
@@ -94,34 +92,34 @@ game.settings.register('TokensVisible', 'toggleActiveBG', {
 
 
 game.settings.register('TokensVisible', 'activeFG', {
-	name: 'Active Control -  Color',
-  hint: 'Pen Color of an active control',
+  name: game.i18n.localize("TOKENSVISIBLE.activeFG"),
   scope: 'world',   
   config: true,      
   type: String,     
   default: "",
-  
-	onChange: value => { document.querySelector('#controls .control-tool.active').style.setProperty('color',value); }
+  onChange: value => {  document.querySelectorAll('#controls .control-tool.active:not(.toggle)').forEach(e=>e.style.setProperty('color',value ));
+ }
   }
 );
 
 
 game.settings.register('TokensVisible', 'activeBG', {
-	name: 'Active Control -  Background Color',
-  hint: 'Background Color of active control',
+  name: game.i18n.localize("TOKENSVISIBLE.activeBG"),
   scope: 'world',   
   config: true,      
   type: String,     
   default: "",
   
-	onChange: value => { document.querySelector('#controls .control-tool.active').style.setProperty('background',value); }
+	onChange: value => { 
+		  document.querySelectorAll('#controls .control-tool.active:not(.toggle)').forEach(e=>e.style.setProperty('background',value ));
+		 }
   }
 );
 
 
 game.settings.register('TokensVisible', 'autopanningMargin', {
-  name: 'Automatic Pan Margin',
-  hint: 'How many pixels of margin until canvas pans to keep token centered in view',
+  name: game.i18n.localize("TOKENSVISIBLE.autopanningMargin"),
+  hint: game.i18n.localize("TOKENSVISIBLE.autopanningMarginHint"),
   scope: 'client',   
   config: true,      
   type: Number,     
@@ -134,14 +132,14 @@ game.settings.register('TokensVisible', 'autopanningMargin', {
 
 
 game.settings.register("TokensVisible", "hiddenCanLight", {
-       name: "Hidden Tokens can emit light.",
-       hint: "This setting allows tokens to emit light even if their visibility is set off.",
+       name: game.i18n.localize("TOKENSVISIBLE.hiddenCanLight"),
+       hint: game.i18n.localize("TOKENSVISIBLE.hiddenCanLightHint"),	
        scope: "world",
        config: true,
        type: String,
        choices: {
-           "Yes": "Hidden tokens can emit light :",
-           "No": "Hidden tokens never emit light."
+           "Yes": game.i18n.localize("TOKENSVISIBLE.hiddenCanLightYES"),
+           "No": game.i18n.localize("TOKENSVISIBLE.hiddenCanLightNO"),
            
        },
        default: "Yes",
@@ -150,14 +148,15 @@ game.settings.register("TokensVisible", "hiddenCanLight", {
 
 
    game.settings.register("TokensVisible", "wallsCancelAnimation", {
-          name: "Tokens will not fly : ",
-          hint: "Normally if Token Vision Animation is turned on, tokens may seem to fly over walls if the GM relocates the token to another part of the map. This causes problems if the GM does not intend to reveal those parts of the map. This setting will turn off animation if a GM movement intersects any walls.",
-          scope: "world",
+          name: game.i18n.localize("TOKENSVISIBLE.wallsCancelAnimation"),
+          hint: game.i18n.localize("TOKENSVISIBLE.wallsCancelAnimationHint"),
+	      scope: "world",
           config: true,
           type: String,
           choices: {
-              "Yes": "GM movement that intersects walls, cancels Token Vision Animation",
-              "No": "Token Vision Animation follows player's system settings."
+              "Yes": game.i18n.localize("TOKENSVISIBLE.wallsCancelAnimationYES") ,
+              "No": game.i18n.localize("TOKENSVISIBLE.wallsCancelAnimationNO"),
+			  "Always": game.i18n.localize("TOKENSVISIBLE.wallsCancelAnimationAlways")
            
           },
           default: "Yes",
@@ -168,25 +167,9 @@ game.settings.register("TokensVisible", "hiddenCanLight", {
 
 tokensVisible.pushhotkey=game.settings.get('TokensVisible', 'pushhotkey');
 tokensVisible.autopanMargin= game.settings.get('TokensVisible', 'autopanningMargin');
+tokensVisible.hiddenCanLight = game.settings.get('TokensVisible', 'hiddenCanLight');
 
-/*
-
-
-#controls .control-tool.toggle.active
- {
-  background: rgba(3, 150, 3, 0.9);
-  box-shadow: 0 0 10px #9b8dff;
-}
-
-$(".control-tool.tool.active").setAttributeValue
-
-let r = document.querySelector('#controls.control-tool.toggle.active').style.setProperty('background',)
-r.style.setProperty('--aliengreen', game.settings.get('alienrpg', 'fontColour'));
-r.style.setProperty('--alienfont', game.settings.get('alienrpg', 'fontStyle'));
-
-*/
-
-
+tokensVisible.wallsCancelAnimation = game.settings.get('TokensVisible', 'wallsCancelAnimation');
 
 
 });
@@ -194,71 +177,53 @@ r.style.setProperty('--alienfont', game.settings.get('alienrpg', 'fontStyle'));
 Hooks.on('renderSceneControls', () => {
 	
 	
-	//if (game.ready) {
-	
+
 	  const toggleActiveBG =  game.settings.get('TokensVisible', 'toggleActiveBG');
 	  if (toggleActiveBG) {
-		  const toggleActive = document.querySelectorAll('#controls .control-tool.toggle.active');
-		  if(toggleActive.length) toggleActive.forEach(e=>e.style.setProperty('background',toggleActiveBG ));
+	     document.querySelectorAll('#controls .control-tool.toggle.active').forEach(e=>e.style.setProperty('background',toggleActiveBG ));
       }
 	  
 	  const toggleActiveFG =  game.settings.get('TokensVisible', 'toggleActiveFG');
 	  if (toggleActiveFG) {
-		  const toggleActive = document.querySelectorAll('#controls .control-tool.toggle.active');
-		  if(toggleActive.length) toggleActive.forEach(e=>e.style.setProperty('color',toggleActiveFG ));
+		  document.querySelectorAll('#controls .control-tool.toggle.active').forEach(e=>e.style.setProperty('color',toggleActiveFG ));
       }
 	  
 	  
 	  const activeBG =  game.settings.get('TokensVisible', 'activeBG');
 	  if (activeBG) {
-		  const active = document.querySelectorAll('#controls .control-tool.active:not(.toggle)');
-		  if(active.length) active.forEach(e=>e.style.setProperty('background',activeBG ));
+		  document.querySelectorAll('#controls .control-tool.active:not(.toggle)').forEach(e=>e.style.setProperty('background',activeBG ));
       }
 	  
 	  const activeFG =  game.settings.get('TokensVisible', 'activeFG');
 	  if (activeFG) {
-		  const active = document.querySelectorAll('#controls .control-tool.active:not(.toggle)');
-		  if(active.length) active.forEach(e=>e.style.setProperty('color',activeFG ));
+		  document.querySelectorAll('#controls .control-tool.active:not(.toggle)').forEach(e=>e.style.setProperty('color',activeFG ));
       }
-	  
-	  
-	  
-
-  //  }
+	  	  
 });
 
 
+// overrides of Token methods to implement the vision features of this module.
 
-// override some bugs in Foundry VTT Token class that cause players to be unable to see their own tokens if the visibility is turned off
-// this is supposed to make the token invisible to others, not to make the player blind and lose control of their own token.
-// the way to make someone blind is to remvoe vision. the way to make them lose control of their own token is to remove their permision to control that actor
-
-
-
-
-Object.defineProperty(Token.prototype,'isVisible', {get() 
-	{
+Object.defineProperty(Token.prototype,'isVisible', 
+  {
+  	get()  
+  	{
+      if (!canvas.sight.tokenVision) return true;
+	  if (game.user.isGM ) return true;
+	  if ( this._controlled ) return true;
+	  const canObserve = this.actor && this.actor.hasPerm(game.user, "OBSERVER");
+	  if (canObserve) return true;
+	  if ( this.data.hidden ) return false; 
 	
-	  const gm = game.user.isGM;
-   	//DZ
-	  if (gm ) return true;
-	 if ( this._controlled ) return true;
-	 const canObserve = this.actor && this.actor.hasPerm(game.user, "OBSERVER");
-	 if (canObserve) return true;
-	  //DZ
 	
-	  if ( this.data.hidden ) return false; // return gm
-	
-	  if (!canvas.sight.tokenVision) return true;
-	 // if ( this._controlled ) return true;
+	 
 	  const tolerance = Math.min(this.w, this.h) / 4;
-	  return canvas.sight.testVisibility(this.center, {tolerance, object: this});
+      return canvas.sight.testVisibility(this.center, {tolerance, object: this});
 	}
-});
+  });
 
 
- 
-function ReplaceIsVisionSource() {
+Token.prototype._isVisionSource = function () {
 	
     if ( !canvas.sight.tokenVision || !this.hasSight ) return false;
     if ( this._controlled ) return true;
@@ -266,51 +231,21 @@ function ReplaceIsVisionSource() {
     const isGM = game.user.isGM;
  
   
-//DZ
 	if (!isGM) {
-    // Always display controlled tokens which have vision
-  
-	  
-	
-	// if a non-GM observor user user controls no tokens with sight return true
-//    const others = this.layer.controlled.filter(t => !t.data.hidden && t.hasSightfunction );
-    const others = this.layer.controlled.find( t => !t.data.hidden && t.hasSightfunction);
-    if (this.observer && (others == undefined)) return true;
+
+	// if a non-GM observer-user controls no tokens with sight return true
+      const others = this.layer.controlled.find( t => !t.data.hidden && t.hasSightfunction);
+      if (this.observer && (others == undefined)) return true;
     
 	}
-	//DZ
-
-    // Only display hidden tokens for the GM
-//    if (this.data.hidden && !isGM ) return false; // line actually only displays the vision OF hidden tokens for GM which is probably wrong
-
-    // Always display controlled tokens which have vision
-    
-	//if ( this._controlled ) return true;
-
+	
 	return false;
-    // Otherwise vision is ignored for GM users
-    if ( isGM ) return false;
-//--if ( isGM ) return false;
 
-
-    // If a non-GM user controls no other tokens with sight, display sight anyways
-//--    const canObserve = this.actor && this.actor.hasPerm(game.user, "OBSERVER");
-// --   if ( !canObserve ) return false;
-// --   const others = this.layer.controlled.filter(t => !t.data.hidden && t.hasSight);
-// --   return !others.length;
- return false;
 };
   
 
-Token.prototype._isVisionSource =ReplaceIsVisionSource;
-  
-
-// New feature
-Token.prototype.setPosition=    ReplaceTokenSetPosition;
-
-
-async function ReplaceTokenSetPosition(x, y, {animate=true}={}) {
- //console.warn('ReplaceTokenSetPosition',this);	
+Token.prototype.setPosition=  async function ReplaceTokenSetPosition(x, y, {animate=true}={}) {
+ 
     // Create a Ray for the requested movement
     let origin = this._movement ? this.position : this._validPosition,
         target = {x: x, y: y},
@@ -318,37 +253,41 @@ async function ReplaceTokenSetPosition(x, y, {animate=true}={}) {
 
     // Create the movement ray
     let ray = new Ray(origin, target);
-    const hasCollision = (tokensVisible.wallsCancelAnimation=="Yes" &&  this.checkCollision(target)); // note: checkCollision must be called before _validPosition is updated.
-
-    // Update the new valid position
-    this._validPosition = target;
-
-    // Record the Token's new velocity
-    this._velocity = this._updateVelocity(ray);
+	let cancelAnimation = false;
+	if(animate){
+	  if (tokensVisible.wallsCancelAnimation=="Always") cancelAnimation=true;
+	  if (!cancelAnimation)
+       cancelAnimation = (tokensVisible.wallsCancelAnimation=="Yes" &&  this.checkCollision(target)); 
+    }
+     this._validPosition = target;
+     this._velocity = this._updateVelocity(ray);
 
     // Update visibility for a non-controlled token which may have moved into the controlled tokens FOV
     this.visible = isVisible;
 
     // Conceal the HUD if it targets this Token
     if ( this.hasActiveHUD ) this.layer.hud.clear();
+ 
 
-    // Either animate movement to the destination position, or set it directly if animation is disabled
-
-    if ( animate && !hasCollision ) await this.animateMovement(new Ray(this.position, ray.B));
-    else this.position.set(x, y);
-	if (hasCollision && animate) {
-		this.animateMovement(new Ray(this.position, ray.B));
-	} 
-
+    if ( animate){
+		if (cancelAnimation) {
+	     	// client with animate turned on assumes an animated Movement will render the destination.
+    		// since are setting the position directoy, so animate a 0 distance Movement at the destination
+			// to satisfy that need.
+	    	this.position.set(x, y);
+		    // no 'await' needed here because this movement is not changing the position so we dont care if it completes
+			// aynchronously
+			this.animateMovement(new Ray(this.position, ray.B));
+        } 
+		else
+		 await this.animateMovement(new Ray(this.position, ray.B));
+    }
+	else this.position.set(x, y);
+	
     // If the movement took a controlled token off-screen, re-center the view
     if (this._controlled && isVisible) {
-		//DZ
-//      let pad = 50;
-//      let gp = this.getGlobalPosition();
-//      if ((gp.x < pad) || (gp.x > window.innerWidth - pad) || (gp.y < pad) || (gp.y > window.innerHeight - pad)) {
-//        canvas.animatePan(this.center);
-// }
-      let pad = tokensVisible.autopanMargin;
+
+      const pad = tokensVisible.autopanMargin;
       let gp = this.getGlobalPosition();
       if ((gp.x < pad) || (gp.x > window.innerWidth - pad) || (gp.y < pad) || (gp.y > window.innerHeight - pad)) {
         canvas.animatePan(this.center);
@@ -361,7 +300,7 @@ async function ReplaceTokenSetPosition(x, y, {animate=true}={}) {
   
   
 
-  Token.prototype.updateSource = function({defer=false, deleted=false, noUpdateFog=false}={}) {
+Token.prototype.updateSource = function({defer=false, deleted=false, noUpdateFog=false}={}) {
     if ( CONFIG.debug.sight ) {
       SightLayer._performance = { start: performance.now(), tests: 0, rays: 0 }
     }
@@ -373,10 +312,8 @@ async function ReplaceTokenSetPosition(x, y, {animate=true}={}) {
     const maxR = Math.hypot(d.sceneWidth, d.sceneHeight);
 
     // Update light source
-	//DZ VERSION
 	const isLightSource = this.emitsLight && ((tokensVisible.hiddenCanLight=="Yes") || (!this.data.hidden));
-    //DZ VERSION
-    //const isLightSource = this.emitsLight && !this.data.hidden;
+
     if ( isLightSource && !deleted ) {
       const bright = Math.min(this.getLightRadius(this.data.brightLight), maxR);
       const dim = Math.min(this.getLightRadius(this.data.dimLight), maxR);
@@ -407,7 +344,7 @@ async function ReplaceTokenSetPosition(x, y, {animate=true}={}) {
     if ( isVisionSource && !deleted ) {
       let dim =  canvas.lighting.globalLight ? maxR : Math.min(this.getLightRadius(this.data.dimSight), maxR);
       const bright = Math.min(this.getLightRadius(this.data.brightSight), maxR);
-      if ((dim === 0) && (bright === 0)) dim = Math.min(this.w, this.h) * 0.5;
+	  if ((dim === 0) && (bright === 0)) dim = Math.min(this.w, this.h) * 0.5;
       this.vision.initialize({
         x: origin.x,
         y: origin.y,

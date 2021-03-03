@@ -1,4 +1,23 @@
 {
 	"TOKENSVISIBLE.SelectHotKey" : "Push Token Back - Hotkey (case sensitive):",
-    "TOKENSVISIBLE.SelectHotKeyHelp": "When floating the mouse cursor over a token that is obstructing your view of other tokens, pressing this key will push the token to the bottom of the render stack, allowing you to access any tokens which were beneath it."
+    "TOKENSVISIBLE.SelectHotKeyHelp": "When floating the mouse cursor over a token that is obstructing your view of other tokens, pressing this key will push the token to the bottom of the render stack, allowing you to access any tokens which were beneath it.",
+	"TOKENSVISIBLE.toggleActiveFG": "Active-Toggle Controls pen-color",
+	"TOKENSVISIBLE.toggleActiveBG": "Active-Toggle Controls background-color",
+	"TOKENSVISIBLE.activeFG" : "Active Control pen-color",
+	"TOKENSVISIBLE.activeBG" : "Active Control background-color",
+	"TOKENSVISIBLE.autopanningMargin": "Automatic Pan Margin",
+	"TOKENSVISIBLE.autopanningMarginHint": "If tokens move closer to the edge of the canvas it will automatically pan to re-centre the token in view.",
+	"TOKENSVISIBLE.hiddenCanLight": "Token Light",
+	"TOKENSVISIBLE.hiddenCanLightHint": "Should Hidden Tokens be able to radiate light?",
+    "TOKENSVISIBLE.hiddenCanLightYES": "Hidden tokens may radiate light",
+    "TOKENSVISIBLE.hiddenCanLightNO": "Hidden tokens never radiate light",
+	"TOKENSVISIBLE.wallsCancelAnimation" :"Animation during GM movement",
+	"TOKENSVISIBLE.wallsCancelAnimationHint" :"Token Vision Animation may cause tokens to appear to fly over walls when the GM relocates them to another part of the map. This can reveal parts of the map the GM does not intend to.",
+    "TOKENSVISIBLE.wallsCancelAnimationYES": "Walls cancel animation",
+	"TOKENSVISIBLE.wallsCancelAnimationNO": "Normal Token Vision Animation",
+	"TOKENSVISIBLE.wallsCancelAnimationAlways": "Disable Token Vision Animation"
+	
+	
+	
+	
 }
