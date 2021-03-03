@@ -3,7 +3,7 @@
 ***
 A module for Foundry VTT.
 
-By using **Tokens Visible** you enable the following features in your Foundry VTT:
+By using **Your Tokens Visible** you enable the following features in your Foundry VTT:
 
 1. "Push Tokens Back" - Float your cusor over foreground obstructing tokens, press a hot-key and send them to the back of rendering stack. This allows you to access the token you want, even when it's hidden beneath others.
 
