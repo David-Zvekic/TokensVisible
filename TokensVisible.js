@@ -25,16 +25,29 @@ tokensVisible.pushToBack=function() {
       canvas.tokens.children[0].children.unshift(token);
     }
   } else {
-    console.warn('TokensVisible - invalid target', tokensVisible.hoverToken.hoveredTarget);
+ //   console.warn('TokensVisible - invalid target', tokensVisible.hoverToken.hoveredTarget);
   } 
 
 };
 
 
 tokensVisible.pushTokenBackListener = function(event){
-    if ( event.isComposing ) return; 
-  
-   if (event.key==tokensVisible.pushhotkey && !event.repeat) tokensVisible.pushToBack();
+	
+	if (event.target !== document.body && event.target !== canvas.app.view) return;
+    if ( event.isComposing || event.repeat) return;
+    if (event.key==tokensVisible.pushhotkey ) tokensVisible.pushToBack();
+    if (event.key==tokensVisible.castRayshotkey ) { 
+		   
+	   switch(tokensVisible.currentCastRaysmode){
+		   case "Standard" :tokensVisible.setProperCastRays('Enhanced');
+		   break;
+	   case "Enhanced" :tokensVisible.setProperCastRays('Super');
+		   break;
+	   case "Super": tokensVisible.setProperCastRays('Standard');
+		   break;
+	   default:  tokensVisible.setProperCastRays('Enhanced'); 
+	   }
+   }
 
 };
  
@@ -43,17 +56,23 @@ tokensVisible.hoverToken.hook= Hooks.on('hoverToken',(token,hoverON)=>{
 	
 if (hoverON) {
 	tokensVisible.hoverToken.hoveredTarget=token;
-	window.addEventListener('keydown', tokensVisible.pushTokenBackListener );
+	//window.addEventListener('keydown', tokensVisible.pushTokenBackListener );
 }
 else {
-    window.removeEventListener('keydown', tokensVisible.pushTokenBackListener );
+  //  window.removeEventListener('keydown', tokensVisible.pushTokenBackListener );
 	delete tokensVisible.hoverToken.hoveredTarget;
 }
 });
 
+Hooks.on('ready',() => {
+	console.warn('pushtb');
+	window.addEventListener('keydown', tokensVisible.pushTokenBackListener );
+});
 
 Hooks.on('init', () => {
+	
 
+	
 game.settings.register('TokensVisible', 'pushhotkey', {
   name: game.i18n.localize("TOKENSVISIBLE.SelectHotKey"),
   hint: game.i18n.localize("TOKENSVISIBLE.SelectHotKeyHelp"),
@@ -125,8 +144,7 @@ game.settings.register('TokensVisible', 'autopanningMargin', {
   type: Number,     
   default: "200",
   
-  onChange: value => { tokensVisible.autopanMargin = value // value is the new value of the setting
-  }
+  onChange: value => { tokensVisible.autopanMargin = value ;}
 });
 
 
@@ -164,15 +182,79 @@ game.settings.register("TokensVisible", "hiddenCanLight", {
       });
 
 
+      game.settings.register("TokensVisible", "castRays", {
+             name: game.i18n.localize("TOKENSVISIBLE.castRays"),
+             hint: game.i18n.localize("TOKENSVISIBLE.castRaysHint"),
+   	      scope: "client",
+             config: true,
+             type: String,
+             choices: {
+                 "Standard": game.i18n.localize("TOKENSVISIBLE.castRaysStandard") ,
+                 "Enhanced": game.i18n.localize("TOKENSVISIBLE.castRaysEnhanced"),
+   			  "Super": game.i18n.localize("TOKENSVISIBLE.castRaysSuper")
+           
+             },
+             default: "Standard",
+             onChange: value =>  {tokensVisible.setProperCastRays(value)} 
+		          
+             }
+         );
+		 
+		 
+		 game.settings.register('TokensVisible', 'castRayshotkey', {
+		   name: game.i18n.localize("TOKENSVISIBLE.castRayshotkey"),
+		   hint: game.i18n.localize("TOKENSVISIBLE.castRayshotkeyHint"),
+		   scope: 'client',   
+		   config: true,      
+		   type: String,     
+		   default: "r",
+  
+		   onChange: value => { tokensVisible.castRayshotkey = value }
+		 });
+		 
+		 
+
+
 
 tokensVisible.pushhotkey=game.settings.get('TokensVisible', 'pushhotkey');
 tokensVisible.autopanMargin= game.settings.get('TokensVisible', 'autopanningMargin');
 tokensVisible.hiddenCanLight = game.settings.get('TokensVisible', 'hiddenCanLight');
 
 tokensVisible.wallsCancelAnimation = game.settings.get('TokensVisible', 'wallsCancelAnimation');
+tokensVisible.castRayshotkey =game.settings.get('TokensVisible', 'castRayshotkey');
+
+
+
+tokensVisible.setProperCastRays(game.settings.get('TokensVisible', 'castRays'));
+
+
 
 
 });
+
+
+tokensVisible.setProperCastRays = function(value){
+switch (value){  
+ case "Standard":tokensVisible._setStandardCastRays();
+break; 
+case "Enhanced": tokensVisible._setEnhancedCastRays();
+break; 
+case "Super": tokensVisible._setExtraEnhancedCastRays();
+  break; 
+default: tokensVisible._setStandardCastRays();  
+};
+tokensVisible.currentCastRaysmode=value;
+
+
+if (game.ready ) {
+	ui.notifications.info( game.i18n.localize("TOKENSVISIBLE.castRays")+" : " + value );
+      canvas.initializeSources();
+    }
+	
+
+};
+
+
 
 Hooks.on('renderSceneControls', () => {
 	
@@ -365,4 +447,153 @@ Token.prototype.updateSource = function({defer=false, deleted=false, noUpdateFog
     }
   }
 
+  
+tokensVisible.SightLayer = {_defaultcastRay:SightLayer._castRays};
+
+tokensVisible.SightLayer._DI_castRays=function(x, y, distance, {density=4, endpoints, limitAngle=false, aMin, aMax}={}, cast, standardArray, rayAccuracy, rays,sorter) {
+
+   
+    const rOffset = 0.033;
+
+	density = 0.75 * density * rayAccuracy;
+
+    // Enforce that all rays increase in angle from minimum towards maximum
+    const rMin = limitAngle ? Ray.fromAngle(x, y, aMin, distance) : null;
+    const rMax = limitAngle ? Ray.fromAngle(x, y, aMax, distance) : null;
+   
+
+
+
+     // First prioritize rays which are cast directly at wall endpoints
+    for ( let e of endpoints ) {
+      const ray = Ray.fromAngle(x, y, Math.atan2(e[1]-y, e[0]-x), distance);
+      if ( limitAngle ) {
+        ray.angle = this._adjustRayAngle(aMin, ray.angle);  // Standardize the angle
+        if (!Number.between(ray.angle, aMin, aMax)) continue;
+      }
+      cast(ray);
+    }
+
+
+
+if (rayAccuracy<1.5) 
+ {
+
+  let varx = 0;
+  for(varx=0;varx<standardArray.length;varx++){
+     let currentAngle = standardArray[varx];
+     if(!limitAngle || (currentAngle>=rMin && currentAngle<=rMax)){
+             cast(Ray.fromAngle(x,y,currentAngle,distance),500);
+     }
+  }
+}
+
+
+    const nr = rays.length;
+    for ( let i=0; i<nr; i++ ) {
+      const r = rays[i];
+//	  let newdistance = r.distance ;
+//      let nOffset = (rOffset * 12000) / r.distance; 
+
+//console.warn('noff',nOffset);
+      cast(r.shiftAngle(rOffset),1000);
+      cast(r.shiftAngle(-rOffset ),1000);
+
+    }
+
+    // Add additional limiting and central rays
+    if ( limitAngle ) {
+      const aCenter = aMin + ((aMax - aMin) / 2) + Math.PI;
+      const rCenter = Ray.fromAngle(x, y, aCenter, 0);
+      rCenter._isCenter = true;
+      cast(rMin);
+      cast(rCenter);
+      cast(rMax);
+    }
+ 
+
+
+    function extraRays(density,tol=50){
+    // Add additional approximate rays to reach a desired radial density
+    if ( !!density ) {
+
+	  const rDensity = toRadians(density);
+        const nFill = Math.ceil((aMax - aMin) / rDensity);
+ 
+      for ( let a of Array.fromRange(nFill) ) {
+        cast(Ray.fromAngle(x, y, aMin + (a * rDensity), distance), tol);
+      }
+    }
+
+    };
+
+
+    extraRays(density);
+
+    // Sort rays counter-clockwise (increasing radians)
+    sorter(rays);
+	//console.warn('rays',rays.length);
+    return rays;
+  };
+  
+  tokensVisible._setEnhancedCastRays=function()
+  {
+  	const standardArray = [-3.141592, -1.5707964,0,1.5707964];
+
+    // Track rays and unique emission angles
+
+	
+	 const sorter = (rays)=>{rays.sort((r1, r2) => r1.angle - r2.angle);};
+	   
+	   SightLayer._castRays=function(x, y, distance, {density=4, endpoints, limitAngle=false, aMin, aMax}={}) {
+		   
+		   const rayAccuracy = canvas.sight.tokenVision?(canvas.scene._viewPosition.scale):5;
+	       const angles = new Set();
+	       const rays = [];
+		  
+		   
+		   const cast = (ray, tol=50) => {
+   
+	            tol = tol *50 /(rayAccuracy * 10);
+	            let a = Math.round(ray.angle *tol  );// / tol;
+	            if ( angles.has(a) ) return;
+	            rays.push(ray);
+	            angles.add(a);
+	          };
+
+		   return tokensVisible.SightLayer._DI_castRays.call(this, x,y,distance,{density,endpoints,limitAngle,aMin,aMax},cast,standardArray, rayAccuracy, rays, sorter );
+	   } 
+	   
+	   
+  }
+  
+  tokensVisible._setExtraEnhancedCastRays=function()
+  {
+  	 // const standardArray = [-3.141592,-3, -2.7,-2.6, -1.5707964,-1.4, -0.75,-0.7, 0,0.1, 0.75,0.8, 1.5, 1.5707964,2.25,2.35];
+     
+    const sorter = (rays)=>{ // nothing to do because all the rays were built in sorted order already in this mode
+	                     };
+     
+	   
+	   SightLayer._castRays=function(x, y, distance, {density, endpoints, limitAngle=false, aMin, aMax}={}){
+		   
+		   if (!canvas.sight.tokenVision) return tokensVisible.SightLayer._defaultcastRay(x,y,distance,{density:density+2,endpoints,limitAngle,aMin,aMax});
+		   const rays=[];
+		   const cast = (ray )=> rays.push(ray);
+		   const rayAccuracy = canvas.scene._viewPosition.scale;
+		   return tokensVisible.SightLayer._DI_castRays.call(this,x,y,distance,{"density":1.7,endpoints:[],limitAngle,aMin,aMax},cast,[],rayAccuracy,rays, sorter);
+	   } 
+	   
+	    
+  };
+  
+tokensVisible._setStandardCastRays=function()
+  {
+       SightLayer._castRays=tokensVisible.SightLayer._defaultcastRay;
+	  
+	   	   
+  };
+  
+  
+  
 

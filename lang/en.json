@@ -15,9 +15,14 @@
 	"TOKENSVISIBLE.wallsCancelAnimationHint" :"Token Vision Animation may cause tokens to appear to fly over walls when the GM relocates them to another part of the map. This can reveal parts of the map the GM does not intend to.",
     "TOKENSVISIBLE.wallsCancelAnimationYES": "Walls cancel animation",
 	"TOKENSVISIBLE.wallsCancelAnimationNO": "Normal Token Vision Animation",
-	"TOKENSVISIBLE.wallsCancelAnimationAlways": "Disable Token Vision Animation"
-	
-	
+	"TOKENSVISIBLE.wallsCancelAnimationAlways": "Disable Token Vision Animation",
+	"TOKENSVISIBLE.castRays" : "Ray Casting Precision Mode",
+	"TOKENSVISIBLE.castRaysHint" : "Improve the accuracy used to calculate lines of token vision and ambient illumination at the expense of greater CPU usage.",
+	"TOKENSVISIBLE.castRaysStandard": "Standard built in function",
+	"TOKENSVISIBLE.castRaysEnhanced": "More accurate function. Slightly Slower",
+	"TOKENSVISIBLE.castRaysSuper": "Most accurate, but slowest",
+	"TOKENSVISIBLE.castRayshotkey" : "Ray Casting Toggle Hotkey (case sensitive)",
+	"TOKENSVISIBLE.castRayshotkeyHint" : "To momentarily improve ray casting to view a particular scene, toggle through the modes without changing your settings."
 	
 	
 }
