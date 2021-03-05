@@ -1,4 +1,4 @@
-# Your Tokens Visible v1.0.0
+# Your Tokens Visible v1.1.0
 *See what you need to see. No more, no less!*
 ***
 A module for Foundry VTT.
@@ -25,7 +25,7 @@ Note: This module replicates 100% of the functionality of the moduled called Pus
 
 6. Configure Auto-pan Margin: Clients can each configure how wide of a margin they want around their tokens before the canvas automatically re-centres.  
 
-
+7. Enhanced and Super-Raycasting modes - improve the ray casting accuracy calculation used by Foundry to calculate dynamic vision and ambient lighting. This will enable tokens to reliably see the things that they SHOULD be seeing on the map, for instance a light source at the end of a narrow tunnel. (See RayCasting.png) Each player can toggle between modes, or set the default mode they wish to use.
 
 
 
