@@ -27,7 +27,11 @@ Note: This module replicates 100% of the functionality of the moduled called Pus
 
 7. Enhanced and Super-Raycasting modes - improve the ray casting accuracy calculation used by Foundry to calculate dynamic vision and ambient lighting. This will enable tokens to reliably see the things that they SHOULD be seeing on the map, for instance a light source at the end of a narrow tunnel. (See RayCasting.png) Each player can toggle between modes, or set the default mode they wish to use.
 
+**Standard Mode is literally the code in the Foundry Core.
 
+**Enhanced mode is approximately the same speed as standard but with improved sight-lines.
+
+**Super mode is about 25% slower, but with even more improvement to sight-lines
 
 
 
