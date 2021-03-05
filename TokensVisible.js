@@ -207,7 +207,7 @@ game.settings.register("TokensVisible", "hiddenCanLight", {
 		   scope: 'client',   
 		   config: true,      
 		   type: String,     
-		   default: "r",
+		   default: "e",
   
 		   onChange: value => { tokensVisible.castRayshotkey = value }
 		 });
@@ -453,9 +453,9 @@ tokensVisible.SightLayer = {_defaultcastRay:SightLayer._castRays};
 tokensVisible.SightLayer._DI_castRays=function(x, y, distance, {density=4, endpoints, limitAngle=false, aMin, aMax}={}, cast, standardArray, rayAccuracy, rays,sorter) {
 
    
-    const rOffset = 0.033;
+    const rOffset = 0.02;
 
-	density = 0.75 * density * rayAccuracy;
+	
 
     // Enforce that all rays increase in angle from minimum towards maximum
     const rMin = limitAngle ? Ray.fromAngle(x, y, aMin, distance) : null;
@@ -463,7 +463,12 @@ tokensVisible.SightLayer._DI_castRays=function(x, y, distance, {density=4, endpo
    
 
 
-
+	if(endpoints.length || standardArray.length) {
+		const originaldensity = density;
+		
+		if(rayAccuracy<1.5)	density = density* (2/3) * rayAccuracy;  // density can never be worse than standard
+		if(density<Math.min(2,originaldensity))density=Math.min(2,originaldensity);  // dont want to make the quality too good/expensive. Use Supermode for that.
+		
      // First prioritize rays which are cast directly at wall endpoints
     for ( let e of endpoints ) {
       const ray = Ray.fromAngle(x, y, Math.atan2(e[1]-y, e[0]-x), distance);
@@ -511,7 +516,7 @@ if (rayAccuracy<1.5)
       cast(rMax);
     }
  
-
+}
 
     function extraRays(density,tol=50){
     // Add additional approximate rays to reach a desired radial density
@@ -538,18 +543,28 @@ if (rayAccuracy<1.5)
   
   tokensVisible._setEnhancedCastRays=function()
   {
-  	const standardArray = [-3.141592, -1.5707964,0,1.5707964];
+          const standardArray = [-3.141592, -1.5707964,0,1.5707964];
 
     // Track rays and unique emission angles
 
 	
-	 const sorter = (rays)=>{rays.sort((r1, r2) => r1.angle - r2.angle);};
-	   
-	   SightLayer._castRays=function(x, y, distance, {density=4, endpoints, limitAngle=false, aMin, aMax}={}) {
+	      const sorter = (rays)=>{rays.sort((r1, r2) => r1.angle - r2.angle);};
+	       RayCache=new Map();
+	       SightLayer._castRays=function(x, y, distance, {density=4, endpoints, limitAngle=false, aMin, aMax}={}) {
+		 
+		
+	       const key =  x.toString(16)+y.toString(16)+distance.toString(16)+limitAngle.toString()+aMin.toString()+aMax.toString();
+	
+		   let rays = RayCache.get(key);
+		   if(rays!=undefined) {
+	           // cache hit!
+			   return rays;
+		   }
+		   
 		   
 		   const rayAccuracy = canvas.sight.tokenVision?(canvas.scene._viewPosition.scale):5;
 	       const angles = new Set();
-	       const rays = [];
+	       rays = [];
 		  
 		   
 		   const cast = (ray, tol=50) => {
@@ -561,7 +576,12 @@ if (rayAccuracy<1.5)
 	            angles.add(a);
 	          };
 
-		   return tokensVisible.SightLayer._DI_castRays.call(this, x,y,distance,{density,endpoints,limitAngle,aMin,aMax},cast,standardArray, rayAccuracy, rays, sorter );
+		   rays =tokensVisible.SightLayer._DI_castRays.call(this, x,y,distance,{density,endpoints,limitAngle,aMin,aMax},cast,standardArray, rayAccuracy, rays, sorter );
+	       if(RayCache.size>1000) RayCache.delete(RayCache.keys().next().value);
+	       
+		   RayCache.set(key,rays);
+		   return rays;
+		   
 	   } 
 	   
 	   
@@ -569,19 +589,42 @@ if (rayAccuracy<1.5)
   
   tokensVisible._setExtraEnhancedCastRays=function()
   {
-  	 // const standardArray = [-3.141592,-3, -2.7,-2.6, -1.5707964,-1.4, -0.75,-0.7, 0,0.1, 0.75,0.8, 1.5, 1.5707964,2.25,2.35];
-     
-    const sorter = (rays)=>{ // nothing to do because all the rays were built in sorted order already in this mode
-	                     };
-     
-	   
+  	  
+       const stubsorter = (rays)=>{ /* nothing to do because the rays are cast in sorted order in this mode */ };
+       const realsorter = (rays)=>{rays.sort((r1, r2) => r1.angle - r2.angle);};
+	   RayCache=new Map();
+	  // hits=0;
+	  // misses=0;
+						    
 	   SightLayer._castRays=function(x, y, distance, {density, endpoints, limitAngle=false, aMin, aMax}={}){
-		   
-		   if (!canvas.sight.tokenVision) return tokensVisible.SightLayer._defaultcastRay(x,y,distance,{density:density+2,endpoints,limitAngle,aMin,aMax});
-		   const rays=[];
+		 
+		   if (!canvas.sight.tokenVision) return tokensVisible.SightLayer._defaultcastRay.call(this,x,y,distance,{density:density+3,endpoints,limitAngle,aMin,aMax});
+		   const key =  x.toString(16)+y.toString(16)+distance.toString(16)+limitAngle.toString()+aMin.toString()+aMax.toString();
+	
+		   let rays = RayCache.get(key);
+		   if(rays!=undefined) {
+		       // cache hit!
+			   return rays;
+		   }
+
+		   let sorter;
+		   rays=[];
 		   const cast = (ray )=> rays.push(ray);
 		   const rayAccuracy = canvas.scene._viewPosition.scale;
-		   return tokensVisible.SightLayer._DI_castRays.call(this,x,y,distance,{"density":1.7,endpoints:[],limitAngle,aMin,aMax},cast,[],rayAccuracy,rays, sorter);
+           if (!limitAngle){
+           // endpoints and sorting are not needed for unlimited angle light or vision since we are casting rays in all directions anyway.
+		 	   endpoints=[]; 
+			   sorter=stubsorter;
+		   }
+		   else {
+           // endpoints and real sorting appear to be needed for limited angle light or vision to render correctly
+		   	   sorter=realsorter;
+		   }
+		   rays = tokensVisible.SightLayer._DI_castRays.call(this,x,y,distance,{"density":Math.min(1.0,density),endpoints,limitAngle,aMin,aMax},cast,[],rayAccuracy,rays, sorter);
+	       if(RayCache.size>1000) RayCache.delete(RayCache.keys().next().value);
+	       
+		   RayCache.set(key,rays);
+		   return rays;
 	   } 
 	   
 	    
@@ -594,6 +637,7 @@ tokensVisible._setStandardCastRays=function()
 	   	   
   };
   
-  
-  
 
+
+
+	  
