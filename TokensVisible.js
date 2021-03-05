@@ -65,7 +65,7 @@ else {
 });
 
 Hooks.on('ready',() => {
-	console.warn('pushtb');
+	
 	window.addEventListener('keydown', tokensVisible.pushTokenBackListener );
 });
 
