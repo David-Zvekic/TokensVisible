@@ -1,4 +1,4 @@
-# Your Tokens Visible v1.1.0
+# Your Tokens Visible v1.2.1
 *See what you need to see. No more, no less!*
 ***
 A module for Foundry VTT.
@@ -32,6 +32,8 @@ Note: This module replicates 100% of the functionality of the moduled called Pus
 **Enhanced mode is approximately the same speed as standard but with improved sight-lines.
 
 **Super mode is about 25% slower, but with even more improvement to sight-lines
+
+8. Sight Calculations Cache - boost performance of Foundry on scenes with many walls, tokens or ambient light sources by preserving certain calculations that the base system repeats many times.
 
 
 

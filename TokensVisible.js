@@ -358,8 +358,8 @@ Object.defineProperty(Token.prototype,'isVisible',
   {
   	get()  
   	{
-      if (!canvas.sight.tokenVision) return true;
-	 // if (game.user.isGM ) return true;
+      if (!canvas.sight.tokenVision) return true; 
+
 	  if ( this._controlled ) return true;
 	  if(!game.user.isGM ){
 	   const canObserve = this.actor && this.actor.hasPerm(game.user, "OBSERVER");
@@ -367,7 +367,8 @@ Object.defineProperty(Token.prototype,'isVisible',
       }
 	
 	 if ( this.data.hidden && !game.user.isGM )  return false; 
-	 
+	 // if we get here then the token's visibility depends on whether it is 
+	 // visible via line of sight, field of view and lighting to another token that gives us vision
 	  const tolerance = Math.min(this.w, this.h) / 4;
       return canvas.sight.testVisibility(this.center, {tolerance, object: this});
 	}
