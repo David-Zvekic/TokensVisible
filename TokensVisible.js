@@ -359,13 +359,14 @@ Object.defineProperty(Token.prototype,'isVisible',
   	get()  
   	{
       if (!canvas.sight.tokenVision) return true;
-	  if (game.user.isGM ) return true;
+	 // if (game.user.isGM ) return true;
 	  if ( this._controlled ) return true;
-	  const canObserve = this.actor && this.actor.hasPerm(game.user, "OBSERVER");
-	  if (canObserve) return true;
-	  if ( this.data.hidden ) return false; 
+	  if(!game.user.isGM ){
+	   const canObserve = this.actor && this.actor.hasPerm(game.user, "OBSERVER");
+	   if (canObserve) return true;
+      }
 	
-	
+	 if ( this.data.hidden && !game.user.isGM )  return false; 
 	 
 	  const tolerance = Math.min(this.w, this.h) / 4;
       return canvas.sight.testVisibility(this.center, {tolerance, object: this});
@@ -384,7 +385,7 @@ Token.prototype._isVisionSource = function () {
 	if (!isGM) {
 
 	// if a non-GM observer-user controls no tokens with sight return true
-      const others = this.layer.controlled.find( t => !t.data.hidden && t.hasSightfunction);
+      const others = this.layer.controlled.find( t => !t.data.hidden && t.hasSight);
       if (this.observer && (others == undefined)) return true;
     
 	}
