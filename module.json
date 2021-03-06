@@ -3,7 +3,7 @@
   "title": "Your Tokens Visible",
   "description": "Usability and vision enhancements for Tokens",
   "author": "David Zvekic",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "compatibleCoreVersion": "0.7.9",
   "url":"https://github.com/David-Zvekic/TokensVisible",
   "manifest": "https://github.com/David-Zvekic/TokensVisible/releases/download/master/module.json",
