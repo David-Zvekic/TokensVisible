@@ -48,6 +48,18 @@ tokensVisible.pushTokenBackListener = function(event){
 	   default:  tokensVisible.setProperCastRays('Enhanced'); 
 	   }
    }
+  
+   if (event.key==tokensVisible.sightCachehotkey ) { 
+	   
+   switch(tokensVisible.currentSightCacheMode){
+	   case "On" :tokensVisible.setProperSightCache('Off');
+	   break;
+   case "Off" :tokensVisible.setProperSightCache('On');
+	   break;
+   default:  tokensVisible.setProperSightCache('On'); 
+   }
+  }
+   
 
 };
  
@@ -212,8 +224,34 @@ game.settings.register("TokensVisible", "hiddenCanLight", {
 		   onChange: value => { tokensVisible.castRayshotkey = value }
 		 });
 		 
+		 game.settings.register('TokensVisible', 'sightCache', {
+		   name: game.i18n.localize("TOKENSVISIBLE.sightCache"),
+		   hint: game.i18n.localize("TOKENSVISIBLE.sightCacheHint"),
+		   scope: 'client',   
+		   config: true,      
+           type: String,
+             choices: {
+                 "On": game.i18n.localize("TOKENSVISIBLE.sightCacheOn") ,
+                 "Off": game.i18n.localize("TOKENSVISIBLE.sightCacheOff")
+             },
+		 default: "On", 
+  
+		   onChange: value => { tokensVisible.setProperSightCache(value)}
+		 });
 		 
-
+		
+		 
+		 game.settings.register('TokensVisible', 'sightCachehotkey', {
+		   name: game.i18n.localize("TOKENSVISIBLE.sightCachehotkey"),
+		   hint: game.i18n.localize("TOKENSVISIBLE.sightCachehotkeyHint"),
+		   scope: 'client',   
+		   config: true,      
+		   type: String,     
+		   default: "E",
+  
+		   onChange: value => { tokensVisible.sightCachehotkey  = value }
+		 });
+		 
 
 
 tokensVisible.pushhotkey=game.settings.get('TokensVisible', 'pushhotkey');
@@ -222,11 +260,12 @@ tokensVisible.hiddenCanLight = game.settings.get('TokensVisible', 'hiddenCanLigh
 
 tokensVisible.wallsCancelAnimation = game.settings.get('TokensVisible', 'wallsCancelAnimation');
 tokensVisible.castRayshotkey =game.settings.get('TokensVisible', 'castRayshotkey');
+tokensVisible.sightCachehotkey =game.settings.get('TokensVisible', 'sightCachehotkey');
 
 
 
 tokensVisible.setProperCastRays(game.settings.get('TokensVisible', 'castRays'));
-
+tokensVisible.setProperSightCache(game.settings.get('TokensVisible', 'sightCache'));
 
 
 
@@ -241,7 +280,9 @@ case "Enhanced": tokensVisible._setEnhancedCastRays();
 break; 
 case "Super": tokensVisible._setExtraEnhancedCastRays();
   break; 
-default: tokensVisible._setStandardCastRays();  
+default: 
+	tokensVisible._setStandardCastRays();  
+    value="Standard";
 };
 tokensVisible.currentCastRaysmode=value;
 
@@ -250,7 +291,27 @@ if (game.ready ) {
 	ui.notifications.info( game.i18n.localize("TOKENSVISIBLE.castRays")+" : " + value );
       canvas.initializeSources();
     }
-	
+
+};
+
+
+tokensVisible.setProperSightCache = function(value){
+switch (value){  
+ case "On": tokensVisible.enableTurboSight();
+break; 
+case "Off": tokensVisible.disableTurboSight(); 
+break; 
+default: 
+	    tokensVisible.disableTurboSight();
+        value="Off";
+ 
+};
+tokensVisible.currentSightCacheMode=value;
+
+
+if (game.ready ) {
+	ui.notifications.info( game.i18n.localize("TOKENSVISIBLE.sightCache")+" : " + game.i18n.localize("TOKENSVISIBLE.sightCache" + value) );
+    }
 
 };
 
@@ -448,7 +509,41 @@ Token.prototype.updateSource = function({defer=false, deleted=false, noUpdateFog
   }
 
   
-tokensVisible.SightLayer = {_defaultcastRay:SightLayer._castRays};
+tokensVisible.SightLayer = {_defaultcastRay:SightLayer._castRays, _defaultcomputeSight:SightLayer.computeSight};
+
+tokensVisible.SightLayer._turboComputeSight = function (origin, radius, {angle=360, density=6, rotation=0, unrestricted=false}={}){
+
+   
+     let key =  radius*34.34 +origin.x+(origin.y*7.654)+ canvas.dimensions.width*1.1 + canvas.dimensions.height*3.3 + density*11+ (unrestricted?33:-1) +angle*1.1 + rotation  +(canvas.walls.endpoints.length * 12.2);  
+     let sightResult = tokensVisible.SightCache.get(key);
+     if(sightResult!=undefined) {
+  	  		return sightResult;
+  	 }
+  
+	
+	sightResult = tokensVisible.SightLayer._defaultcomputeSight.call(this, origin, radius, {angle, density, rotation, unrestricted} );
+	
+	
+    if(tokensVisible.SightCache.size>1000) tokensVisible.SightCache.delete(tokensVisible.SightCache.keys().next().value);
+    tokensVisible.SightCache.set(key, sightResult);
+	
+    return sightResult;
+
+};
+
+tokensVisible.enableTurboSight = function() {
+	tokensVisible.SightCache=new Map();
+	SightLayer.computeSight=tokensVisible.SightLayer._turboComputeSight;
+	 
+	
+}
+
+tokensVisible.disableTurboSight = function() {
+	delete tokensVisible.SightCache;
+	SightLayer.computeSight=tokensVisible.SightLayer._defaultcomputeSight;
+	
+}
+
 
 tokensVisible.SightLayer._DI_castRays=function(x, y, distance, {density=4, endpoints, limitAngle=false, aMin, aMax}={}, cast, standardArray, rayAccuracy, rays,sorter) {
 
@@ -543,6 +638,7 @@ if (rayAccuracy<1.5)
   
   tokensVisible._setEnhancedCastRays=function()
   {
+         
           const standardArray = [-3.141592, -1.5707964,0,1.5707964];
 
     // Track rays and unique emission angles
@@ -550,11 +646,14 @@ if (rayAccuracy<1.5)
 	
 	      const sorter = (rays)=>{rays.sort((r1, r2) => r1.angle - r2.angle);};
 	       RayCache=new Map();
+		   if (tokensVisible.SightCache!=undefined) tokensVisible.SightCache=new Map();
 	       SightLayer._castRays=function(x, y, distance, {density=4, endpoints, limitAngle=false, aMin, aMax}={}) {
 		 
 		
-	       const key =  x.toString(16)+y.toString(16)+distance.toString(16)+limitAngle.toString()+aMin.toString()+aMax.toString();
-	
+	      // const key =  x.toString(16)+y.toString(16)+distance.toString(16)+limitAngle.toString()+aMin.toString()+aMax.toString();
+		  // we need a fast hash... if there is a collision (which is extremely unlikely), its even more unlikely that it will matter
+		  // because the placeable that is rendered incorrectly will probably be on separate places of the map
+	       const key =  x+(y*7.654)+distance+(limitAngle?1:0)+aMin+aMax;  
 		   let rays = RayCache.get(key);
 		   if(rays!=undefined) {
 	           // cache hit!
@@ -589,17 +688,20 @@ if (rayAccuracy<1.5)
   
   tokensVisible._setExtraEnhancedCastRays=function()
   {
-  	  
+	  
        const stubsorter = (rays)=>{ /* nothing to do because the rays are cast in sorted order in this mode */ };
        const realsorter = (rays)=>{rays.sort((r1, r2) => r1.angle - r2.angle);};
 	   RayCache=new Map();
+	   if (tokensVisible.SightCache!=undefined) tokensVisible.SightCache=new Map();
 	  // hits=0;
 	  // misses=0;
 						    
 	   SightLayer._castRays=function(x, y, distance, {density, endpoints, limitAngle=false, aMin, aMax}={}){
 		 
 		   if (!canvas.sight.tokenVision) return tokensVisible.SightLayer._defaultcastRay.call(this,x,y,distance,{density:density+3,endpoints,limitAngle,aMin,aMax});
-		   const key =  x.toString(16)+y.toString(16)+distance.toString(16)+limitAngle.toString()+aMin.toString()+aMax.toString();
+		//   const key =  x.toString(16)+y.toString(16)+distance.toString(16)+limitAngle.toString()+aMin.toString()+aMax.toString();
+		// not an extremely good hash in most cases but its extremely unlikely 2 objects on the same scene will get the exact same value here, and this is pure math
+		const key =  x+(y*7.654)+distance+(limitAngle?1:0)+aMin+aMax;  
 	
 		   let rays = RayCache.get(key);
 		   if(rays!=undefined) {
@@ -632,6 +734,7 @@ if (rayAccuracy<1.5)
   
 tokensVisible._setStandardCastRays=function()
   {
+	   if (tokensVisible.SightCache!=undefined) tokensVisible.SightCache=new Map();
        SightLayer._castRays=tokensVisible.SightLayer._defaultcastRay;
 	  
 	   	   

@@ -19,10 +19,17 @@
 	"TOKENSVISIBLE.castRays" : "Ray Casting Precision Mode",
 	"TOKENSVISIBLE.castRaysHint" : "Improve the accuracy used to calculate lines of token vision and ambient illumination at the expense of greater CPU usage.",
 	"TOKENSVISIBLE.castRaysStandard": "Standard built in function",
-	"TOKENSVISIBLE.castRaysEnhanced": "More accurate function. Slightly Slower",
-	"TOKENSVISIBLE.castRaysSuper": "Most accurate, but slowest",
+	"TOKENSVISIBLE.castRaysEnhanced": "More Accurate - Slightly slower",
+	"TOKENSVISIBLE.castRaysSuper": "Most accurate - Slowest",
 	"TOKENSVISIBLE.castRayshotkey" : "Ray Casting Toggle Hotkey (case sensitive)",
-	"TOKENSVISIBLE.castRayshotkeyHint" : "To momentarily improve ray casting to view a particular scene, toggle through the modes without changing your settings."
+	"TOKENSVISIBLE.castRayshotkeyHint" : "To momentarily improve ray casting to view a particular scene, toggle through the modes without changing your settings.",
+	"TOKENSVISIBLE.sightCachehotkey" : "Sight Calculations Cache - Toggle Hotkey (case sensitive)",
+	"TOKENSVISIBLE.sightCachehotkeyHint" : "There is no good reason to toggle the SightCache except to experiment with the performance boost.",
+	"TOKENSVISIBLE.sightCache" : "Sight Calculations Cache",
+	"TOKENSVISIBLE.sightCacheHint" : "Improve performance by making Foundry VTT cache line of sight and field of view calculations.",
+	"TOKENSVISIBLE.sightCacheOn": "Cache is ON",
+	"TOKENSVISIBLE.sightCacheOff": "Cache is OFF (Standard Foundry VTT calculations)"
+
 	
 	
 }
