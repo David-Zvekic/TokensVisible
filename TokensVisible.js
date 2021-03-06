@@ -81,6 +81,13 @@ Hooks.on('ready',() => {
 	window.addEventListener('keydown', tokensVisible.pushTokenBackListener );
 });
 
+Hooks.on('updateWall', (scene,wall,data,diff,userid) => {
+	if(diff.diff){
+		if (tokensVisible.SightCache!=undefined) tokensVisible.SightCache=new Map();
+	}
+	
+});
+
 Hooks.on('ready', () => {
 	
 
