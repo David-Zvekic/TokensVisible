@@ -81,7 +81,7 @@ Hooks.on('ready',() => {
 	window.addEventListener('keydown', tokensVisible.pushTokenBackListener );
 });
 
-Hooks.on('init', () => {
+Hooks.on('ready', () => {
 	
 
 	
@@ -645,7 +645,7 @@ if (rayAccuracy<1.5)
 
 	
 	      const sorter = (rays)=>{rays.sort((r1, r2) => r1.angle - r2.angle);};
-	       RayCache=new Map();
+	  //     RayCache=new Map();
 		   if (tokensVisible.SightCache!=undefined) tokensVisible.SightCache=new Map();
 	       SightLayer._castRays=function(x, y, distance, {density=4, endpoints, limitAngle=false, aMin, aMax}={}) {
 		 
@@ -653,12 +653,13 @@ if (rayAccuracy<1.5)
 	      // const key =  x.toString(16)+y.toString(16)+distance.toString(16)+limitAngle.toString()+aMin.toString()+aMax.toString();
 		  // we need a fast hash... if there is a collision (which is extremely unlikely), its even more unlikely that it will matter
 		  // because the placeable that is rendered incorrectly will probably be on separate places of the map
-	       const key =  x+(y*7.654)+distance+(limitAngle?1:0)+aMin+aMax;  
-		   let rays = RayCache.get(key);
-		   if(rays!=undefined) {
-	           // cache hit!
-			   return rays;
-		   }
+	   //    const key =  x+(y*7.654)+distance+(limitAngle?1:0)+aMin+aMax;  
+	//	   let rays = RayCache.get(key);
+	let rays;
+	//	   if(rays!=undefined) {
+	//           // cache hit!
+	//		   return rays;
+	//	   }
 		   
 		   
 		   const rayAccuracy = canvas.sight.tokenVision?(canvas.scene._viewPosition.scale):5;
@@ -676,9 +677,9 @@ if (rayAccuracy<1.5)
 	          };
 
 		   rays =tokensVisible.SightLayer._DI_castRays.call(this, x,y,distance,{density,endpoints,limitAngle,aMin,aMax},cast,standardArray, rayAccuracy, rays, sorter );
-	       if(RayCache.size>1000) RayCache.delete(RayCache.keys().next().value);
+	  //     if(RayCache.size>1000) RayCache.delete(RayCache.keys().next().value);
 	       
-		   RayCache.set(key,rays);
+	  //	   RayCache.set(key,rays);
 		   return rays;
 		   
 	   } 
@@ -691,23 +692,19 @@ if (rayAccuracy<1.5)
 	  
        const stubsorter = (rays)=>{ /* nothing to do because the rays are cast in sorted order in this mode */ };
        const realsorter = (rays)=>{rays.sort((r1, r2) => r1.angle - r2.angle);};
-	   RayCache=new Map();
+	//   RayCache=new Map();
 	   if (tokensVisible.SightCache!=undefined) tokensVisible.SightCache=new Map();
-	  // hits=0;
-	  // misses=0;
-						    
+	  					    
 	   SightLayer._castRays=function(x, y, distance, {density, endpoints, limitAngle=false, aMin, aMax}={}){
 		 
 		   if (!canvas.sight.tokenVision) return tokensVisible.SightLayer._defaultcastRay.call(this,x,y,distance,{density:density+3,endpoints,limitAngle,aMin,aMax});
-		//   const key =  x.toString(16)+y.toString(16)+distance.toString(16)+limitAngle.toString()+aMin.toString()+aMax.toString();
-		// not an extremely good hash in most cases but its extremely unlikely 2 objects on the same scene will get the exact same value here, and this is pure math
-		const key =  x+(y*7.654)+distance+(limitAngle?1:0)+aMin+aMax;  
 	
-		   let rays = RayCache.get(key);
-		   if(rays!=undefined) {
-		       // cache hit!
-			   return rays;
-		   }
+	//	const key =  x+(y*7.654)+distance+(limitAngle?1:0)+aMin+aMax;  
+	let rays;
+	//	   let rays = RayCache.get(key);
+	//	   if(rays!=undefined) {
+	//		   return rays;
+	//	   }
 
 		   let sorter;
 		   rays=[];
@@ -723,9 +720,9 @@ if (rayAccuracy<1.5)
 		   	   sorter=realsorter;
 		   }
 		   rays = tokensVisible.SightLayer._DI_castRays.call(this,x,y,distance,{"density":Math.min(1.0,density),endpoints,limitAngle,aMin,aMax},cast,[],rayAccuracy,rays, sorter);
-	       if(RayCache.size>1000) RayCache.delete(RayCache.keys().next().value);
+	  //     if(RayCache.size>1000) RayCache.delete(RayCache.keys().next().value);
 	       
-		   RayCache.set(key,rays);
+	  //	   RayCache.set(key,rays);
 		   return rays;
 	   } 
 	   
