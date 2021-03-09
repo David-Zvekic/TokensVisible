@@ -719,6 +719,7 @@ if (rayAccuracy<1.5)
 		   rays=[];
 		   const cast = (ray )=> rays.push(ray);
 		   const rayAccuracy = canvas.scene._viewPosition.scale;
+		  // console.warn('ray accuracy',rayAccuracy);
            if (!limitAngle){
            // endpoints and sorting are not needed for unlimited angle light or vision since we are casting rays in all directions anyway.
 		 	   endpoints=[]; 
@@ -728,7 +729,9 @@ if (rayAccuracy<1.5)
            // endpoints and real sorting appear to be needed for limited angle light or vision to render correctly
 		   	   sorter=realsorter;
 		   }
-		   rays = tokensVisible.SightLayer._DI_castRays.call(this,x,y,distance,{"density":Math.min(1.0,density),endpoints,limitAngle,aMin,aMax},cast,[],rayAccuracy,rays, sorter);
+		   density = rayAccuracy;
+		   
+		   rays = tokensVisible.SightLayer._DI_castRays.call(this,x,y,distance,{"density":Math.min(2.0,density),endpoints,limitAngle,aMin,aMax},cast,[],rayAccuracy,rays, sorter);
 	  //     if(RayCache.size>1000) RayCache.delete(RayCache.keys().next().value);
 	       
 	  //	   RayCache.set(key,rays);
