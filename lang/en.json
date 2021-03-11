@@ -5,8 +5,8 @@
 	"TOKENSVISIBLE.toggleActiveBG": "Active-Toggle Controls background-color",
 	"TOKENSVISIBLE.activeFG" : "Active Control pen-color",
 	"TOKENSVISIBLE.activeBG" : "Active Control background-color",
-	"TOKENSVISIBLE.autopanningMargin": "Automatic Pan Margin",
-	"TOKENSVISIBLE.autopanningMarginHint": "If tokens move closer to the edge of the canvas it will automatically pan to re-centre the token in view.",
+	"TOKENSVISIBLE.autopanningMargin": "Automatic Pan Margin (pixels)",
+	"TOKENSVISIBLE.autopanningMarginHint": "Trigger automatic panning whenever tokens move closer than this margin towards the edge of canvas.",
 	"TOKENSVISIBLE.hiddenCanLight": "Token Light",
 	"TOKENSVISIBLE.hiddenCanLightHint": "Should Hidden Tokens be able to radiate light?",
     "TOKENSVISIBLE.hiddenCanLightYES": "Hidden tokens may radiate light",
@@ -28,7 +28,13 @@
 	"TOKENSVISIBLE.sightCache" : "Sight Calculations Cache",
 	"TOKENSVISIBLE.sightCacheHint" : "Improve performance by making Foundry VTT cache line of sight and field of view calculations.",
 	"TOKENSVISIBLE.sightCacheOn": "Cache is ON",
-	"TOKENSVISIBLE.sightCacheOff": "Cache is OFF (Standard Foundry VTT calculations)"
+	"TOKENSVISIBLE.sightCacheOff": "Cache is OFF (Standard Foundry VTT calculations)",
+	"TOKENSVISIBLE.panMode":"Auto-panning Mode",
+	"TOKENSVISIBLE.panModeHint":"Control how the canvas pans to keep a moving token in view.",
+	"TOKENSVISIBLE.panModeRecenter":"Recenter the view around the token if it passes the Automatic Pan Margin.",
+	"TOKENSVISIBLE.panModeScroll":"Scroll the view when needed to reclaim the Automatic Pan Margin."
+
+	
 
 	
 	

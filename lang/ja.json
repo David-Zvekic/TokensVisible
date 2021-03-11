@@ -5,8 +5,8 @@
 	"TOKENSVISIBLE.toggleActiveBG": "アクティブなトグルボタンの背景色",
 	"TOKENSVISIBLE.activeFG" : "アクティブなボタンの文字色",
 	"TOKENSVISIBLE.activeBG" : "アクティブなボタンの背景色",
-	"TOKENSVISIBLE.autopanningMargin": "自動パンのマージン",
-	"TOKENSVISIBLE.autopanningMarginHint": "コマがキャンバスの端に近づくと、コマが中心になるように自動的にパンします。",
+	"TOKENSVISIBLE.autopanningMargin": "Automatic Pan Margin (pixels)",
+	"TOKENSVISIBLE.autopanningMarginHint": "Trigger automatic panning whenever tokens move closer than this margin towards the edge of canvas.",
 	"TOKENSVISIBLE.hiddenCanLight": "コマの明かり",
 	"TOKENSVISIBLE.hiddenCanLightHint": "非表示状態のコマは光を放つべきですか？",
     "TOKENSVISIBLE.hiddenCanLightYES": "非表示コマは光を放つ",
@@ -28,5 +28,9 @@
 	"TOKENSVISIBLE.sightCache" : "視野計算のキャッシュ",
 	"TOKENSVISIBLE.sightCacheHint" : "視線と視界の計算をキャッシュすることで、パフォーマンスを向上させます。",
 	"TOKENSVISIBLE.sightCacheOn": "キャッシュ - オン",
-	"TOKENSVISIBLE.sightCacheOff": "キャッシュ - オフ（Foundry VTTの標準）"
+	"TOKENSVISIBLE.sightCacheOff": "キャッシュ - オフ（Foundry VTTの標準）",
+	"TOKENSVISIBLE.panMode":"Auto-panning Mode",
+	"TOKENSVISIBLE.panModeHint":"Control how the canvas pans to keep a moving token in view.",
+	"TOKENSVISIBLE.panModeRecenter":"Recenter the view around the token if it passes the Automatic Pan Margin.",
+	"TOKENSVISIBLE.panModeScroll":"Scroll the view when needed to reclaim the Automatic Pan Margin."
 }

@@ -88,7 +88,11 @@ Hooks.on('updateWall', (scene,wall,data,diff,userid) => {
 	
 });
 
-Hooks.on('ready', () => {
+Hooks.on('canvasReady',()=>{ 
+  if (tokensVisible.SightCache!=undefined) tokensVisible.SightCache=new Map();
+} );
+
+Hooks.once('canvasReady', () => {
 	
 
 	
@@ -126,9 +130,6 @@ game.settings.register('TokensVisible', 'toggleActiveBG', {
   }
 );
 
-
-
-
 game.settings.register('TokensVisible', 'activeFG', {
   name: game.i18n.localize("TOKENSVISIBLE.activeFG"),
   scope: 'world',   
@@ -153,6 +154,24 @@ game.settings.register('TokensVisible', 'activeBG', {
 		 }
   }
 );
+
+
+
+game.settings.register("TokensVisible", "panMode", {
+       name: game.i18n.localize("TOKENSVISIBLE.panMode"),
+       hint: game.i18n.localize("TOKENSVISIBLE.panModeHint"),	
+       scope: "client",
+       config: true,
+       type: String,
+       choices: {
+           "Recenter": game.i18n.localize("TOKENSVISIBLE.panModeRecenter"),
+           "Scroll": game.i18n.localize("TOKENSVISIBLE.panModeScroll"),
+           
+       },
+       default: "Scroll",
+       onChange: value => { tokensVisible.panMode = value  }
+   });
+   
 
 
 game.settings.register('TokensVisible', 'autopanningMargin', {
@@ -259,7 +278,7 @@ game.settings.register("TokensVisible", "hiddenCanLight", {
 		   onChange: value => { tokensVisible.sightCachehotkey  = value }
 		 });
 		 
-
+tokensVisible.panMode = game.settings.get('TokensVisible', 'panMode');
 
 tokensVisible.pushhotkey=game.settings.get('TokensVisible', 'pushhotkey');
 tokensVisible.autopanMargin= game.settings.get('TokensVisible', 'autopanningMargin');
@@ -427,24 +446,52 @@ Token.prototype.setPosition=  async function ReplaceTokenSetPosition(x, y, {anim
     		// since are setting the position directoy, so animate a 0 distance Movement at the destination
 			// to satisfy that need.
 	    	this.position.set(x, y);
-		    // no 'await' needed here because this movement is not changing the position so we dont care if it completes
-			// aynchronously
-			this.animateMovement(new Ray(this.position, ray.B));
+
+			await this.animateMovement(new Ray(this.position, ray.B));
         } 
 		else
 		 await this.animateMovement(new Ray(this.position, ray.B));
     }
 	else this.position.set(x, y);
 	
-    // If the movement took a controlled token off-screen, re-center the view
+    // If the movement took a controlled token off-screen, adjust the view
     if (this._controlled && isVisible) {
 
       const pad = tokensVisible.autopanMargin;
-      let gp = this.getGlobalPosition();
-      if ((gp.x < pad) || (gp.x > window.innerWidth - pad) || (gp.y < pad) || (gp.y > window.innerHeight - pad)) {
-        canvas.animatePan(this.center);
-
-
+     
+	  
+	  
+	  if (tokensVisible.panMode=="Recenter") {
+         let gp = this.getGlobalPosition();
+	     if ((gp.x < pad) || (gp.x > window.innerWidth - pad) || (gp.y < pad) || (gp.y > window.innerHeight - pad)) {
+  	    	canvas.animatePan(this.center);
+         } 
+      } else {
+		  
+		  async function relativePan({dx,dy}){
+	 		  await canvas.animatePan({x:canvas.scene._viewPosition.x+dx, y: canvas.scene._viewPosition.y+dy})
+		  };
+		  
+	      let dx = 0;
+	      if (this._bounds.minX< pad ) {
+     		  dx = this._bounds.minX- pad;
+	      } else
+	      if (this._bounds.maxX > (window.innerWidth - pad )) {
+		
+			  dx = this._bounds.maxX - (window.innerWidth - pad );
+	      };
+		   
+		  let dy = 0;
+          if(this._bounds.minY<pad){
+			  dy = this._bounds.minY - pad;
+	      } else
+		  if ((this._bounds.maxY> window.innerHeight - pad)) {
+               dy =  this._bounds.maxY - (window.innerHeight - pad );
+		  } ;
+		  
+		  if  (dx || dy){
+			 await relativePan({dx,dy});
+	      }
       }
     }
     return this;
