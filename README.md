@@ -1,4 +1,4 @@
-# Your Tokens Visible v1.2.1
+# Your Tokens Visible v1.3.0
 *See what you need to see. No more, no less!*
 ***
 A module for Foundry VTT.
@@ -34,6 +34,8 @@ Note: This module replicates 100% of the functionality of the moduled called Pus
 **Super mode is about 25% slower, but with even more improvement to sight-lines
 
 8. Sight Calculations Cache - boost performance of Foundry on scenes with many walls, tokens or ambient light sources by preserving certain calculations that the base system repeats many times.
+
+9. Automatic Pan Mode - You can now controll whether automatic pan will re-center the moving token, or simply scroll the view enough to restore the margin at the leading edge. 
 
 
 
