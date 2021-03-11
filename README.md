@@ -23,7 +23,7 @@ Note: This module replicates 100% of the functionality of the moduled called Pus
 
 5. Control Tools Color Assignment - assign colours to your control tools status buttons. This can help make them easier to see. 
 
-6. Configure Auto-pan Margin: Clients can each configure how wide of a margin they want around their tokens before the canvas automatically re-centres.  
+6. Automatic Pan Mode - Players can now control whether the canvas will re-center or simply scroll the view when a token gets to close to the edge of the window. The margin for this feature can also be customized to each players preferences.
 
 7. Enhanced and Super-Raycasting modes - improve the ray casting accuracy calculation used by Foundry to calculate dynamic vision and ambient lighting. This will enable tokens to reliably see the things that they SHOULD be seeing on the map, for instance a light source at the end of a narrow tunnel. (See RayCasting.png) Each player can toggle between modes, or set the default mode they wish to use.
 
@@ -35,7 +35,7 @@ Note: This module replicates 100% of the functionality of the moduled called Pus
 
 8. Sight Calculations Cache - boost performance of Foundry on scenes with many walls, tokens or ambient light sources by preserving certain calculations that the base system repeats many times.
 
-9. Automatic Pan Mode - Players can now control whether automatic pan will re-center the moving token, or simply scroll the view enough to restore the margin at the leading edge. 
+
 
 
 
