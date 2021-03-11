@@ -29,7 +29,7 @@
 	"TOKENSVISIBLE.sightCacheHint" : "Improve performance by making Foundry VTT cache line of sight and field of view calculations.",
 	"TOKENSVISIBLE.sightCacheOn": "Cache is ON",
 	"TOKENSVISIBLE.sightCacheOff": "Cache is OFF (Standard Foundry VTT calculations)",
-	"TOKENSVISIBLE.panMode":"Auto-panning Mode",
+	"TOKENSVISIBLE.panMode":"Automatic Pan Mode",
 	"TOKENSVISIBLE.panModeHint":"Control how the canvas pans to keep a moving token in view.",
 	"TOKENSVISIBLE.panModeRecenter":"Recenter the view around the token if it passes the Automatic Pan Margin.",
 	"TOKENSVISIBLE.panModeScroll":"Scroll the view when needed to reclaim the Automatic Pan Margin."

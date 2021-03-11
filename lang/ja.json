@@ -29,7 +29,7 @@
 	"TOKENSVISIBLE.sightCacheHint" : "視線と視界の計算をキャッシュすることで、パフォーマンスを向上させます。",
 	"TOKENSVISIBLE.sightCacheOn": "キャッシュ - オン",
 	"TOKENSVISIBLE.sightCacheOff": "キャッシュ - オフ（Foundry VTTの標準）",
-	"TOKENSVISIBLE.panMode":"Auto-panning Mode",
+	"TOKENSVISIBLE.panMode":"Automatic Pan Mode",
 	"TOKENSVISIBLE.panModeHint":"Control how the canvas pans to keep a moving token in view.",
 	"TOKENSVISIBLE.panModeRecenter":"Recenter the view around the token if it passes the Automatic Pan Margin.",
 	"TOKENSVISIBLE.panModeScroll":"Scroll the view when needed to reclaim the Automatic Pan Margin."
