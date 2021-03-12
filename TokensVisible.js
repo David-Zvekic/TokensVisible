@@ -66,26 +66,22 @@ tokensVisible.pushTokenBackListener = function(event){
 
 tokensVisible.hoverToken.hook= Hooks.on('hoverToken',(token,hoverON)=>{
 	
-if (hoverON) {
+  if (hoverON) {
 	tokensVisible.hoverToken.hoveredTarget=token;
-	//window.addEventListener('keydown', tokensVisible.pushTokenBackListener );
-}
-else {
-  //  window.removeEventListener('keydown', tokensVisible.pushTokenBackListener );
-	delete tokensVisible.hoverToken.hoveredTarget;
-}
+  }
+  else {
+ 	delete tokensVisible.hoverToken.hoveredTarget;
+  }
 });
 
 Hooks.on('ready',() => {
-	
-	window.addEventListener('keydown', tokensVisible.pushTokenBackListener );
+  window.addEventListener('keydown', tokensVisible.pushTokenBackListener );
 });
 
 Hooks.on('updateWall', (scene,wall,data,diff,userid) => {
-	if(diff.diff){
+  if(diff.diff){
 		if (tokensVisible.SightCache!=undefined) tokensVisible.SightCache=new Map();
-	}
-	
+  }
 });
 
 Hooks.on('canvasReady',()=>{ 
@@ -94,249 +90,208 @@ Hooks.on('canvasReady',()=>{
 
 Hooks.once('canvasReady', () => {
 	
+   game.settings.register('TokensVisible', 'pushhotkey', {
+     name: game.i18n.localize("TOKENSVISIBLE.SelectHotKey"),
+     hint: game.i18n.localize("TOKENSVISIBLE.SelectHotKeyHelp"),
+     scope: 'client',   
+     config: true,      
+     type: String,     
+     default: "z",
+     onChange: value => { tokensVisible.pushhotkey = value; }
+   });
 
-	
-game.settings.register('TokensVisible', 'pushhotkey', {
-  name: game.i18n.localize("TOKENSVISIBLE.SelectHotKey"),
-  hint: game.i18n.localize("TOKENSVISIBLE.SelectHotKeyHelp"),
-  scope: 'client',   
-  config: true,      
-  type: String,     
-  default: "z",
-  
-  onChange: value => { tokensVisible.pushhotkey = value // value is the new value of the setting
-  }
-});
+   game.settings.register('TokensVisible', 'toggleActiveFG', {
+     name: game.i18n.localize("TOKENSVISIBLE.toggleActiveFG"),
+     scope: 'world',   
+     config: true,      
+     type: String,     
+     default: "",
+     onChange: value => {  document.querySelectorAll('#controls .control-tool.toggle.active').forEach(e=>e.style.setProperty('color',value ));}
+   });
 
-game.settings.register('TokensVisible', 'toggleActiveFG', {
-  name: game.i18n.localize("TOKENSVISIBLE.toggleActiveFG"),
-  scope: 'world',   
-  config: true,      
-  type: String,     
-  default: "",
-	onChange: value => {  document.querySelectorAll('#controls .control-tool.toggle.active').forEach(e=>e.style.setProperty('color',value ));}
-  }
-);
+   game.settings.register('TokensVisible', 'toggleActiveBG', {
+     name: game.i18n.localize("TOKENSVISIBLE.toggleActiveBG"),
+     scope: 'world',   
+     config: true,      
+     type: String,     
+     default: "",
+     onChange: value => { document.querySelectorAll('#controls .control-tool.toggle.active').forEach(e=>e.style.setProperty('background',value ));}
+   });
 
-game.settings.register('TokensVisible', 'toggleActiveBG', {
-  name: game.i18n.localize("TOKENSVISIBLE.toggleActiveBG"),
-  scope: 'world',   
-  config: true,      
-  type: String,     
-  default: "",
-  onChange: value => {
-	   document.querySelectorAll('#controls .control-tool.toggle.active').forEach(e=>e.style.setProperty('background',value ));
-	 }
-  }
-);
+   game.settings.register('TokensVisible', 'activeFG', {
+     name: game.i18n.localize("TOKENSVISIBLE.activeFG"),
+     scope: 'world',   
+     config: true,      
+     type: String,     
+     default: "",
+     onChange: value => {  document.querySelectorAll('#controls .control-tool.active:not(.toggle)').forEach(e=>e.style.setProperty('color',value ));}
+   });
 
-game.settings.register('TokensVisible', 'activeFG', {
-  name: game.i18n.localize("TOKENSVISIBLE.activeFG"),
-  scope: 'world',   
-  config: true,      
-  type: String,     
-  default: "",
-  onChange: value => {  document.querySelectorAll('#controls .control-tool.active:not(.toggle)').forEach(e=>e.style.setProperty('color',value ));
- }
-  }
-);
+   game.settings.register('TokensVisible', 'activeBG', {
+     name: game.i18n.localize("TOKENSVISIBLE.activeBG"),
+     scope: 'world',   
+     config: true,      
+     type: String,     
+     default: "",
+     onChange: value => { document.querySelectorAll('#controls .control-tool.active:not(.toggle)').forEach(e=>e.style.setProperty('background',value ));}
+   });
 
-
-game.settings.register('TokensVisible', 'activeBG', {
-  name: game.i18n.localize("TOKENSVISIBLE.activeBG"),
-  scope: 'world',   
-  config: true,      
-  type: String,     
-  default: "",
-  
-	onChange: value => { 
-		  document.querySelectorAll('#controls .control-tool.active:not(.toggle)').forEach(e=>e.style.setProperty('background',value ));
-		 }
-  }
-);
-
-
-
-game.settings.register("TokensVisible", "panMode", {
-       name: game.i18n.localize("TOKENSVISIBLE.panMode"),
-       hint: game.i18n.localize("TOKENSVISIBLE.panModeHint"),	
-       scope: "client",
-       config: true,
-       type: String,
-       choices: {
+   game.settings.register("TokensVisible", "panMode", {
+     name: game.i18n.localize("TOKENSVISIBLE.panMode"),
+     hint: game.i18n.localize("TOKENSVISIBLE.panModeHint"),	
+     scope: "client",
+     config: true,
+     type: String,
+     choices: {
            "Recenter": game.i18n.localize("TOKENSVISIBLE.panModeRecenter"),
            "Scroll": game.i18n.localize("TOKENSVISIBLE.panModeScroll"),
-           
-       },
-       default: "Scroll",
-       onChange: value => { tokensVisible.panMode = value  }
+     },
+     default: "Scroll",
+     onChange: value => { tokensVisible.panMode = value  }
    });
    
+   game.settings.register('TokensVisible', 'autopanningMargin', {
+     name: game.i18n.localize("TOKENSVISIBLE.autopanningMargin"),
+     hint: game.i18n.localize("TOKENSVISIBLE.autopanningMarginHint"),
+     scope: 'client',   
+     config: true,      
+     type: Number,     
+     default: "200",
+	 onChange: value => { tokensVisible.autopanMargin = value ;}
+   });
 
-
-game.settings.register('TokensVisible', 'autopanningMargin', {
-  name: game.i18n.localize("TOKENSVISIBLE.autopanningMargin"),
-  hint: game.i18n.localize("TOKENSVISIBLE.autopanningMarginHint"),
-  scope: 'client',   
-  config: true,      
-  type: Number,     
-  default: "200",
-  
-  onChange: value => { tokensVisible.autopanMargin = value ;}
-});
-
-
-
-game.settings.register("TokensVisible", "hiddenCanLight", {
-       name: game.i18n.localize("TOKENSVISIBLE.hiddenCanLight"),
-       hint: game.i18n.localize("TOKENSVISIBLE.hiddenCanLightHint"),	
-       scope: "world",
-       config: true,
-       type: String,
-       choices: {
-           "Yes": game.i18n.localize("TOKENSVISIBLE.hiddenCanLightYES"),
-           "No": game.i18n.localize("TOKENSVISIBLE.hiddenCanLightNO"),
-           
-       },
-       default: "Yes",
-       onChange: value => { tokensVisible.hiddenCanLight = value  }
+   game.settings.register("TokensVisible", "hiddenCanLight", {
+     name: game.i18n.localize("TOKENSVISIBLE.hiddenCanLight"),
+     hint: game.i18n.localize("TOKENSVISIBLE.hiddenCanLightHint"),	
+     scope: "world",
+     config: true,
+     type: String,
+     choices: {
+          "Yes": game.i18n.localize("TOKENSVISIBLE.hiddenCanLightYES"),
+          "No": game.i18n.localize("TOKENSVISIBLE.hiddenCanLightNO"),
+     },
+     default: "Yes",
+     onChange: value => { tokensVisible.hiddenCanLight = value  }
    });
 
 
    game.settings.register("TokensVisible", "wallsCancelAnimation", {
-          name: game.i18n.localize("TOKENSVISIBLE.wallsCancelAnimation"),
-          hint: game.i18n.localize("TOKENSVISIBLE.wallsCancelAnimationHint"),
-	      scope: "world",
-          config: true,
-          type: String,
-          choices: {
-              "Yes": game.i18n.localize("TOKENSVISIBLE.wallsCancelAnimationYES") ,
-              "No": game.i18n.localize("TOKENSVISIBLE.wallsCancelAnimationNO"),
-			  "Always": game.i18n.localize("TOKENSVISIBLE.wallsCancelAnimationAlways")
-           
-          },
-          default: "Yes",
-          onChange: value => { tokensVisible.wallsCancelAnimation= value  }
-      });
+     name: game.i18n.localize("TOKENSVISIBLE.wallsCancelAnimation"),
+     hint: game.i18n.localize("TOKENSVISIBLE.wallsCancelAnimationHint"),
+     scope: "world",
+     config: true,
+     type: String,
+     choices: {
+         "Yes": game.i18n.localize("TOKENSVISIBLE.wallsCancelAnimationYES") ,
+         "No": game.i18n.localize("TOKENSVISIBLE.wallsCancelAnimationNO"),
+         "Always": game.i18n.localize("TOKENSVISIBLE.wallsCancelAnimationAlways")
+     },
+     default: "Yes",
+     onChange: value => { tokensVisible.wallsCancelAnimation= value  }
+   });
 
 
-      game.settings.register("TokensVisible", "castRays", {
-             name: game.i18n.localize("TOKENSVISIBLE.castRays"),
-             hint: game.i18n.localize("TOKENSVISIBLE.castRaysHint"),
-   	      scope: "client",
-             config: true,
-             type: String,
-             choices: {
-                 "Standard": game.i18n.localize("TOKENSVISIBLE.castRaysStandard") ,
-                 "Enhanced": game.i18n.localize("TOKENSVISIBLE.castRaysEnhanced"),
-   			  "Super": game.i18n.localize("TOKENSVISIBLE.castRaysSuper")
-           
-             },
-             default: "Standard",
-             onChange: value =>  {tokensVisible.setProperCastRays(value)} 
-		          
-             }
-         );
+   game.settings.register("TokensVisible", "castRays", {
+     name: game.i18n.localize("TOKENSVISIBLE.castRays"),
+     hint: game.i18n.localize("TOKENSVISIBLE.castRaysHint"),
+     scope: "client",
+     config: true,
+     type: String,
+     choices: {
+          "Standard": game.i18n.localize("TOKENSVISIBLE.castRaysStandard") ,
+          "Enhanced": game.i18n.localize("TOKENSVISIBLE.castRaysEnhanced"),
+          "Super": game.i18n.localize("TOKENSVISIBLE.castRaysSuper")
+     },
+     default: "Standard",
+     onChange: value =>  {tokensVisible.setProperCastRays(value)} 
+     });
 		 
 		 
-		 game.settings.register('TokensVisible', 'castRayshotkey', {
-		   name: game.i18n.localize("TOKENSVISIBLE.castRayshotkey"),
-		   hint: game.i18n.localize("TOKENSVISIBLE.castRayshotkeyHint"),
-		   scope: 'client',   
-		   config: true,      
-		   type: String,     
-		   default: "e",
-  
-		   onChange: value => { tokensVisible.castRayshotkey = value }
-		 });
+     game.settings.register('TokensVisible', 'castRayshotkey', {
+	   name: game.i18n.localize("TOKENSVISIBLE.castRayshotkey"),
+	   hint: game.i18n.localize("TOKENSVISIBLE.castRayshotkeyHint"),
+	   scope: 'client',   
+	   config: true,      
+	   type: String,     
+	   default: "e",
+       onChange: value => { tokensVisible.castRayshotkey = value }
+	 });
 		 
-		 game.settings.register('TokensVisible', 'sightCache', {
-		   name: game.i18n.localize("TOKENSVISIBLE.sightCache"),
-		   hint: game.i18n.localize("TOKENSVISIBLE.sightCacheHint"),
-		   scope: 'client',   
-		   config: true,      
-           type: String,
-             choices: {
+	 game.settings.register('TokensVisible', 'sightCache', {
+	   name: game.i18n.localize("TOKENSVISIBLE.sightCache"),
+	   hint: game.i18n.localize("TOKENSVISIBLE.sightCacheHint"),
+	   scope: 'client',   
+	   config: true,      
+       type: String,
+       choices: {
                  "On": game.i18n.localize("TOKENSVISIBLE.sightCacheOn") ,
                  "Off": game.i18n.localize("TOKENSVISIBLE.sightCacheOff")
-             },
-		 default: "On", 
+       },
+	   default: "On", 
+  	   onChange: value => { tokensVisible.setProperSightCache(value)}
+	 });
+	 
+     game.settings.register('TokensVisible', 'sightCachehotkey', {
+	   name: game.i18n.localize("TOKENSVISIBLE.sightCachehotkey"),
+	   hint: game.i18n.localize("TOKENSVISIBLE.sightCachehotkeyHint"),
+	   scope: 'client',   
+	   config: true,      
+	   type: String,     
+	   default: "E",
   
-		   onChange: value => { tokensVisible.setProperSightCache(value)}
-		 });
+	   onChange: value => { tokensVisible.sightCachehotkey  = value }
+	 });
 		 
-		
-		 
-		 game.settings.register('TokensVisible', 'sightCachehotkey', {
-		   name: game.i18n.localize("TOKENSVISIBLE.sightCachehotkey"),
-		   hint: game.i18n.localize("TOKENSVISIBLE.sightCachehotkeyHint"),
-		   scope: 'client',   
-		   config: true,      
-		   type: String,     
-		   default: "E",
-  
-		   onChange: value => { tokensVisible.sightCachehotkey  = value }
-		 });
-		 
-tokensVisible.panMode = game.settings.get('TokensVisible', 'panMode');
-
-tokensVisible.pushhotkey=game.settings.get('TokensVisible', 'pushhotkey');
-tokensVisible.autopanMargin= game.settings.get('TokensVisible', 'autopanningMargin');
-tokensVisible.hiddenCanLight = game.settings.get('TokensVisible', 'hiddenCanLight');
-
-tokensVisible.wallsCancelAnimation = game.settings.get('TokensVisible', 'wallsCancelAnimation');
-tokensVisible.castRayshotkey =game.settings.get('TokensVisible', 'castRayshotkey');
-tokensVisible.sightCachehotkey =game.settings.get('TokensVisible', 'sightCachehotkey');
-
-
-
-tokensVisible.setProperCastRays(game.settings.get('TokensVisible', 'castRays'));
-tokensVisible.setProperSightCache(game.settings.get('TokensVisible', 'sightCache'));
-
-
+     tokensVisible.panMode = game.settings.get('TokensVisible', 'panMode');
+     tokensVisible.pushhotkey=game.settings.get('TokensVisible', 'pushhotkey');
+     tokensVisible.autopanMargin= game.settings.get('TokensVisible', 'autopanningMargin');
+     tokensVisible.hiddenCanLight = game.settings.get('TokensVisible', 'hiddenCanLight');
+	 tokensVisible.wallsCancelAnimation = game.settings.get('TokensVisible', 'wallsCancelAnimation');
+     tokensVisible.castRayshotkey =game.settings.get('TokensVisible', 'castRayshotkey');
+     tokensVisible.sightCachehotkey =game.settings.get('TokensVisible', 'sightCachehotkey');
+	 tokensVisible.setProperCastRays(game.settings.get('TokensVisible', 'castRays'));
+     tokensVisible.setProperSightCache(game.settings.get('TokensVisible', 'sightCache'));
 
 });
 
 
 tokensVisible.setProperCastRays = function(value){
-switch (value){  
- case "Standard":tokensVisible._setStandardCastRays();
-break; 
-case "Enhanced": tokensVisible._setEnhancedCastRays();
-break; 
-case "Super": tokensVisible._setExtraEnhancedCastRays();
-  break; 
-default: 
-	tokensVisible._setStandardCastRays();  
-    value="Standard";
-};
-tokensVisible.currentCastRaysmode=value;
-
-
-if (game.ready ) {
-	ui.notifications.info( game.i18n.localize("TOKENSVISIBLE.castRays")+" : " + value );
-      canvas.initializeSources();
-    }
+   switch (value){  
+     case "Standard":tokensVisible._setStandardCastRays();
+     break; 
+     case "Enhanced": tokensVisible._setEnhancedCastRays();
+     break; 
+     case "Super": tokensVisible._setExtraEnhancedCastRays();
+     break; 
+     default: 
+       tokensVisible._setStandardCastRays();  
+       value="Standard";
+   };
+   
+   tokensVisible.currentCastRaysmode=value;
+   if (game.ready ) {
+     ui.notifications.info( game.i18n.localize("TOKENSVISIBLE.castRays")+" : " + value );
+     canvas.initializeSources();
+   }
 
 };
 
 
 tokensVisible.setProperSightCache = function(value){
-switch (value){  
- case "On": tokensVisible.enableTurboSight();
-break; 
-case "Off": tokensVisible.disableTurboSight(); 
-break; 
-default: 
+   switch (value){  
+     case "On": tokensVisible.enableTurboSight();
+     break; 
+     case "Off": tokensVisible.disableTurboSight(); 
+     break; 
+     default: 
 	    tokensVisible.disableTurboSight();
         value="Off";
- 
-};
-tokensVisible.currentSightCacheMode=value;
+   };
+   
+   tokensVisible.currentSightCacheMode=value;
 
-
-if (game.ready ) {
-	ui.notifications.info( game.i18n.localize("TOKENSVISIBLE.sightCache")+" : " + game.i18n.localize("TOKENSVISIBLE.sightCache" + value) );
+   if (game.ready ) {
+    	ui.notifications.info( game.i18n.localize("TOKENSVISIBLE.sightCache")+" : " + game.i18n.localize("TOKENSVISIBLE.sightCache" + value) );
     }
 
 };
@@ -345,8 +300,6 @@ if (game.ready ) {
 
 Hooks.on('renderSceneControls', () => {
 	
-	
-
 	  const toggleActiveBG =  game.settings.get('TokensVisible', 'toggleActiveBG');
 	  if (toggleActiveBG) {
 	     document.querySelectorAll('#controls .control-tool.toggle.active').forEach(e=>e.style.setProperty('background',toggleActiveBG ));
