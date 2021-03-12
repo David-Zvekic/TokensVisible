@@ -471,22 +471,23 @@ Token.prototype.setPosition=  async function ReplaceTokenSetPosition(x, y, {anim
 		  async function relativePan({dx,dy}){
 	 		  await canvas.animatePan({x:canvas.scene._viewPosition.x+dx, y: canvas.scene._viewPosition.y+dy})
 		  };
+		  let bounds = this.getBounds();
 		  
 	      let dx = 0;
-	      if (this._bounds.minX< pad ) {
-     		  dx = this._bounds.minX- pad;
+	      if (bounds.x< pad ) {
+     		  dx = bounds.x- pad;
 	      } else
-	      if (this._bounds.maxX > (window.innerWidth - pad )) {
+	      if ((bounds.x+bounds.width) > (window.innerWidth - pad )) {
 		
-			  dx = this._bounds.maxX - (window.innerWidth - pad );
+			  dx = (bounds.x+bounds.width) - (window.innerWidth - pad );
 	      };
 		   
 		  let dy = 0;
-          if(this._bounds.minY<pad){
-			  dy = this._bounds.minY - pad;
+          if(bounds.y<pad){
+			  dy = bounds.y - pad;
 	      } else
-		  if ((this._bounds.maxY> window.innerHeight - pad)) {
-               dy =  this._bounds.maxY - (window.innerHeight - pad );
+		  if (((bounds.y + bounds.height)> window.innerHeight - pad)) {
+               dy =  (bounds.y + bounds.height) - (window.innerHeight - pad );
 		  } ;
 		  
 		  if  (dx || dy){
@@ -796,6 +797,8 @@ tokensVisible._setStandardCastRays=function()
 	   	   
   };
   
+
+   
 
 
 
