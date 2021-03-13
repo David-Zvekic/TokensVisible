@@ -33,44 +33,42 @@ tokensVisible.pushToBack=function() {
 
 tokensVisible.pushTokenBackListener = function(event){
 	
-	if (event.target !== document.body && event.target !== canvas.app.view) return;
+    if (event.target !== document.body && event.target !== canvas.app.view) return;
     if ( event.isComposing || event.repeat) return;
     if (event.key==tokensVisible.pushhotkey ) tokensVisible.pushToBack();
     if (event.key==tokensVisible.castRayshotkey ) { 
 		   
-	   switch(tokensVisible.currentCastRaysmode){
-		   case "Standard" :tokensVisible.setProperCastRays('Enhanced');
-		   break;
-	   case "Enhanced" :tokensVisible.setProperCastRays('Super');
-		   break;
-	   case "Super": tokensVisible.setProperCastRays('Standard');
-		   break;
-	   default:  tokensVisible.setProperCastRays('Enhanced'); 
-	   }
-   }
+      switch(tokensVisible.currentCastRaysmode){
+        case "Standard" :tokensVisible.setProperCastRays('Enhanced');
+        break;
+        case "Enhanced" :tokensVisible.setProperCastRays('Super');
+        break;
+        case "Super": tokensVisible.setProperCastRays('Standard');
+        break;
+        default:  tokensVisible.setProperCastRays('Enhanced'); 
+      }
+    }
   
-   if (event.key==tokensVisible.sightCachehotkey ) { 
+    if (event.key==tokensVisible.sightCachehotkey ) { 
 	   
-   switch(tokensVisible.currentSightCacheMode){
-	   case "On" :tokensVisible.setProperSightCache('Off');
-	   break;
-   case "Off" :tokensVisible.setProperSightCache('On');
-	   break;
-   default:  tokensVisible.setProperSightCache('On'); 
-   }
-  }
-   
-
+      switch(tokensVisible.currentSightCacheMode){
+        case "On" :tokensVisible.setProperSightCache('Off');
+        break;
+        case "Off" :tokensVisible.setProperSightCache('On');
+        break;
+        default:  tokensVisible.setProperSightCache('On'); 
+      }
+    }
 };
  
 
 tokensVisible.hoverToken.hook= Hooks.on('hoverToken',(token,hoverON)=>{
 	
   if (hoverON) {
-	tokensVisible.hoverToken.hoveredTarget=token;
+    tokensVisible.hoverToken.hoveredTarget=token;
   }
   else {
- 	delete tokensVisible.hoverToken.hoveredTarget;
+    delete tokensVisible.hoverToken.hoveredTarget;
   }
 });
 
@@ -80,7 +78,7 @@ Hooks.on('ready',() => {
 
 Hooks.on('updateWall', (scene,wall,data,diff,userid) => {
   if(diff.diff){
-		if (tokensVisible.SightCache!=undefined) tokensVisible.SightCache=new Map();
+    if (tokensVisible.SightCache!=undefined) tokensVisible.SightCache=new Map();
   }
 });
 
