@@ -182,7 +182,7 @@ Hooks.on('renderSceneControls', () => {
 Object.defineProperty(Token.prototype,'isVisible', {
   	get()  
   	{
-      if (!canvas.sight.tokenVision) return true; 
+      if (!canvas.sight.tokenVision && !this.data.hidden) return true; 
 
 	  if ( this._controlled ) return true;
 	  if(!game.user.isGM ){
