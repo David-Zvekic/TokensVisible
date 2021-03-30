@@ -4,9 +4,9 @@
 
 "use strict";
 
-import {registerSettings} from './settings/settings.js';
+import {registerSettings, tokensVisible} from './settings/settings.js';
 
-let tokensVisible= new Object();
+
 tokensVisible.hoverToken= new Object();
 tokensVisible.hoverToken.hoveredTarget=0;
 tokensVisible.pushhotkey='';

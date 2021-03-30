@@ -1,3 +1,4 @@
+export let tokensVisible= new Object();
 
 export function registerSettings() {
     const moduleName = 'TokensVisible';
