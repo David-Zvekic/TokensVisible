@@ -1,4 +1,4 @@
-# Your Tokens Visible v1.3.4
+# Your Tokens Visible v1.4.0
 *See what you need to see. No more, no less!*
 ***
 A module for Foundry VTT.
