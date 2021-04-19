@@ -4,8 +4,8 @@
 
 "use strict";
 
-import {registerSettings, tokensVisible} from './settings/settings.js';
-
+import {moduleName, MODULE_ID ,registerSettings, tokensVisible} from './settings/settings.js';
+import {libWrapper} from './libwrapper/shim.js'
 
 tokensVisible.hoverToken= new Object();
 tokensVisible.hoverToken.hoveredTarget=0;
@@ -397,12 +397,12 @@ tokensVisible.SightLayer._turboComputeSight = function (origin, radius, {angle=3
 
 tokensVisible.enableTurboSight = function() {
 	tokensVisible.SightCache=new Map();
-	SightLayer.computeSight=tokensVisible.SightLayer._turboComputeSight;
+    libWrapper.register(moduleName,'SightLayer.computeSight', tokensVisible.SightLayer._turboComputeSight, 'OVERRIDE'); 
 };
 
 tokensVisible.disableTurboSight = function() {
 	delete tokensVisible.SightCache;
-	SightLayer.computeSight=tokensVisible.SightLayer._defaultcomputeSight;
+	libWrapper.unregister(moduleName, 'SightLayer.computeSight', false);	
 };
 
 
@@ -488,11 +488,10 @@ tokensVisible._setEnhancedCastRays = function() {
      const standardArray = [-3.141592, -1.5707964,0,1.5707964];
 
      // Track rays and unique emission angles
-
 	
      const sorter = (rays)=>{rays.sort((r1, r2) => r1.angle - r2.angle);};
      if (tokensVisible.SightCache!=undefined) tokensVisible.SightCache=new Map();
-     SightLayer._castRays=function(x, y, distance, {density=4, endpoints, limitAngle=false, aMin, aMax}={}) {
+     let enhancedCastRays =function(x, y, distance, {density=4, endpoints, limitAngle=false, aMin, aMax}={}) {
 		 
 	     let rays = [];
 		 const rayAccuracy = canvas.sight.tokenVision?(canvas.scene._viewPosition.scale):5;
@@ -507,7 +506,10 @@ tokensVisible._setEnhancedCastRays = function() {
 
 	     rays =tokensVisible.SightLayer._DI_castRays.call(this, x,y,distance,{density,endpoints,limitAngle,aMin,aMax},cast,standardArray, rayAccuracy, rays, sorter );
 	     return rays;
-	 }; 
+	 };
+	 
+	 libWrapper.unregister(moduleName, 'SightLayer._castRays', false);	 
+	 libWrapper.register(moduleName,'SightLayer._castRays', enhancedCastRays, 'OVERRIDE'); 
 	   
 	   
 };
@@ -518,8 +520,8 @@ tokensVisible._setExtraEnhancedCastRays = function() {
        const realsorter = (rays)=>{rays.sort((r1, r2) => r1.angle - r2.angle);};
 	   if (tokensVisible.SightCache!=undefined) tokensVisible.SightCache=new Map();
 	  					    
-	   SightLayer._castRays=function(x, y, distance, {density, endpoints, limitAngle=false, aMin, aMax}={}){
-		 
+	   let superCastRays=function(x, y, distance, {density, endpoints, limitAngle=false, aMin, aMax}={}){
+			
 		   if (!canvas.sight.tokenVision) return tokensVisible.SightLayer._defaultcastRay.call(this,x,y,distance,{density:density+3,endpoints,limitAngle,aMin,aMax});
  	
            let rays = [];
@@ -541,13 +543,16 @@ tokensVisible._setExtraEnhancedCastRays = function() {
 		   
 		   rays = tokensVisible.SightLayer._DI_castRays.call(this,x,y,distance,{"density":Math.min(2.0,density),endpoints,limitAngle,aMin,aMax},cast,[],rayAccuracy,rays, sorter);
 	  	   return rays;
-	   } 
+	   };
+	   
+	libWrapper.unregister(moduleName, 'SightLayer._castRays', false);  
+	libWrapper.register(moduleName,'SightLayer._castRays', superCastRays, 'OVERRIDE'); 
 	    
 };
   
-  tokensVisible._setStandardCastRays = function() {
+tokensVisible._setStandardCastRays = function() {
 	   if (tokensVisible.SightCache!=undefined) tokensVisible.SightCache=new Map();
-       SightLayer._castRays=tokensVisible.SightLayer._defaultcastRay;
+	   libWrapper.unregister(moduleName, 'SightLayer._castRays', false);
 	   	   
 };
   
