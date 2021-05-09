@@ -4,7 +4,23 @@ export const MODULE_ID = 'TOKENSVISIBLE';
 
 export function registerSettings() {
     
-	
+	 game.settings.register(moduleName, 'combatantHidden', {
+	   name: game.i18n.localize(MODULE_ID+".combatantHidden"),
+	   hint: game.i18n.localize(MODULE_ID+".combatantHiddenHint"),
+	   scope: 'world',   
+	   config: true,      
+       type: String,
+       choices: {
+                 "default": game.i18n.localize(MODULE_ID+".combatantHiddenDefault") ,
+                 "hostile": game.i18n.localize(MODULE_ID+".combatantHiddenHostile") ,
+                 "neutral": game.i18n.localize(MODULE_ID+".combatantHiddenNeutral") ,
+                 "all": game.i18n.localize(MODULE_ID+".combatantHiddenAll") ,
+		   
+       },
+	   default: "default" ,
+	   onChange: value=>{tokensVisible.setupCombatantMasking(value);}
+  	 });
+	 
     game.settings.register(moduleName, 'pushhotkey', {
       name: game.i18n.localize(MODULE_ID+".SelectHotKey"),
       hint: game.i18n.localize(MODULE_ID+".SelectHotKeyHelp"),

@@ -84,12 +84,16 @@ Hooks.once('init',()=>{
     tokensVisible.wallsCancelAnimation = game.settings.get('TokensVisible', 'wallsCancelAnimation');
     tokensVisible.castRayshotkey =game.settings.get('TokensVisible', 'castRayshotkey');
     tokensVisible.sightCachehotkey =game.settings.get('TokensVisible', 'sightCachehotkey');
+	tokensVisible.setupCombatantMasking(game.settings.get('TokensVisible', 'combatantHidden'));
+	 
 });
 
-Hooks.on('ready',() => {
+Hooks.once('ready',() => {
   		
   window.addEventListener('keydown', tokensVisible.pushTokenBackListener );
+ 
 });
+
 
 Hooks.on('updateWall', (scene,wall,data,diff,userid) => {
   if(diff.diff){
@@ -376,6 +380,9 @@ Token.prototype.updateSource = function({defer=false, deleted=false, noUpdateFog
 tokensVisible.SightLayer = {_defaultcastRay : SightLayer._castRays, 
 	                        _defaultcomputeSight : SightLayer.computeSight
                            };
+						   
+tokensVisible.Combat = {_defaultcreateEmbeddedEntity:  Combat.prototype.createEmbeddedEntity};
+
 
 tokensVisible.SightLayer._turboComputeSight = function (origin, radius, {angle=360, density=6, rotation=0, unrestricted=false}={}){
 
@@ -555,7 +562,54 @@ tokensVisible._setStandardCastRays = function() {
 	   libWrapper.unregister(moduleName, 'SightLayer._castRays', false);
 	   	   
 };
+
+
   
+  
+tokensVisible.setupCombatantMasking = function (settingValue) {
+  // this function replaces calls to Combat.createEmbeddedEntity to
+  // create additional combatants for xenos with a speed > 1.
+  // if relies on calling the original Combat.prototypecreateEmbeddedEntity so as long as this
+  // function is called late in the setup after any modules that want to override that function
+  // it should be compatable.
+
+ // tokensVisible.Combat._defaultcreateEmbeddedEntity = Combat.prototype.createEmbeddedEntity;
+
+  
+  if (settingValue=="default") {
+     libWrapper.unregister(moduleName,'Combat.prototype.createEmbeddedEntity', false); 
+	 return;
+  }
+	  
+  let combatMaskedEntities = async function (embeddedName, data, options) {
+	
+	 if (embeddedName == 'Combatant') {
+       // combatants created via the token HUD are always in an array - otherwise NOT. We only want to 
+	   // look at the token disposition when the combatant is created directly from the Token therefore
+	   // do nothing if the data isn't an array. 
+	   if (Array.isArray(data)) 
+          data.forEach((i)=>{ 
+            let TOKEN=canvas.scene.data.tokens.find((k)=>k._id==i.tokenId);
+		  
+             // break statements deliberately missing 
+			 switch(TOKEN.disposition){
+               case -1: if (settingValue=="hostile") i.hidden=true;
+               case 0: if (settingValue=="neutral") i.hidden=true;
+               case 1: if (settingValue=="all") i.hidden=true;
+             }
+     	    
+
+	     });
+     }
+	
+	return tokensVisible.Combat._defaultcreateEmbeddedEntity.call(this, embeddedName, data, options);
+
+  };
+  
+  libWrapper.unregister(moduleName,'Combat.prototype.createEmbeddedEntity', false); 
+   
+  libWrapper.register(moduleName,'Combat.prototype.createEmbeddedEntity', combatMaskedEntities, 'OVERRIDE'); 
+}
 
    
 
