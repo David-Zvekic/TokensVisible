@@ -32,5 +32,12 @@
 	"TOKENSVISIBLE.panMode":"Automatic Pan Mode",
 	"TOKENSVISIBLE.panModeHint":"Control how the canvas pans to keep a moving token in view.",
 	"TOKENSVISIBLE.panModeRecenter":"Recenter the view around the token if it passes the Automatic Pan Margin.",
-	"TOKENSVISIBLE.panModeScroll":"Scroll the view when needed to reclaim the Automatic Pan Margin."
+	"TOKENSVISIBLE.panModeScroll":"Scroll the view when needed to reclaim the Automatic Pan Margin.",
+	"TOKENSVISIBLE.combatantHidden":"Combat Tracker Initial Visibility",
+	"TOKENSVISIBLE.combatantHiddenHint":"Cause new Combatants to enter the Combat Tracker as Hidden. By default new Combatants use their Token's Hidden state.",
+	"TOKENSVISIBLE.combatantHiddenDefault":"Use standard Foundry behavior.",
+	"TOKENSVISIBLE.combatantHiddenHostile":"Hostile Combatants enter combat hidden. Others use standard behavior.",
+	"TOKENSVISIBLE.combatantHiddenNeutral":"Hostile and Neutral Combatants enter combat hidden. Others use standard behavior.",
+	"TOKENSVISIBLE.combatantHiddenAll":"All Combatants enter combat hidden."
+	
 }
