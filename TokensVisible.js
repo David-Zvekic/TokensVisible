@@ -253,9 +253,10 @@ Token.prototype.setPosition=  async function ReplaceTokenSetPosition(x, y, {anim
     if ( animate){
 		if (cancelAnimation) {
 	     	// client with animate turned on assumes an animated Movement will render the destination.
-    		// since are setting the position directoy, so animate a 0 distance Movement at the destination
+    		// since we are setting the position directly, animate tiny distance Movement at the destination
 			// to satisfy that need.
-	    	this.position.set(x, y);
+			// in Foundry 0.7.9 a 0 distance movement worked, but as of 0.8.6 we need a non-zero distance
+	    	this.position.set(x-0.01, y-0.01);  
 
 			await this.animateMovement(new Ray(this.position, ray.B));
         } 
@@ -312,6 +313,7 @@ Token.prototype.setPosition=  async function ReplaceTokenSetPosition(x, y, {anim
   
 
 Token.prototype.updateSource = function({defer=false, deleted=false, noUpdateFog=false}={}) {
+	// this method is derived from original Token.prototype.updateSource 
     if ( CONFIG.debug.sight ) {
       SightLayer._performance = { start: performance.now(), tests: 0, rays: 0 }
     }
@@ -320,7 +322,7 @@ Token.prototype.updateSource = function({defer=false, deleted=false, noUpdateFog
     const origin = this.getSightOrigin();
     const sourceId = this.sourceId;
     const d = canvas.dimensions;
-    const maxR = Math.hypot(d.sceneWidth, d.sceneHeight);
+	const maxR = (d.maxR!=undefined)?(d.maxR):(Math.hypot(d.sceneWidth, d.sceneHeight)); 
 
     // Update light source
 	const isLightSource = this.emitsLight && ((tokensVisible.hiddenCanLight=="Yes") || (!this.data.hidden));
@@ -355,7 +357,7 @@ Token.prototype.updateSource = function({defer=false, deleted=false, noUpdateFog
     if ( isVisionSource && !deleted ) {
       let dim =  canvas.lighting.globalLight ? maxR : Math.min(this.getLightRadius(this.data.dimSight), maxR);
       const bright = Math.min(this.getLightRadius(this.data.brightSight), maxR);
-	  if ((dim === 0) && (bright === 0)) dim = Math.min(this.w, this.h) * 0.5;
+	  //if ((dim === 0) && (bright === 0)) dim = Math.min(this.w, this.h) * 0.5;  // this line was part of 0.7.9 but I dont know why it is needed, and 0.8.6 removed it
       this.vision.initialize({
         x: origin.x,
         y: origin.y,
@@ -376,12 +378,12 @@ Token.prototype.updateSource = function({defer=false, deleted=false, noUpdateFog
     }
 };
 
-  
-tokensVisible.SightLayer = {_defaultcastRay : SightLayer._castRays, 
+ // the conditional assignment is for legacy 0.7.x support
+tokensVisible.SightLayer = {_defaultcastRay : ((WallsLayer.castRays!=undefined) ? WallsLayer.castRays : SightLayer._castRays), 
 	                        _defaultcomputeSight : SightLayer.computeSight
                            };
-						   
-tokensVisible.Combat = {_defaultcreateEmbeddedEntity:  Combat.prototype.createEmbeddedEntity};
+ // the conditional assignment is for legacy 0.7.x support						   
+tokensVisible.Combat = {_defaultcreateEmbeddedEntity:  (Combat.prototype.createEmbeddedDocuments!=undefined)?(Combat.prototype.createEmbeddedDocuments):(Combat.prototype.createEmbeddedEntity)};
 
 
 tokensVisible.SightLayer._turboComputeSight = function (origin, radius, {angle=360, density=6, rotation=0, unrestricted=false}={}){
@@ -472,7 +474,7 @@ tokensVisible.SightLayer._DI_castRays=function(x, y, distance, {density=4, endpo
       // Add additional approximate rays to reach a desired radial density
       if ( !!density ) {
 
-	    const rDensity = toRadians(density);
+	    const rDensity = Math.toRadians(density);
         const nFill = Math.ceil((aMax - aMin) / rDensity);
  
         for ( let a of Array.fromRange(nFill) ) {
@@ -514,9 +516,15 @@ tokensVisible._setEnhancedCastRays = function() {
 	     rays =tokensVisible.SightLayer._DI_castRays.call(this, x,y,distance,{density,endpoints,limitAngle,aMin,aMax},cast,standardArray, rayAccuracy, rays, sorter );
 	     return rays;
 	 };
-	 
-	 libWrapper.unregister(moduleName, 'SightLayer._castRays', false);	 
-	 libWrapper.register(moduleName,'SightLayer._castRays', enhancedCastRays, 'OVERRIDE'); 
+	 if(WallsLayer.castRays!=undefined) {
+  	   libWrapper.unregister(moduleName, 'WallsLayer.castRays', false);	 
+  	   libWrapper.register(moduleName,'WallsLayer.castRays', enhancedCastRays, 'OVERRIDE'); 
+	 } 
+	 else {
+		 // legacy 0.7.x support
+	   libWrapper.unregister(moduleName, 'SightLayer._castRays', false);	 
+	   libWrapper.register(moduleName,'SightLayer._castRays', enhancedCastRays, 'OVERRIDE'); 
+     }
 	   
 	   
 };
@@ -552,14 +560,33 @@ tokensVisible._setExtraEnhancedCastRays = function() {
 	  	   return rays;
 	   };
 	   
-	libWrapper.unregister(moduleName, 'SightLayer._castRays', false);  
-	libWrapper.register(moduleName,'SightLayer._castRays', superCastRays, 'OVERRIDE'); 
+  	 if(WallsLayer.castRays!=undefined) {
+ 	 	libWrapper.unregister(moduleName, 'WallsLayer.castRays', false);  
+ 	 	libWrapper.register(moduleName,'WallsLayer.castRays', superCastRays, 'OVERRIDE'); 
+  	 } 
+  	 else {
+		 // legacy 0.7.x support
+	 	libWrapper.unregister(moduleName, 'SightLayer._castRays', false);  
+	 	libWrapper.register(moduleName,'SightLayer._castRays', superCastRays, 'OVERRIDE'); 
+       }
+	   
+	   
+
 	    
 };
   
 tokensVisible._setStandardCastRays = function() {
 	   if (tokensVisible.SightCache!=undefined) tokensVisible.SightCache=new Map();
-	   libWrapper.unregister(moduleName, 'SightLayer._castRays', false);
+	   
+	   
+    	 if(WallsLayer.castRays!=undefined) {
+   	 		   libWrapper.unregister(moduleName, 'WallsLayer.castRays', false);
+    	 } 
+    	 else {
+			 // legacy 0.7.x support
+	     	   libWrapper.unregister(moduleName, 'SightLayer._castRays', false);
+         }
+	
 	   	   
 };
 
@@ -567,23 +594,23 @@ tokensVisible._setStandardCastRays = function() {
   
   
 tokensVisible.setupCombatantMasking = function (settingValue) {
-  // this function replaces calls to Combat.createEmbeddedEntity to
-  // create additional combatants for xenos with a speed > 1.
-  // if relies on calling the original Combat.prototypecreateEmbeddedEntity so as long as this
-  // function is called late in the setup after any modules that want to override that function
-  // it should be compatable.
-
- // tokensVisible.Combat._defaultcreateEmbeddedEntity = Combat.prototype.createEmbeddedEntity;
 
   
   if (settingValue=="default") {
-     libWrapper.unregister(moduleName,'Combat.prototype.createEmbeddedEntity', false); 
+     if(Combat.prototype.createEmbeddedDocuments!=undefined) {
+       libWrapper.unregister(moduleName,'Combat.prototype.createEmbeddedDocuments', false); 
+     } else {	 
+		 // legacy 0.7.x support
+       libWrapper.unregister(moduleName,'Combat.prototype.createEmbeddedEntity', false); 
+     }
 	 return;
   }
 	  
   let combatMaskedEntities = async function (embeddedName, data, options) {
-	
+	  
+
 	 if (embeddedName == 'Combatant') {
+	
        // combatants created via the token HUD are always in an array - otherwise NOT. We only want to 
 	   // look at the token disposition when the combatant is created directly from the Token therefore
 	   // do nothing if the data isn't an array. 
@@ -592,7 +619,9 @@ tokensVisible.setupCombatantMasking = function (settingValue) {
             let TOKEN=canvas.scene.data.tokens.find((k)=>k._id==i.tokenId);
 		  
              // break statements deliberately missing 
-			 switch(TOKEN.disposition){
+			const disposition=(TOKEN.disposition!=undefined)?(TOKEN.disposition):(TOKEN.data.disposition);
+			
+			 switch(disposition){
                case -1: if (settingValue=="hostile") i.hidden=true;
                case 0: if (settingValue=="neutral") i.hidden=true;
                case 1: if (settingValue=="all") i.hidden=true;
@@ -605,10 +634,14 @@ tokensVisible.setupCombatantMasking = function (settingValue) {
 	return tokensVisible.Combat._defaultcreateEmbeddedEntity.call(this, embeddedName, data, options);
 
   };
-  
-  libWrapper.unregister(moduleName,'Combat.prototype.createEmbeddedEntity', false); 
-   
-  libWrapper.register(moduleName,'Combat.prototype.createEmbeddedEntity', combatMaskedEntities, 'OVERRIDE'); 
+  if(Combat.prototype.createEmbeddedDocuments!=undefined) {
+     libWrapper.unregister(moduleName,'Combat.prototype.createEmbeddedDocuments', false); 
+     libWrapper.register(moduleName,'Combat.prototype.createEmbeddedDocuments', combatMaskedEntities, 'OVERRIDE'); 
+  } else
+  {  // legacy 0.7.x support
+	 libWrapper.unregister(moduleName,'Combat.prototype.createEmbeddedEntity', false); 
+     libWrapper.register(moduleName,'Combat.prototype.createEmbeddedEntity', combatMaskedEntities, 'OVERRIDE'); 
+  }
 }
 
    
