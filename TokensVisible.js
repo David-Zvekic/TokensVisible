@@ -27,10 +27,7 @@ tokensVisible.pushToBack=function() {
       canvas.tokens.children[0].children.splice(position,1);
       canvas.tokens.children[0].children.unshift(token);
     }
-  } else {
- //   console.warn('TokensVisible - invalid target', tokensVisible.hoverToken.hoveredTarget);
-  } 
-
+  }; 
 };
 
 
@@ -114,6 +111,15 @@ Hooks.once('canvasReady', () => {
 });
 
 
+tokensVisible.canvasInitializeSources= function() {
+   if(canvas.perception?.initialize!=undefined)
+       canvas.perception.initialize();   // Foundry VTT 0.8.6
+   else
+       canvas.initializeSources();     // Foundry 0.7.9
+};
+	
+
+
 tokensVisible.setProperCastRays = function(value){
    switch (value){  
      case "Standard":tokensVisible._setStandardCastRays();
@@ -130,8 +136,9 @@ tokensVisible.setProperCastRays = function(value){
    tokensVisible.currentCastRaysmode=value;
    if (game.ready ) {
      ui.notifications.info( game.i18n.localize("TOKENSVISIBLE.castRays")+" : " + value );
-     canvas.initializeSources();
-   }
+     tokensVisible.canvasInitializeSources();
+   } 
+
 
 };
 
@@ -379,7 +386,7 @@ Token.prototype.updateSource = function({defer=false, deleted=false, noUpdateFog
 };
 
  // the conditional assignment is for legacy 0.7.x support
-tokensVisible.SightLayer = {_defaultcastRay : ((WallsLayer.castRays!=undefined) ? WallsLayer.castRays : SightLayer._castRays), 
+tokensVisible.SightLayer = {_defaultcastRays : ((WallsLayer.castRays!=undefined) ? WallsLayer.castRays : SightLayer._castRays), 
 	                        _defaultcomputeSight : SightLayer.computeSight
                            };
  // the conditional assignment is for legacy 0.7.x support						   
@@ -406,12 +413,14 @@ tokensVisible.SightLayer._turboComputeSight = function (origin, radius, {angle=3
 
 tokensVisible.enableTurboSight = function() {
 	tokensVisible.SightCache=new Map();
+	libWrapper.unregister(moduleName, 'SightLayer.computeSight', false);	
     libWrapper.register(moduleName,'SightLayer.computeSight', tokensVisible.SightLayer._turboComputeSight, 'OVERRIDE'); 
 };
 
 tokensVisible.disableTurboSight = function() {
 	delete tokensVisible.SightCache;
 	libWrapper.unregister(moduleName, 'SightLayer.computeSight', false);	
+	libWrapper.register(moduleName,'SightLayer.computeSight', tokensVisible.SightLayer._defaultcomputeSight, 'OVERRIDE'); 
 };
 
 
@@ -537,7 +546,7 @@ tokensVisible._setExtraEnhancedCastRays = function() {
 	  					    
 	   let superCastRays=function(x, y, distance, {density, endpoints, limitAngle=false, aMin, aMax}={}){
 			
-		   if (!canvas.sight.tokenVision) return tokensVisible.SightLayer._defaultcastRay.call(this,x,y,distance,{density:density+3,endpoints,limitAngle,aMin,aMax});
+		   if (!canvas.sight.tokenVision) return tokensVisible.SightLayer._defaultcastRays.call(this,x,y,distance,{density:density+3,endpoints,limitAngle,aMin,aMax});
  	
            let rays = [];
 
@@ -581,10 +590,13 @@ tokensVisible._setStandardCastRays = function() {
 	   
     	 if(WallsLayer.castRays!=undefined) {
    	 		   libWrapper.unregister(moduleName, 'WallsLayer.castRays', false);
+			   libWrapper.register(moduleName,'WallsLayer.castRays', tokensVisible.SightLayer._defaultcastRays , 'OVERRIDE'); 
+			   
     	 } 
     	 else {
 			 // legacy 0.7.x support
 	     	   libWrapper.unregister(moduleName, 'SightLayer._castRays', false);
+			   libWrapper.register(moduleName,'SightLayer._castRays', tokensVisible.SightLayer._defaultcastRays , 'OVERRIDE'); 
          }
 	
 	   	   
@@ -599,10 +611,14 @@ tokensVisible.setupCombatantMasking = function (settingValue) {
   if (settingValue=="default") {
      if(Combat.prototype.createEmbeddedDocuments!=undefined) {
        libWrapper.unregister(moduleName,'Combat.prototype.createEmbeddedDocuments', false); 
+	   libWrapper.register(moduleName,'Combat.prototype.createEmbeddedDocuments', tokensVisible.Combat._defaultcreateEmbeddedEntity, 'OVERRIDE'); 
      } else {	 
 		 // legacy 0.7.x support
        libWrapper.unregister(moduleName,'Combat.prototype.createEmbeddedEntity', false); 
+	   libWrapper.register(moduleName,'Combat.prototype.createEmbeddedEntity', tokensVisible.Combat._defaultcreateEmbeddedEntity, 'OVERRIDE'); 
+	   
      }
+
 	 return;
   }
 	  

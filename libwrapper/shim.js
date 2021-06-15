@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright © 2021 fvtt-lib-wrapper Rui Pinheiro
-
+// some modifications by David Zvekic
+// this file used by license
 
 'use strict';
 
@@ -17,7 +18,8 @@ Hooks.once('init', () => {
 	// Fallback implementation
 	libWrapper = class {
 		static get is_fallback() { return true };
-
+        static unregister(){}; // does nothing
+		
 		static register(module, target, fn, type="MIXED", {chain=undefined}={}) {
 			const is_setter = target.endsWith('#set');
 			target = !is_setter ? target : target.slice(0, -4);
