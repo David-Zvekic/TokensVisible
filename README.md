@@ -18,6 +18,7 @@ Note: This module replicates 100% of the functionality of the moduled called Pus
 2. "Hidden Tokens Can See" - Activate this setting and when the GM turns off visibility for a Token, it will no longer lose vision. 
 
 3. "Hidden Tokens Can Emit Light" - Hidden tokens are no longer prevented from emitting light.  
+![Invisible Tokens Cast Light](TokensVisible.gif)
 
 4. "Tokens Don't Fly" - Currently when the GM moves a token, and it's owner has Animated Token Movement enabled, they may see their token fly through walls and reveal the map along the movement path.  The GM may not have intended to reveal that path.  With this feature turned on, tokens that would cross a wall, will not use animated movement, but will simply  reappear at their destination without revealing the intermediary map.  Movement that intersects no barriers will use normal Animated Movement preferences.
 
@@ -32,6 +33,8 @@ Note: This module replicates 100% of the functionality of the moduled called Pus
 **Enhanced mode is approximately the same speed as standard but with improved sight-lines.
 
 **Super mode is about 25% slower, but with even more improvement to sight-lines
+
+![Ray Casting](RayCasting.png)
 
 8. Sight Calculations Cache - boost performance of Foundry on scenes with many walls, tokens or ambient light sources by preserving certain calculations that the base system repeats many times.
 
