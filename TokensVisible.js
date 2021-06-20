@@ -253,30 +253,31 @@ function RGBAToHexA(rgba) {
   return "#" + r + g + b + a;
   
 }
-tokensVisible.defaultcolors= [undefined,undefined, undefined, undefined];
+tokensVisible.defaultcolors= new Map();
 
 tokensVisible.setupRenderColors = function() 
 {
 	
-  if (tokensVisible.defaultcolors[0]== undefined ) tokensVisible.defaultcolors[0]  = $('li.control-tool.active.toggle').css('color'); 
-  if (tokensVisible.defaultcolors[1]== undefined ) tokensVisible.defaultcolors[1]  = $('li.control-tool.active.toggle').css('background-color');
-  if (tokensVisible.defaultcolors[2]== undefined ) tokensVisible.defaultcolors[2]  = $('li.control-tool.active:not(.toggle)').css('color');
-  if (tokensVisible.defaultcolors[3]== undefined ) tokensVisible.defaultcolors[3]  = $('li.control-tool.active:not(.toggle)').css('background-color');
+  if (tokensVisible.defaultcolors['toggleActiveFG']== undefined ) tokensVisible.defaultcolors['toggleActiveFG']  = $('li.control-tool.active.toggle').css('color'); 
+  if (tokensVisible.defaultcolors['toggleActiveBG']== undefined ) tokensVisible.defaultcolors['toggleActiveBG']  = $('li.control-tool.active.toggle').css('background-color');
+  if (tokensVisible.defaultcolors['activeFG']== undefined ) tokensVisible.defaultcolors['activeFG']  = $('li.control-tool.active:not(.toggle)').css('color');
+  if (tokensVisible.defaultcolors['activeBG']== undefined ) tokensVisible.defaultcolors['activeBG']  = $('li.control-tool.active:not(.toggle)').css('background-color');
 	
 
   
-  setColor( game.settings.get('TokensVisible', 'toggleActiveFG'),tokensVisible.defaultcolors[0] , '#controls .control-tool.toggle.active', 'color' );
-  setColor( game.settings.get('TokensVisible', 'toggleActiveBG'),tokensVisible.defaultcolors[1] , '#controls .control-tool.toggle.active', 'background-color' );
-  setColor( game.settings.get('TokensVisible', 'activeFG'),tokensVisible.defaultcolors[2] , '#controls .control-tool.active:not(.toggle)', 'color' );
-  setColor( game.settings.get('TokensVisible', 'activeBG'),tokensVisible.defaultcolors[3] , '#controls .control-tool.active:not(.toggle)', 'background-color' );
+  setColor( 'toggleActiveFG', '#controls .control-tool.toggle.active', 'color' );
+  setColor(  'toggleActiveBG','#controls .control-tool.toggle.active', 'background-color' );
+  setColor(  'activeFG','#controls .control-tool.active:not(.toggle)', 'color' );
+  setColor(  'activeBG', '#controls .control-tool.active:not(.toggle)', 'background-color' );
 
 
-  function setColor( colorValue, colorDefault, jQuerySpec, cssProperty){
+  function setColor( settingName, jQuerySpec, cssProperty){
   
+	const colorValue=game.settings.get('TokensVisible', settingName);
 	if ( colorValue && !(nameToHexA(colorValue).endsWith('00')) ) {
 	       document.querySelectorAll(jQuerySpec).forEach(e=>e.style.setProperty(cssProperty,colorValue));
 	      } else
-	       document.querySelectorAll(jQuerySpec).forEach(e=>e.style.setProperty(cssProperty,colorDefault ));
+	       document.querySelectorAll(jQuerySpec).forEach(e=>e.style.setProperty(cssProperty,tokensVisible.defaultcolors[settingName]  ));
   }	
  
 
