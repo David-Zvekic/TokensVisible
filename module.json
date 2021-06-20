@@ -10,8 +10,9 @@
   "manifest": "https://github.com/David-Zvekic/TokensVisible/releases/download/v2.1.1/module.json",
   "download": "https://github.com/David-Zvekic/TokensVisible/releases/download/v2.1.1/TokensVisible.zip",
   "esmodules": [
-  		"TokensVisible.js"
+  		"./lib/colorsettings/colorSetting.js", "TokensVisible.js" 
   	],
+  "styles": [ "./lib/colorsettings/css/colorpicker.css" ],
   "languages": [
     {
       "lang": "en",

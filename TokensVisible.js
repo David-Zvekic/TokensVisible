@@ -72,21 +72,17 @@ tokensVisible.hoverToken.hook= Hooks.on('hoverToken',(token,hoverON)=>{
   }
 });
 
-Hooks.once('init',()=>{
-    registerSettings();
-    tokensVisible.panMode = game.settings.get('TokensVisible', 'panMode');
-    tokensVisible.pushhotkey=game.settings.get('TokensVisible', 'pushhotkey');
-    tokensVisible.autopanMargin= game.settings.get('TokensVisible', 'autopanningMargin');
-    tokensVisible.hiddenCanLight = game.settings.get('TokensVisible', 'hiddenCanLight');
-    tokensVisible.wallsCancelAnimation = game.settings.get('TokensVisible', 'wallsCancelAnimation');
-    tokensVisible.castRayshotkey =game.settings.get('TokensVisible', 'castRayshotkey');
-    tokensVisible.sightCachehotkey =game.settings.get('TokensVisible', 'sightCachehotkey');
-	tokensVisible.setupCombatantMasking(game.settings.get('TokensVisible', 'combatantHidden'));
+Hooks.once('init',async function () {
+	console.log('TokensVisible | Initializing Your Tokens Visible');
+	
+    
 	 
 });
 
 Hooks.once('ready',() => {
   		
+   
+	
   window.addEventListener('keydown', tokensVisible.pushTokenBackListener );
  
 });
@@ -104,8 +100,7 @@ Hooks.on('canvasReady',()=>{
 
 Hooks.once('canvasReady', () => {
 		 
-  
-	 tokensVisible.setProperCastRays(game.settings.get('TokensVisible', 'castRays'));
+  	 tokensVisible.setProperCastRays(game.settings.get('TokensVisible', 'castRays'));
      tokensVisible.setProperSightCache(game.settings.get('TokensVisible', 'sightCache'));
 
 });
@@ -162,32 +157,132 @@ tokensVisible.setProperSightCache = function(value){
 
 };
 
-
-
-Hooks.on('renderSceneControls', () => {
-	
-	  const toggleActiveBG =  game.settings.get('TokensVisible', 'toggleActiveBG');
-	  if (toggleActiveBG) {
-	     document.querySelectorAll('#controls .control-tool.toggle.active').forEach(e=>e.style.setProperty('background',toggleActiveBG ));
-      }
-	  
-	  const toggleActiveFG =  game.settings.get('TokensVisible', 'toggleActiveFG');
-	  if (toggleActiveFG) {
-		  document.querySelectorAll('#controls .control-tool.toggle.active').forEach(e=>e.style.setProperty('color',toggleActiveFG ));
-      }
-	  
-	  
-	  const activeBG =  game.settings.get('TokensVisible', 'activeBG');
-	  if (activeBG) {
-		  document.querySelectorAll('#controls .control-tool.active:not(.toggle)').forEach(e=>e.style.setProperty('background',activeBG ));
-      }
-	  
-	  const activeFG =  game.settings.get('TokensVisible', 'activeFG');
-	  if (activeFG) {
-		  document.querySelectorAll('#controls .control-tool.active:not(.toggle)').forEach(e=>e.style.setProperty('color',activeFG ));
-      }
-  }
+Hooks.once('renderSceneControls', function () {
+registerSettings();
+tokensVisible.panMode = game.settings.get('TokensVisible', 'panMode');
+tokensVisible.pushhotkey=game.settings.get('TokensVisible', 'pushhotkey');
+tokensVisible.autopanMargin= game.settings.get('TokensVisible', 'autopanningMargin');
+tokensVisible.hiddenCanLight = game.settings.get('TokensVisible', 'hiddenCanLight');
+tokensVisible.wallsCancelAnimation = game.settings.get('TokensVisible', 'wallsCancelAnimation');
+tokensVisible.castRayshotkey =game.settings.get('TokensVisible', 'castRayshotkey');
+tokensVisible.sightCachehotkey =game.settings.get('TokensVisible', 'sightCachehotkey');
+tokensVisible.setupCombatantMasking(game.settings.get('TokensVisible', 'combatantHidden'));
+}
 );
+
+
+function nameToHexA(name) {
+	return RGBToHexA(nameToRGB(name));
+}
+
+function nameToRGB(name) {
+  if (!name) return '';
+  // Create fake div
+  let fakeDiv = document.createElement("div");
+  fakeDiv.style.color = name;
+  document.body.appendChild(fakeDiv);
+
+  // Get color of div
+  let cs = window.getComputedStyle(fakeDiv),
+      pv = cs.getPropertyValue("color");
+
+  // Remove div after obtaining desired color value
+  document.body.removeChild(fakeDiv);
+
+  return pv;
+}
+
+function RGBToHexA(rgb) {
+	if (rgb.startsWith('rgba')) return RGBAToHexA(rgb);
+  // Choose correct separator
+  let sep = rgb.indexOf(",") > -1 ? "," : " ";
+  // Turn "rgb(r,g,b)" into [r,g,b]
+  rgb = rgb.substr(4).split(")")[0].split(sep);
+
+  let r = (+rgb[0]).toString(16),
+      g = (+rgb[1]).toString(16),
+      b = (+rgb[2]).toString(16);
+
+  if (r.length == 1)
+    r = "0" + r;
+  if (g.length == 1)
+    g = "0" + g;
+  if (b.length == 1)
+    b = "0" + b;
+
+  return "#" + r + g + b+'ff';
+}
+
+
+function RGBAToHexA(rgba) {
+	
+  let sep = rgba.indexOf(",") > -1 ? "," : " "; 
+  rgba = rgba.substr(5).split(")")[0].split(sep);
+                
+  // Strip the slash if using space-separated syntax
+  if (rgba.indexOf("/") > -1)
+    rgba.splice(3,1);
+
+  for (let R in rgba) {
+    let r = rgba[R];
+    if (r.toString().indexOf("%") > -1) {
+      let p = r.substr(0,r.length - 1) / 100;
+
+      if (R < 3) {
+        rgba[R] = Math.round(p * 255);
+      } else {
+        rgba[R] = p;
+      }
+    }
+  }
+  
+  let r = (+rgba[0]).toString(16),
+      g = (+rgba[1]).toString(16),
+      b = (+rgba[2]).toString(16),
+      a = Math.round(+rgba[3] * 255).toString(16);
+
+  if (r.length == 1)
+    r = "0" + r;
+  if (g.length == 1)
+    g = "0" + g;
+  if (b.length == 1)
+    b = "0" + b;
+  if (a.length == 1)
+    a = "0" + a;
+
+  return "#" + r + g + b + a;
+  
+}
+tokensVisible.defaultcolors= [undefined,undefined, undefined, undefined];
+
+tokensVisible.setupRenderColors = function() 
+{
+	
+  if (tokensVisible.defaultcolors[0]== undefined ) tokensVisible.defaultcolors[0]  = $('li.control-tool.active.toggle').css('color'); 
+  if (tokensVisible.defaultcolors[1]== undefined ) tokensVisible.defaultcolors[1]  = $('li.control-tool.active.toggle').css('background-color');
+  if (tokensVisible.defaultcolors[2]== undefined ) tokensVisible.defaultcolors[2]  = $('li.control-tool.active:not(.toggle)').css('color');
+  if (tokensVisible.defaultcolors[3]== undefined ) tokensVisible.defaultcolors[3]  = $('li.control-tool.active:not(.toggle)').css('background-color');
+	
+
+  
+  setColor( game.settings.get('TokensVisible', 'toggleActiveFG'),tokensVisible.defaultcolors[0] , '#controls .control-tool.toggle.active', 'color' );
+  setColor( game.settings.get('TokensVisible', 'toggleActiveBG'),tokensVisible.defaultcolors[1] , '#controls .control-tool.toggle.active', 'background-color' );
+  setColor( game.settings.get('TokensVisible', 'activeFG'),tokensVisible.defaultcolors[2] , '#controls .control-tool.active:not(.toggle)', 'color' );
+  setColor( game.settings.get('TokensVisible', 'activeBG'),tokensVisible.defaultcolors[3] , '#controls .control-tool.active:not(.toggle)', 'background-color' );
+
+
+  function setColor( colorValue, colorDefault, jQuerySpec, cssProperty){
+  
+	if ( colorValue && !(nameToHexA(colorValue).endsWith('00')) ) {
+	       document.querySelectorAll(jQuerySpec).forEach(e=>e.style.setProperty(cssProperty,colorValue));
+	      } else
+	       document.querySelectorAll(jQuerySpec).forEach(e=>e.style.setProperty(cssProperty,colorDefault ));
+  }	
+ 
+
+};
+  
+Hooks.on('renderSceneControls', tokensVisible.setupRenderColors );
 
 
 Object.defineProperty(Token.prototype,'isVisible', {
