@@ -51,7 +51,7 @@ export function registerSettings() {
  
     new window.Ardittristan.ColorSetting(moduleName , 'toggleActiveFG', {
  	    name: game.i18n.localize(MODULE_ID+".toggleActiveFG"),    // The name of the setting in the settings menu
- 	  //  hint: "Click on the button",   // A description of the registered setting and its behavior
+ 	    hint: game.i18n.localize(MODULE_ID+".colorPickerDefaultHint"),   // A description of the registered setting and its behavior
  	    label: "Color Picker",         // The text label used in the button
  	    restricted: false,             // Restrict this setting to gamemaster only?
  	    defaultColor:  "#00000000",     // The default color of the setting
@@ -61,20 +61,9 @@ export function registerSettings() {
  	});
 	
 	
-/*
-    game.settings.register(moduleName , 'toggleActiveBG', {
-      name: game.i18n.localize(MODULE_ID+".toggleActiveBG"),
-      scope: 'world',   
-      config: true,      
-      type: String,     
-      default: "",
-      onChange: value => { document.querySelectorAll('#controls .control-tool.toggle.active').forEach(e=>e.style.setProperty('background',value ));}
-    });
-	*/
-	
     new window.Ardittristan.ColorSetting(moduleName , 'toggleActiveBG', {
  	    name: game.i18n.localize(MODULE_ID+".toggleActiveBG"),    // The name of the setting in the settings menu
- 	   // hint: "Click on the button",   // A description of the registered setting and its behavior
+ 	    hint: game.i18n.localize(MODULE_ID+".colorPickerDefaultHint"),   // A description of the registered setting and its behavior
  	    label: "Color Picker",         // The text label used in the button
  	    restricted: false,             // Restrict this setting to gamemaster only?
  	    defaultColor: "#00000000",     // The default color of the setting
@@ -83,34 +72,10 @@ export function registerSettings() {
 	   //value => { if (value!="#00000000") document.querySelectorAll('#controls .control-tool.toggle.active').forEach(e=>e.style.setProperty('background',value ));}
  	});
 	
-	/*
 
-    game.settings.register(moduleName , 'activeFG', {
-      name: game.i18n.localize(MODULE_ID+".activeFG"),
-      scope: 'world',   
-      config: true,      
-      type: String,     
-      default: "",
-      onChange: value => {  document.querySelectorAll('#controls .control-tool.active:not(.toggle)').forEach(e=>e.style.setProperty('color',value ));}
-    });
-
-    game.settings.register(moduleName, 'activeBG', {
-      name: game.i18n.localize(MODULE_ID+".activeBG"),
-      scope: 'world',   
-      config: true,      
-      type: String,     
-      default: "",
-      onChange: value => { document.querySelectorAll('#controls .control-tool.active:not(.toggle)').forEach(e=>e.style.setProperty('background',value ));}
-    });
-
-
-*/
-
-	console.warn('active bg', $("li.control-tool.active:not(.toggle)").css("color"));
-	
     new window.Ardittristan.ColorSetting(moduleName , 'activeFG',  {
  	    name: game.i18n.localize(MODULE_ID+".activeFG"),
- 	   // hint: "Click on the button",   // A description of the registered setting and its behavior
+ 	    hint: game.i18n.localize(MODULE_ID+".colorPickerDefaultHint"),   // A description of the registered setting and its behavior
  	    label: "Color Picker",         // The text label used in the button
  	    restricted: false,             // Restrict this setting to gamemaster only?
  	    defaultColor: "#00000000",     // The default color of the setting
@@ -124,7 +89,7 @@ export function registerSettings() {
 	
     new window.Ardittristan.ColorSetting(moduleName, 'activeBG', {
  	    name: game.i18n.localize(MODULE_ID+".activeBG"),
- 	   // hint: "Click on the button",   // A description of the registered setting and its behavior
+ 	    hint: game.i18n.localize(MODULE_ID+".colorPickerDefaultHint"),   // A description of the registered setting and its behavior
  	    label: "Color Picker",         // The text label used in the button
  	    restricted: false,             // Restrict this setting to gamemaster only?
  	    defaultColor: "#00000000",     // The default color of the setting

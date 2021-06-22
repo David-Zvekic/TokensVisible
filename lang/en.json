@@ -5,6 +5,7 @@
 	"TOKENSVISIBLE.toggleActiveBG": "Active-Toggle Controls background-color",
 	"TOKENSVISIBLE.activeFG" : "Active Control pen-color",
 	"TOKENSVISIBLE.activeBG" : "Active Control background-color",
+	"TOKENSVISIBLE.colorPickerDefaultHint" : "Reduce color alpha channel to 0 to use default",
 	"TOKENSVISIBLE.autopanningMargin": "Automatic Pan Margin (pixels)",
 	"TOKENSVISIBLE.autopanningMarginHint": "Trigger automatic panning whenever tokens move closer than this margin towards the edge of canvas.",
 	"TOKENSVISIBLE.hiddenCanLight": "Token Light",
