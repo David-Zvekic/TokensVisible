@@ -1,4 +1,4 @@
-# Your Tokens Visible v2.1.1
+# Your Tokens Visible v2.2.1
 *See what you need to see. No more, no less!*
 ***
 A module for Foundry VTT.
@@ -22,7 +22,7 @@ Note: This module replicates 100% of the functionality of the moduled called Pus
 
 4. "Tokens Don't Fly" - Currently when the GM moves a token, and it's owner has Animated Token Movement enabled, they may see their token fly through walls and reveal the map along the movement path.  The GM may not have intended to reveal that path.  With this feature turned on, tokens that would cross a wall, will not use animated movement, but will simply  reappear at their destination without revealing the intermediary map.  Movement that intersects no barriers will use normal Animated Movement preferences.
 
-5. Control Tools Color Assignment - assign colours to your control tools status buttons. This can help make them easier to see. 
+5. Control Tools Color Assignment - assign alternate colours to your control tools' status buttons. This can help make them easier to see. 
 
 6. Automatic Pan Mode - Players can now control whether the canvas will re-center or simply scroll the view when a token gets to close to the edge of the window. The margin for this feature can also be customized to each players preferences.
 
