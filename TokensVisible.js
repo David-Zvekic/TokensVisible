@@ -773,9 +773,8 @@ tokensVisible.setupCombatantMasking = function (settingValue) {
 
 	     });
      }
-	
-	return  // tokensVisible.Combat._defaultcreateEmbeddedEntity.call(this, embeddedName, data, options);
-	 wrapped.call(this, embeddedName, data, options);
+
+	 return wrapped(embeddedName,data,options);
 
   };
   if(Combat.prototype.createEmbeddedDocuments!=undefined) {
