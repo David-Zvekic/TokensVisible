@@ -494,45 +494,38 @@ tokensVisible.SightLayer = {_defaultcastRays : ((WallsLayer.castRays!=undefined)
 tokensVisible.Combat = {_defaultcreateEmbeddedEntity:  (Combat.prototype.createEmbeddedDocuments!=undefined)?(Combat.prototype.createEmbeddedDocuments):(Combat.prototype.createEmbeddedEntity)};
 
 
-tokensVisible.SightLayer._turboComputeSight = function (origin, radius, {type, angle=360, density=6, rotation=0, unrestricted=false}={}){
-    if (type==undefined || (type!=undefined && type=="sight")) {
-        
-      let key =  radius*34.34 +origin.x+(origin.y*7.654)+ canvas.dimensions.width*1.1 + canvas.dimensions.height*3.3 + density*11+ (unrestricted?33:-1) +angle*1.1 + rotation  +(canvas.walls.endpoints.length * 12.2);  
-      let sightResult = tokensVisible.SightCache.get(key);
-      if(sightResult!=undefined) {
-            return sightResult;
-      }
-  
-    
-      sightResult = tokensVisible.SightLayer._defaultcomputeSight.call(this, origin, radius, {type, angle, density, rotation, unrestricted} );
-//      sightResult = wrapped.call(this, origin, radius, {type, angle, density, rotation, unrestricted} );
+tokensVisible.SightLayer._turboComputeSight = function(wrapped, origin, radius, { type, angle = 360, density = 6, rotation = 0,  unrestricted = false } = {}) {
+    if (type == undefined || (type != undefined && type == "sight")) {
 
-      if(tokensVisible.SightCache.size>1000) tokensVisible.SightCache.delete(tokensVisible.SightCache.keys().next().value);
-      tokensVisible.SightCache.set(key, sightResult);
-    
-    return sightResult; 
+        // this key is generated roughly using a cheap and fast hash function of combining some values relevant to the calculation.  Better hash functions will be slower than this with extremely rare benefits.
+        let key = radius * 34.34 + origin.x + (origin.y * 7.654) + canvas.dimensions.width * 1.1 + canvas.dimensions.height * 3.3 + density * 11 + (unrestricted ? 33 : -1) + angle * 1.1 + rotation + (canvas.walls.endpoints.length * 12.2);
+        let sightResult = tokensVisible.SightCache.get(key);
+        if (sightResult != undefined) {
+            return sightResult;
+        }
+
+        sightResult = wrapped(origin, radius, { type,  angle, density, rotation, unrestricted  });
+
+        if (tokensVisible.SightCache.size > 1000) 
+            tokensVisible.SightCache.delete(tokensVisible.SightCache.keys().next().value);
+
+        tokensVisible.SightCache.set(key, sightResult);
+        return sightResult;
+
+    } else {
+        return wrapped(origin, radius, { type, angle, density, rotation,unrestricted });
     }
-    else
-    {
-      return    tokensVisible.SightLayer._defaultcomputeSight.call(this, origin, radius, {type, angle, density, rotation, unrestricted} );  
-    //  wrapped.call(this, origin, radius, {type, angle, density, rotation, unrestricted} );    
-    }   
 
 };
 
+
 tokensVisible.enableTurboSight = function() {
-    tokensVisible.SightCache=new Map();
-    
-    if(WallsLayer.prototype.computePolygon !=undefined) {
-       libWrapper.unregister(moduleName, 'WallsLayer.prototype.computePolygon', false);  
-       libWrapper.register(moduleName,'WallsLayer.prototype.computePolygon', tokensVisible.SightLayer._turboComputeSight, 'OVERRIDE'); 
-    } 
-    else {
-     // legacy 0.7.x support
-        libWrapper.unregister(moduleName, 'SightLayer.computeSight', false);    
-        libWrapper.register(moduleName,'SightLayer.computeSight', tokensVisible.SightLayer._turboComputeSight, 'OVERRIDE'); 
-    }
-    
+    tokensVisible.SightCache = new Map();
+
+    if (WallsLayer.prototype.computePolygon != undefined)
+        patch('WallsLayer.prototype.computePolygon', tokensVisible.SightLayer._turboComputeSight, 'MIXED');
+    else
+        patch('SightLayer.computeSight', tokensVisible.SightLayer._turboComputeSight, 'MIXED'); // legacy 0.7.x support
 
 };
 
@@ -541,14 +534,17 @@ tokensVisible.disableTurboSight = function() {
     
     
     if(WallsLayer.prototype.computePolygon !=undefined) {
-       libWrapper.unregister(moduleName, 'WallsLayer.prototype.computePolygon', false);  
-       libWrapper.register(moduleName,'WallsLayer.prototype.computePolygon',tokensVisible.SightLayer._defaultcomputeSight, 'OVERRIDE'); 
+       //libWrapper.unregister(moduleName, 'WallsLayer.prototype.computePolygon', false);  
+      // libWrapper.register(moduleName,'WallsLayer.prototype.computePolygon',tokensVisible.SightLayer._defaultcomputeSight, 'OVERRIDE'); 
+       unpatch('WallsLayer.prototype.computePolygon', tokensVisible.SightLayer._defaultcomputeSight);
+         
     } 
     else {
      // legacy 0.7.x support
-    
-        libWrapper.unregister(moduleName, 'SightLayer.computeSight', false);    
-        libWrapper.register(moduleName,'SightLayer.computeSight', tokensVisible.SightLayer._defaultcomputeSight, 'OVERRIDE'); 
+        unpatch('SightLayer.computeSight', tokensVisible.SightLayer._defaultcomputeSight);
+     
+ //       libWrapper.unregister(moduleName, 'SightLayer.computeSight', false);    
+ //       libWrapper.register(moduleName,'SightLayer.computeSight', tokensVisible.SightLayer._defaultcomputeSight, 'OVERRIDE'); 
     }
     
     
