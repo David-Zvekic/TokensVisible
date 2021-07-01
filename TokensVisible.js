@@ -324,11 +324,10 @@ Hooks.once('ready', () => {
 	, 'OVERRIDE');
 	
 	 
-}
-);
 
-
-Token.prototype.setPosition=  async function ReplaceTokenSetPosition(x, y, {animate=true}={}) {
+ libWrapper.register(moduleName,'Token.prototype.setPosition',	 
+//Token.prototype.setPosition=  async function ReplaceTokenSetPosition(x, y, {animate=true}={}) {
+	async function (x, y, {animate=true}={}) {
  
     // Create a Ray for the requested movement
     let origin = this._movement ? this.position : this._validPosition,
@@ -411,7 +410,11 @@ Token.prototype.setPosition=  async function ReplaceTokenSetPosition(x, y, {anim
       }
     }
     return this;
-};
+}, 'OVERRIDE');
+
+}
+);
+
   
   
 
