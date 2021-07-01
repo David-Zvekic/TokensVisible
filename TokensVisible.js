@@ -305,26 +305,31 @@ Object.defineProperty(Token.prototype,'isVisible', {
 );
 
 
-Token.prototype._isVisionSource = function () {
-	
-    if ( !canvas.sight.tokenVision || !this.hasSight ) return false;
-    if ( this._controlled ) return true;
- 
-    const isGM = game.user.isGM;
- 
-  
-	if (!isGM) {
 
-	// if a non-GM observer-user controls no tokens with sight return true
-      const others = this.layer.controlled.find( t => !t.data.hidden && t.hasSight);
-      if (this.observer && (others == undefined)) return true;
+Hooks.once('ready', () => {
+	
+	
+   libWrapper.register(moduleName,'Token.prototype._isVisionSource', 
+    function () {
+       if ( !canvas.sight.tokenVision || !this.hasSight ) return false;
+       if ( this._controlled ) return true;
+ 
+       const isGM = game.user.isGM;
+       if (!isGM) {
+          // if a non-GM observer-user controls no tokens with sight return true
+          const others = this.layer.controlled.find( t => !t.data.hidden && t.hasSight);
+          if (this.observer && (others == undefined)) return true;
     
-	}
+       }
 	
-	return false;
+   	   return false;
+     }
+	, 'OVERRIDE');
+	
+	 
+}
+);
 
-};
-  
 
 Token.prototype.setPosition=  async function ReplaceTokenSetPosition(x, y, {animate=true}={}) {
  
