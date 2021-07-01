@@ -289,8 +289,8 @@ Hooks.once('ready', () => {
     
 
    libWrapper.register(moduleName,'Token.prototype.isVisible', 
-    function()  
-    {
+    function(wrapped)  
+    { if (wrapped()) return true;
       if (!canvas.sight.tokenVision && !this.data.hidden) return true; 
 
       if ( this._controlled ) return true;
@@ -304,7 +304,7 @@ Hooks.once('ready', () => {
      // visible via line of sight, field of view and lighting to another token that gives us vision
       const tolerance = Math.min(this.w, this.h) / 4;
       return canvas.sight.testVisibility(this.center, {tolerance, object: this});
-    }, 'OVERRIDE');
+    }, 'WRAPPER');
     
    libWrapper.register(moduleName,'Token.prototype._isVisionSource', 
     function () {
