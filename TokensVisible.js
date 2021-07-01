@@ -532,19 +532,12 @@ tokensVisible.enableTurboSight = function() {
 tokensVisible.disableTurboSight = function() {
     delete tokensVisible.SightCache;
     
-    
     if(WallsLayer.prototype.computePolygon !=undefined) {
-       //libWrapper.unregister(moduleName, 'WallsLayer.prototype.computePolygon', false);  
-      // libWrapper.register(moduleName,'WallsLayer.prototype.computePolygon',tokensVisible.SightLayer._defaultcomputeSight, 'OVERRIDE'); 
        unpatch('WallsLayer.prototype.computePolygon', tokensVisible.SightLayer._defaultcomputeSight);
-         
     } 
     else {
      // legacy 0.7.x support
         unpatch('SightLayer.computeSight', tokensVisible.SightLayer._defaultcomputeSight);
-     
- //       libWrapper.unregister(moduleName, 'SightLayer.computeSight', false);    
- //       libWrapper.register(moduleName,'SightLayer.computeSight', tokensVisible.SightLayer._defaultcomputeSight, 'OVERRIDE'); 
     }
     
     
