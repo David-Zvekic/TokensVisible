@@ -490,7 +490,7 @@ tokensVisible.SightLayer = {_defaultcastRays : ((WallsLayer.castRays!=undefined)
 tokensVisible.Combat = {_defaultcreateEmbeddedEntity:  (Combat.prototype.createEmbeddedDocuments!=undefined)?(Combat.prototype.createEmbeddedDocuments):(Combat.prototype.createEmbeddedEntity)};
 
 
-tokensVisible.SightLayer._turboComputeSight = function (wrapper,origin, radius, {type, angle=360, density=6, rotation=0, unrestricted=false}={}){
+tokensVisible.SightLayer._turboComputeSight = function (origin, radius, {type, angle=360, density=6, rotation=0, unrestricted=false}={}){
 	if (type==undefined || (type!=undefined && type=="sight")) {
 		
 	  let key =  radius*34.34 +origin.x+(origin.y*7.654)+ canvas.dimensions.width*1.1 + canvas.dimensions.height*3.3 + density*11+ (unrestricted?33:-1) +angle*1.1 + rotation  +(canvas.walls.endpoints.length * 12.2);  
@@ -500,8 +500,8 @@ tokensVisible.SightLayer._turboComputeSight = function (wrapper,origin, radius, 
   	  }
   
 	
-//      sightResult = tokensVisible.SightLayer._defaultcomputeSight.call(this, origin, radius, {type, angle, density, rotation, unrestricted} );
-      sightResult = wrapper.call(this, origin, radius, {type, angle, density, rotation, unrestricted} );
+      sightResult = tokensVisible.SightLayer._defaultcomputeSight.call(this, origin, radius, {type, angle, density, rotation, unrestricted} );
+//      sightResult = wrapped.call(this, origin, radius, {type, angle, density, rotation, unrestricted} );
 
 	  if(tokensVisible.SightCache.size>1000) tokensVisible.SightCache.delete(tokensVisible.SightCache.keys().next().value);
       tokensVisible.SightCache.set(key, sightResult);
@@ -510,8 +510,8 @@ tokensVisible.SightLayer._turboComputeSight = function (wrapper,origin, radius, 
     }
 	else
 	{
-	  return 	//tokensVisible.SightLayer._defaultcomputeSight.call(this, origin, radius, {type, angle, density, rotation, unrestricted} );	
-	  wrapper.call(this, origin, radius, {type, angle, density, rotation, unrestricted} );	
+	  return 	tokensVisible.SightLayer._defaultcomputeSight.call(this, origin, radius, {type, angle, density, rotation, unrestricted} );	
+	//  wrapped.call(this, origin, radius, {type, angle, density, rotation, unrestricted} );	
 	}	
 
 };
@@ -521,12 +521,12 @@ tokensVisible.enableTurboSight = function() {
 	
     if(WallsLayer.prototype.computePolygon !=undefined) {
  	   libWrapper.unregister(moduleName, 'WallsLayer.prototype.computePolygon', false);	 
- 	   libWrapper.register(moduleName,'WallsLayer.prototype.computePolygon', tokensVisible.SightLayer._turboComputeSight, 'MIXED'); 
+ 	   libWrapper.register(moduleName,'WallsLayer.prototype.computePolygon', tokensVisible.SightLayer._turboComputeSight, 'OVERRIDE'); 
     } 
     else {
 	 // legacy 0.7.x support
 		libWrapper.unregister(moduleName, 'SightLayer.computeSight', false);	
-	    libWrapper.register(moduleName,'SightLayer.computeSight', tokensVisible.SightLayer._turboComputeSight, 'MIXED'); 
+	    libWrapper.register(moduleName,'SightLayer.computeSight', tokensVisible.SightLayer._turboComputeSight, 'OVERRIDE'); 
     }
 	
 
@@ -749,7 +749,7 @@ tokensVisible.setupCombatantMasking = function (settingValue) {
 	 return;
   }
 	  
-  let combatMaskedEntities = async function (wrapper,embeddedName, data, options) {
+  let combatMaskedEntities = async function (wrapped,embeddedName, data, options) {
 	  
 
 	 if (embeddedName == 'Combatant') {
@@ -775,7 +775,7 @@ tokensVisible.setupCombatantMasking = function (settingValue) {
      }
 	
 	return  // tokensVisible.Combat._defaultcreateEmbeddedEntity.call(this, embeddedName, data, options);
-	 wrapper.call(this, embeddedName, data, options);
+	 wrapped.call(this, embeddedName, data, options);
 
   };
   if(Combat.prototype.createEmbeddedDocuments!=undefined) {
