@@ -676,21 +676,15 @@ tokensVisible._setExtraEnhancedCastRays = function() {
     };
     if (tokensVisible.SightCache != undefined) tokensVisible.SightCache = new Map();
 
-    let superCastRays = function(wrapped, x, y, distance, {
-        density,
-        endpoints,
-        limitAngle = false,
-        aMin,
-        aMax
-    } = {}) {
+    if (WallsLayer.castRays != undefined) {
+        patch('WallsLayer.castRays', superCastRays, 'MIXED'); 
+    } else {
+        patch('SightLayer._castRays', superCastRays, 'MIXED'); // legacy 0.7.x support
+    }
+    
+    function superCastRays (wrapped, x, y, distance, { density, endpoints, limitAngle = false, aMin, aMax  } = {}) {
 
-        if (!canvas.sight.tokenVision) return wrapped(x, y, distance, {
-            density: density + 3,
-            endpoints,
-            limitAngle,
-            aMin,
-            aMax
-        });
+        if (!canvas.sight.tokenVision) return wrapped(x, y, distance, { density: density + 3, endpoints, limitAngle, aMin, aMax });
 
         let rays = [];
 
@@ -708,21 +702,9 @@ tokensVisible._setExtraEnhancedCastRays = function() {
         }
         density = rayAccuracy;
 
-        rays = tokensVisible.SightLayer._DI_castRays.call(this, x, y, distance, {
-            "density": Math.min(2.0, density),
-            endpoints,
-            limitAngle,
-            aMin,
-            aMax
-        }, cast, [], rayAccuracy, rays, sorter);
+        rays = tokensVisible.SightLayer._DI_castRays.call(this, x, y, distance, { "density": Math.min(2.0, density), endpoints, limitAngle, aMin, aMax }, cast, [], rayAccuracy, rays, sorter);
         return rays;
     };
-
-    if (WallsLayer.castRays != undefined) {
-        patch('WallsLayer.castRays', superCastRays, 'MIXED'); // legacy 0.7.x support
-    } else {
-        patch('SightLayer._castRays', superCastRays, 'MIXED'); // legacy 0.7.x support
-    }
 
 };
 
