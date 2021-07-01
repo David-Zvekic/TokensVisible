@@ -284,8 +284,12 @@ tokensVisible.setupRenderColors = function()
 Hooks.on('renderSceneControls', tokensVisible.setupRenderColors );
 
 
-Object.defineProperty(Token.prototype,'isVisible', {
-  	get()  
+
+Hooks.once('ready', () => {
+	
+
+   libWrapper.register(moduleName,'Token.prototype.isVisible', 
+	function()  
   	{
       if (!canvas.sight.tokenVision && !this.data.hidden) return true; 
 
@@ -300,14 +304,7 @@ Object.defineProperty(Token.prototype,'isVisible', {
 	 // visible via line of sight, field of view and lighting to another token that gives us vision
 	  const tolerance = Math.min(this.w, this.h) / 4;
       return canvas.sight.testVisibility(this.center, {tolerance, object: this});
-	}
-  }
-);
-
-
-
-Hooks.once('ready', () => {
-	
+	}, 'OVERRIDE');
 	
    libWrapper.register(moduleName,'Token.prototype._isVisionSource', 
     function () {
