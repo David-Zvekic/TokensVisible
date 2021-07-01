@@ -701,37 +701,26 @@ tokensVisible._setExtraEnhancedCastRays = function() {
        };
        
      if(WallsLayer.castRays!=undefined) {
-        libWrapper.unregister(moduleName, 'WallsLayer.castRays', false);  
-        libWrapper.register(moduleName,'WallsLayer.castRays', superCastRays, 'OVERRIDE'); 
+        patch('WallsLayer.castRays', superCastRays, 'OVERRIDE'); // legacy 0.7.x support
      } 
      else {
-         // legacy 0.7.x support
-        libWrapper.unregister(moduleName, 'SightLayer._castRays', false);  
-        libWrapper.register(moduleName,'SightLayer._castRays', superCastRays, 'OVERRIDE'); 
+        patch('SightLayer._castRays', superCastRays, 'OVERRIDE'); // legacy 0.7.x support
        }
-       
-       
-
         
 };
   
 tokensVisible._setStandardCastRays = function() {
-       if (tokensVisible.SightCache!=undefined) tokensVisible.SightCache=new Map();
-       
-       
-         if(WallsLayer.castRays!=undefined) {
-               libWrapper.unregister(moduleName, 'WallsLayer.castRays', false);
-               libWrapper.register(moduleName,'WallsLayer.castRays', tokensVisible.SightLayer._defaultcastRays , 'OVERRIDE'); 
-               
-         } 
-         else {
-             // legacy 0.7.x support
-               libWrapper.unregister(moduleName, 'SightLayer._castRays', false);
-               libWrapper.register(moduleName,'SightLayer._castRays', tokensVisible.SightLayer._defaultcastRays , 'OVERRIDE'); 
-         }
     
-           
+    if (tokensVisible.SightCache != undefined) tokensVisible.SightCache = new Map();
+    if (WallsLayer.castRays != undefined) {
+        unpatch('WallsLayer.castRays', tokensVisible.SightLayer._defaultcastRays);
+    } else {
+        // legacy 0.7.x support
+        unpatch('SightLayer._castRays', tokensVisible.SightLayer._defaultcastRays);
+
+    }
 };
+
 
 
   
