@@ -633,81 +633,103 @@ tokensVisible.SightLayer._DI_castRays=function(x, y, distance, {density=4, endpo
 };
   
 tokensVisible._setEnhancedCastRays = function() {
-         
-     const standardArray = [-3.141592, -1.5707964,0,1.5707964];
 
-     // Track rays and unique emission angles
-    
-     const sorter = (rays)=>{rays.sort((r1, r2) => r1.angle - r2.angle);};
-     if (tokensVisible.SightCache!=undefined) tokensVisible.SightCache=new Map();
-     let enhancedCastRays =function(x, y, distance, {density=4, endpoints, limitAngle=false, aMin, aMax}={}) {
-         
-         let rays = [];
-         const rayAccuracy = canvas.sight.tokenVision?(canvas.scene._viewPosition.scale):5;
-         const angles = new Set();
-         const cast = (ray, tol=50) => {
-            tol = tol *50 /(rayAccuracy * 10);
-            let a = Math.round(ray.angle *tol  );// / tol;
-            if ( angles.has(a) ) return;
+    const standardArray = [-3.141592, -1.5707964, 0, 1.5707964];
+
+    // Track rays and unique emission angles
+    const sorter = (rays) => {
+        rays.sort((r1, r2) => r1.angle - r2.angle);
+    };
+    if (tokensVisible.SightCache != undefined) tokensVisible.SightCache = new Map();
+       
+    if (WallsLayer.castRays != undefined) 
+        patch('WallsLayer.castRays', enhancedCastRays, 'OVERRIDE');
+    else 
+        patch('SightLayer._castRays', enhancedCastRays, 'OVERRIDE'); // legacy 0.7.x support
+   
+    function enhancedCastRays (x, y, distance, { density = 4, endpoints,limitAngle = false, aMin,aMax } = {}) {
+
+        let rays = [];
+        const rayAccuracy = canvas.sight.tokenVision ? (canvas.scene._viewPosition.scale) : 5;
+        const angles = new Set();
+        const cast = (ray, tol = 50) => {
+            tol = tol * 50 / (rayAccuracy * 10);
+            let a = Math.round(ray.angle * tol); 
+            if (angles.has(a)) return;
             rays.push(ray);
             angles.add(a);
-         };
+        };
 
-         rays =tokensVisible.SightLayer._DI_castRays.call(this, x,y,distance,{density,endpoints,limitAngle,aMin,aMax},cast,standardArray, rayAccuracy, rays, sorter );
-         return rays;
-     };
-     if(WallsLayer.castRays!=undefined) {
-       libWrapper.unregister(moduleName, 'WallsLayer.castRays', false);  
-       libWrapper.register(moduleName,'WallsLayer.castRays', enhancedCastRays, 'OVERRIDE'); 
-     } 
-     else {
-         // legacy 0.7.x support
-       libWrapper.unregister(moduleName, 'SightLayer._castRays', false);     
-       libWrapper.register(moduleName,'SightLayer._castRays', enhancedCastRays, 'OVERRIDE'); 
-     }
-       
-       
+        rays = tokensVisible.SightLayer._DI_castRays.call(this, x, y, distance, {
+            density,
+            endpoints,
+            limitAngle,
+            aMin,
+            aMax
+        }, cast, standardArray, rayAccuracy, rays, sorter);
+        return rays;
+    }; 
 };
+
   
 tokensVisible._setExtraEnhancedCastRays = function() {
-      
-       const stubsorter = (rays)=>{ /* nothing to do because the rays are cast in sorted order in this mode */ };
-       const realsorter = (rays)=>{rays.sort((r1, r2) => r1.angle - r2.angle);};
-       if (tokensVisible.SightCache!=undefined) tokensVisible.SightCache=new Map();
-                            
-       let superCastRays=function(x, y, distance, {density, endpoints, limitAngle=false, aMin, aMax}={}){
-            
-           if (!canvas.sight.tokenVision) return tokensVisible.SightLayer._defaultcastRays.call(this,x,y,distance,{density:density+3,endpoints,limitAngle,aMin,aMax});
-    
-           let rays = [];
 
-           let sorter;
-           const cast = (ray )=> rays.push(ray);
-           const rayAccuracy = canvas.scene._viewPosition.scale;
-       
-           if (!limitAngle){
-               // endpoints and sorting are not needed for unlimited angle light or vision since we are casting rays in all directions anyway.
-               endpoints=[]; 
-               sorter=stubsorter;
-           }
-           else {
-              // endpoints and real sorting needed for limited angle to render correctly
-               sorter=realsorter;
-           }
-           density = rayAccuracy;
-           
-           rays = tokensVisible.SightLayer._DI_castRays.call(this,x,y,distance,{"density":Math.min(2.0,density),endpoints,limitAngle,aMin,aMax},cast,[],rayAccuracy,rays, sorter);
-           return rays;
-       };
-       
-     if(WallsLayer.castRays!=undefined) {
-        patch('WallsLayer.castRays', superCastRays, 'OVERRIDE'); // legacy 0.7.x support
-     } 
-     else {
-        patch('SightLayer._castRays', superCastRays, 'OVERRIDE'); // legacy 0.7.x support
-       }
-        
+    const stubsorter = (rays) => { /* nothing to do because the rays are cast in sorted order in this mode */ };
+    const realsorter = (rays) => {
+        rays.sort((r1, r2) => r1.angle - r2.angle);
+    };
+    if (tokensVisible.SightCache != undefined) tokensVisible.SightCache = new Map();
+
+    let superCastRays = function(wrapped, x, y, distance, {
+        density,
+        endpoints,
+        limitAngle = false,
+        aMin,
+        aMax
+    } = {}) {
+
+        if (!canvas.sight.tokenVision) return wrapped(x, y, distance, {
+            density: density + 3,
+            endpoints,
+            limitAngle,
+            aMin,
+            aMax
+        });
+
+        let rays = [];
+
+        let sorter;
+        const cast = (ray) => rays.push(ray);
+        const rayAccuracy = canvas.scene._viewPosition.scale;
+
+        if (!limitAngle) {
+            // endpoints and sorting are not needed for unlimited angle light or vision since we are casting rays in all directions anyway.
+            endpoints = [];
+            sorter = stubsorter;
+        } else {
+            // endpoints and real sorting needed for limited angle to render correctly
+            sorter = realsorter;
+        }
+        density = rayAccuracy;
+
+        rays = tokensVisible.SightLayer._DI_castRays.call(this, x, y, distance, {
+            "density": Math.min(2.0, density),
+            endpoints,
+            limitAngle,
+            aMin,
+            aMax
+        }, cast, [], rayAccuracy, rays, sorter);
+        return rays;
+    };
+
+    if (WallsLayer.castRays != undefined) {
+        patch('WallsLayer.castRays', superCastRays, 'MIXED'); // legacy 0.7.x support
+    } else {
+        patch('SightLayer._castRays', superCastRays, 'MIXED'); // legacy 0.7.x support
+    }
+
 };
+
   
 tokensVisible._setStandardCastRays = function() {
     
