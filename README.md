@@ -1,4 +1,4 @@
-# Your Tokens Visible v2.2.1
+# Your Tokens Visible v2.3.0
 *See what you need to see. No more, no less!*
 ***
 A module for Foundry VTT.
@@ -28,7 +28,7 @@ Note: This module replicates 100% of the functionality of the moduled called Pus
 
 7. Enhanced and Super-Raycasting modes - improve the ray casting accuracy calculation used by Foundry to calculate dynamic vision and ambient lighting. This will enable tokens to reliably see the things that they SHOULD be seeing on the map, for instance a light source at the end of a narrow tunnel. (See RayCasting.png) Each player can toggle between modes, or set the default mode they wish to use.
 
-**Standard Mode is literally the code in the Foundry Core.
+**Standard Mode use default Foundry routine.
 
 **Enhanced mode is approximately the same speed as standard but with improved sight-lines.
 
@@ -36,7 +36,7 @@ Note: This module replicates 100% of the functionality of the moduled called Pus
 
 ![Ray Casting](RayCasting.png)
 
-8. Sight Calculations Cache - boost performance of Foundry on scenes with many walls, tokens or ambient light sources by preserving certain calculations that the base system repeats many times.
+8. Sight Calculations Cache - boost performance of Foundry on scenes with many walls, tokens or ambient light sources by preserving certain calculations that the base system repeats many times. (note: on Foundry 0.8.x most redundant calculations have been eliminated so turning this feature on or off makes little difference.)
 
 9. Combat Tracker Initial Visibility - configure the initial visibility of new combatants based on hostile/neutral/friendly disposition.  
 
