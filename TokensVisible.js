@@ -326,7 +326,6 @@ Hooks.once('ready', () => {
 	 
 
  libWrapper.register(moduleName,'Token.prototype.setPosition',	 
-//Token.prototype.setPosition=  async function ReplaceTokenSetPosition(x, y, {animate=true}={}) {
 	async function (x, y, {animate=true}={}) {
  
     // Create a Ray for the requested movement
@@ -412,13 +411,11 @@ Hooks.once('ready', () => {
     return this;
 }, 'OVERRIDE');
 
-}
-);
+
 
   
-  
-
-Token.prototype.updateSource = function({defer=false, deleted=false, noUpdateFog=false}={}) {
+ libWrapper.register(moduleName,'Token.prototype.updateSource',	  
+ function({defer=false, deleted=false, noUpdateFog=false}={}) {
 	// this method is derived from original Token.prototype.updateSource 
     if ( CONFIG.debug.sight ) {
       SightLayer._performance = { start: performance.now(), tests: 0, rays: 0 }
@@ -482,9 +479,11 @@ Token.prototype.updateSource = function({defer=false, deleted=false, noUpdateFog
       canvas.sight.sources.delete(sourceId);
       if ( isVisionSource && !defer ) canvas.sight.refresh();
     }
-};
+}, 'OVERRIDE');
 
 
+}
+);
 
 
  // the conditional assignment is for legacy 0.7.x support
