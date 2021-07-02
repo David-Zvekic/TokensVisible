@@ -360,7 +360,7 @@ Hooks.once('ready', () => {
             this.position.set(x-0.01, y-0.01);  
         }; 
         
-        await this.animateMovement(new Ray(this.position, ray.B));
+        this.animateMovement(new Ray(this.position, ray.B));
     }
     else this.position.set(x, y);
     
@@ -374,12 +374,12 @@ Hooks.once('ready', () => {
       if (tokensVisible.panMode=="Recenter") {
          let gp = this.getGlobalPosition();
          if ((gp.x < pad) || (gp.x > window.innerWidth - pad) || (gp.y < pad) || (gp.y > window.innerHeight - pad)) {
-            canvas.animatePan(this.center);
+             canvas.animatePan(this.center);
          } 
       } else {
           
           async function relativePan({dx,dy}){
-              await canvas.animatePan({x:canvas.scene._viewPosition.x+dx, y: canvas.scene._viewPosition.y+dy})
+              canvas.animatePan({x:canvas.scene._viewPosition.x+dx, y: canvas.scene._viewPosition.y+dy})
           };
           
           
@@ -402,7 +402,7 @@ Hooks.once('ready', () => {
           } ;
           
           if  (dx || dy){
-             await relativePan({dx,dy});
+              relativePan({dx,dy});
           }
       }
     }
