@@ -358,11 +358,9 @@ Hooks.once('ready', () => {
             // to satisfy that need.
             // in Foundry 0.7.9 a 0 distance movement worked, but as of 0.8.6 we need a non-zero distance
             this.position.set(x-0.01, y-0.01);  
-
-            await this.animateMovement(new Ray(this.position, ray.B));
-        } 
-        else
-         await this.animateMovement(new Ray(this.position, ray.B));
+        }; 
+        
+        await this.animateMovement(new Ray(this.position, ray.B));
     }
     else this.position.set(x, y);
     
