@@ -94,6 +94,7 @@ Hooks.on('updateWall', (scene,wall,data,diff,userid) => {
   }
 });
 
+
 Hooks.on('canvasReady',()=>{ 
   if (tokensVisible.SightCache!=undefined) tokensVisible.SightCache=new Map();
 } );
@@ -285,27 +286,40 @@ Hooks.on('renderSceneControls', tokensVisible.setupRenderColors );
 
 
 
-Hooks.once('ready', () => {
+Hooks.once('init', () => {
+    
+
+
+libWrapper.register(moduleName,'Token.prototype._onUpdate',
+    function(wrapped, data, options, userId ) {
+      // reset the SightCalculation cache if a token changes elevation.
+      // this means nothing for the base system, but some modules change rendering based on tokens changing elevation.
+      // triggering this rest in a Hooks.on('UpdateToken') triggers too late.        
+      
+       if (tokensVisible.SightCache!=undefined) {
+         const keys = Object.keys(data);
+         const changed = new Set(keys);
+         if ( changed.has("elevation") ) tokensVisible.SightCache=new Map();
+       }
+       wrapped(data,options,userId);   
+    }
+    , 'WRAPPER');  
     
 
    libWrapper.register(moduleName,'Token.prototype.isVisible', 
-    function(wrapped)  
-    { if (wrapped()) return true;
-      if (!canvas.sight.tokenVision && !this.data.hidden) return true; 
-
+    function(wrapped)  { 
+      if (wrapped()) return true;
+   
       if ( this._controlled ) return true;
       if(!game.user.isGM ){
        const canObserve = this.actor && this.actor.hasPerm(game.user, "OBSERVER");
        if (canObserve) return true;
       }
-    
-     if ( this.data.hidden && !game.user.isGM )  return false; 
-     // if we get here then the token's visibility depends on whether it is 
-     // visible via line of sight, field of view and lighting to another token that gives us vision
-      const tolerance = Math.min(this.w, this.h) / 4;
-      return canvas.sight.testVisibility(this.center, {tolerance, object: this});
+      return false; 
+ 
     }, 'WRAPPER');
     
+  
    libWrapper.register(moduleName,'Token.prototype._isVisionSource', 
     function () {
        if ( !canvas.sight.tokenVision || !this.hasSight ) return false;
@@ -314,7 +328,7 @@ Hooks.once('ready', () => {
        const isGM = game.user.isGM;
        if (!isGM) {
           // if a non-GM observer-user controls no tokens with sight return true
-          const others = this.layer.controlled.find( t => !t.data.hidden && t.hasSight);
+          const others = this.layer.controlled.find( t => t.hasSight);
           if (this.observer && (others == undefined)) return true;
     
        }
@@ -323,6 +337,8 @@ Hooks.once('ready', () => {
      }
     , 'OVERRIDE');
     
+
+     
      
 
  libWrapper.register(moduleName,'Token.prototype.setPosition',   
