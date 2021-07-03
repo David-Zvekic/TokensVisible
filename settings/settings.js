@@ -7,7 +7,16 @@ export const MODULE_ID = 'TOKENSVISIBLE';
 export function registerSettings() {
 	
 
-	
+	 game.settings.register(moduleName, 'tokenAnimationSpeed', {
+	   name: game.i18n.localize(MODULE_ID+".tokenAnimationSpeed"),
+	   hint: game.i18n.localize(MODULE_ID+".tokenAnimationSpeedHint"),
+	   scope: 'client',   
+	   config: true,      
+       type: Number,
+       default: "10", 
+  	   onChange: value => { tokensVisible.tokenAnimationSpeed = value / 10.0;  }
+	 });
+     
     
 	 game.settings.register(moduleName, 'combatantHidden', {
 	   name: game.i18n.localize(MODULE_ID+".combatantHidden"),
@@ -35,18 +44,7 @@ export function registerSettings() {
       default: "z",
       onChange: value => { tokensVisible.pushhotkey = value; }
     });
-/*
-    game.settings.register(moduleName , 'toggleActiveFG', {
-      name: game.i18n.localize(MODULE_ID+".toggleActiveFG"),
-      scope: 'world',   
-      config: true,      
-      type: String,     
-      default: "",
-      onChange: value => {  document.querySelectorAll('#controls .control-tool.toggle.active').forEach(e=>e.style.setProperty('color',value ));}
-    });
-	
-	
-*/	
+
  
  
     new window.Ardittristan.ColorSetting(moduleName , 'toggleActiveFG', {
@@ -56,8 +54,8 @@ export function registerSettings() {
  	    restricted: false,             // Restrict this setting to gamemaster only?
  	    defaultColor:  "#00000000",     // The default color of the setting
  	    scope: "client",               // The scope of the setting
- 	   onChange: tokensVisible.setupRenderColors 
-	   // value => {  if (value!="#00000000") document.querySelectorAll('#controls .control-tool.toggle.active').forEach(e=>e.style.setProperty('color',value ));}
+ 	    onChange: tokensVisible.setupRenderColors 
+	
  	});
 	
 	
@@ -68,8 +66,8 @@ export function registerSettings() {
  	    restricted: false,             // Restrict this setting to gamemaster only?
  	    defaultColor: "#00000000",     // The default color of the setting
  	    scope: "client",               // The scope of the setting
- 	   onChange: tokensVisible.setupRenderColors  
-	   //value => { if (value!="#00000000") document.querySelectorAll('#controls .control-tool.toggle.active').forEach(e=>e.style.setProperty('background',value ));}
+ 	    onChange: tokensVisible.setupRenderColors  
+
  	});
 	
 
@@ -81,12 +79,11 @@ export function registerSettings() {
  	    defaultColor: "#00000000",     // The default color of the setting
  	    scope: "client",               // The scope of the setting
         onChange: tokensVisible.setupRenderColors  
-		//value => { if (value!="#00000000")  document.querySelectorAll('#controls .control-tool.active:not(.toggle)').forEach(e=>e.style.setProperty('color',value ));}
+		
  	});
 
 
-	console.warn('active bg',  $("li.control-tool.active:not(.toggle)").css("background"));
-	
+
     new window.Ardittristan.ColorSetting(moduleName, 'activeBG', {
  	    name: game.i18n.localize(MODULE_ID+".activeBG"),
  	    hint: game.i18n.localize(MODULE_ID+".colorPickerDefaultHint"),   // A description of the registered setting and its behavior
@@ -94,13 +91,10 @@ export function registerSettings() {
  	    restricted: false,             // Restrict this setting to gamemaster only?
  	    defaultColor: "#00000000",     // The default color of the setting
  	    scope: "client",               // The scope of the setting
-    	  onChange: tokensVisible.setupRenderColors  
-		 // value => { if (value!="#00000000") document.querySelectorAll('#controls .control-tool.active:not(.toggle)').forEach(e=>e.style.setProperty('background',value ));}
+        onChange: tokensVisible.setupRenderColors  
+	
  	});
 	
-	
-	
-
 
     game.settings.register(moduleName, "panMode", {
       name: game.i18n.localize(MODULE_ID+".panMode"),
@@ -180,22 +174,22 @@ export function registerSettings() {
  	   config: true,      
  	   type: String,     
  	   default: "e",
-        onChange: value => { tokensVisible.castRayshotkey = value }
+       onChange: value => { tokensVisible.castRayshotkey = value }
  	 });
 		 
  	 game.settings.register(moduleName, 'sightCache', {
- 	   name: game.i18n.localize(MODULE_ID+".sightCache"),
- 	   hint: game.i18n.localize(MODULE_ID+".sightCacheHint"),
- 	   scope: 'client',   
- 	   config: true,      
-        type: String,
-        choices: {
+         name: game.i18n.localize(MODULE_ID+".sightCache"),
+         hint: game.i18n.localize(MODULE_ID+".sightCacheHint"),
+         scope: 'client',   
+ 	     config: true,      
+         type: String,
+         choices: {
                   "On": game.i18n.localize(MODULE_ID+".sightCacheOn") ,
                   "Off": game.i18n.localize(MODULE_ID+".sightCacheOff")
-        },
- 	   default: "On", 
-   	   onChange: value => { tokensVisible.setProperSightCache(value)}
- 	 });
+         },
+ 	     default: "On", 
+   	     onChange: value => { tokensVisible.setProperSightCache(value)}
+     });
 	 
       game.settings.register(moduleName, 'sightCachehotkey', {
  	   name: game.i18n.localize(MODULE_ID+".sightCachehotkey"),
@@ -204,8 +198,7 @@ export function registerSettings() {
  	   config: true,      
  	   type: String,     
  	   default: "E",
-  
- 	   onChange: value => { tokensVisible.sightCachehotkey  = value }
+   	   onChange: value => { tokensVisible.sightCachehotkey  = value }
  	 });
 	 
 };

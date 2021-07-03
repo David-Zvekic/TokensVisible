@@ -168,6 +168,8 @@ tokensVisible.wallsCancelAnimation = game.settings.get('TokensVisible', 'wallsCa
 tokensVisible.castRayshotkey =game.settings.get('TokensVisible', 'castRayshotkey');
 tokensVisible.sightCachehotkey =game.settings.get('TokensVisible', 'sightCachehotkey');
 tokensVisible.setupCombatantMasking(game.settings.get('TokensVisible', 'combatantHidden'));
+tokensVisible.tokenAnimationSpeed=game.settings.get('TokensVisible', 'tokenAnimationSpeed') / 10.0; 
+
 }
 );
 
@@ -289,6 +291,19 @@ Hooks.on('renderSceneControls', tokensVisible.setupRenderColors );
 Hooks.once('init', () => {
     
 
+
+   libWrapper.register(moduleName,'CanvasAnimation.animateLinear', 
+    function(wrapped, attributes, {context, name, duration, ontick} )  { 
+   
+        if (tokensVisible.tokenAnimationSpeed!=1 &&  name != undefined){
+            if ((name.substring(0,6)=="Token.") && (name.substring(name.length -16) == ".animateMovement")) duration = duration / tokensVisible.tokenAnimationSpeed ; 
+        };
+        wrapped(attributes,{context,name,duration,ontick});
+        
+ 
+    }, 'WRAPPER');
+    
+    
 
 libWrapper.register(moduleName,'Token.prototype._onUpdate',
     function(wrapped, data, options, userId ) {

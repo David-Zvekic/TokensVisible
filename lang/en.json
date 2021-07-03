@@ -39,7 +39,9 @@
 	"TOKENSVISIBLE.combatantHiddenDefault":"Use standard Foundry behavior.",
 	"TOKENSVISIBLE.combatantHiddenHostile":"Hostile Combatants enter combat hidden. Others use standard behavior.",
 	"TOKENSVISIBLE.combatantHiddenNeutral":"Hostile and Neutral Combatants enter combat hidden. Others use standard behavior.",
-	"TOKENSVISIBLE.combatantHiddenAll":"All Combatants enter combat hidden."
+	"TOKENSVISIBLE.combatantHiddenAll":"All Combatants enter combat hidden.",
+    "TOKENSVISIBLE.tokenAnimationSpeed":"Token Animate Speed",
+    "TOKENSVISIBLE.tokenAnimationSpeedHint":"Controls how fast tokens move during animated movement. Higher numbers save electricity and time by rendering less frames during animation. Standard Foundry Speed is 10."   
 	
 	
 	
