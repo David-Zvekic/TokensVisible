@@ -187,7 +187,7 @@ export function registerSettings() {
                   "On": game.i18n.localize(MODULE_ID+".sightCacheOn") ,
                   "Off": game.i18n.localize(MODULE_ID+".sightCacheOff")
          },
- 	     default: "On", 
+ 	     default: (game.data.version.substring(0,4) == '0.7.')?'On':'Off', 
    	     onChange: value => { tokensVisible.setProperSightCache(value)}
      });
 	 
