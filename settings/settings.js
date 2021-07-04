@@ -10,7 +10,7 @@ export function registerSettings() {
 	 game.settings.register(moduleName, 'tokenAnimationSpeed', {
 	   name: game.i18n.localize(MODULE_ID+".tokenAnimationSpeed"),
 	   hint: game.i18n.localize(MODULE_ID+".tokenAnimationSpeedHint"),
-	   scope: 'client',   
+	   scope: 'world',   
 	   config: true,      
        type: Number,
        default: "10", 
