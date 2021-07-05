@@ -40,7 +40,9 @@ Note: This module replicates 100% of the functionality of the moduled called Pus
 
 9. Combat Tracker Initial Visibility - configure the initial visibility of new combatants based on hostile/neutral/friendly disposition. 
 
-10. Token Movement Animation Speed - Allows GM to set the speed of token movement animation.  Increasing this makes the canvas feel snappier. Decreasing this makes token movement feel more dramatic.
+10. Token Movement Animation Speed - Allows GM to set the speed of token movement animation.  Increasing Token Movement Animation Speed makes the canvas feel snappier. Decreasing it makes token movement feel more delilberate and dramatic.
+
+11. Token MultiVision - A setting to control how a player may have vision from multiple tokens simultaneously.  
 
 
 
