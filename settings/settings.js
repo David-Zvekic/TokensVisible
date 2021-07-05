@@ -17,6 +17,22 @@ export function registerSettings() {
   	   onChange: value => { tokensVisible.tokenAnimationSpeed = value / 10.0;  }
 	 });
      
+     
+     game.settings.register(moduleName, "tokenMultiVision", {
+       name: game.i18n.localize(MODULE_ID+".tokenMultiVision"),
+       hint: game.i18n.localize(MODULE_ID+".tokenMultiVisionHint"),
+       scope: "world",
+       config: true,
+       type: String,
+       choices: {
+           "Yes": game.i18n.localize(MODULE_ID+".tokenMultiVisionYes") ,
+           "Limited": game.i18n.localize(MODULE_ID+".tokenMultiVisionLimited"),
+           "Never": game.i18n.localize(MODULE_ID+".tokenMultiVisionNever")
+       },
+       default: "Limited",
+       onChange: value => { tokensVisible.tokenMultiVision= value;  }
+     });
+     
     
 	 game.settings.register(moduleName, 'combatantHidden', {
 	   name: game.i18n.localize(MODULE_ID+".combatantHidden"),

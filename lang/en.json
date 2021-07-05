@@ -41,8 +41,10 @@
 	"TOKENSVISIBLE.combatantHiddenNeutral":"Hostile and Neutral Combatants enter combat hidden. Others use standard behavior.",
 	"TOKENSVISIBLE.combatantHiddenAll":"All Combatants enter combat hidden.",
     "TOKENSVISIBLE.tokenAnimationSpeed":"Token Animate Speed",
-    "TOKENSVISIBLE.tokenAnimationSpeedHint":"Controls how fast tokens move during animated movement. Higher numbers save electricity and time by rendering less frames during animation. Standard Foundry Speed is 10."   
-	
-	
-	
+    "TOKENSVISIBLE.tokenAnimationSpeedHint":"Controls how fast tokens move during animated movement. Higher numbers save electricity and time by rendering less frames during animation. Standard Foundry Speed is 10.",   
+	"TOKENSVISIBLE.tokenMultiVision":"Token MultiVision",
+	"TOKENSVISIBLE.tokenMultiVisionHint":"Setting to control when a player may have vision from multiple tokens simultaneously. Standard Foundry behavior is 'Limited'. (MultiVision always requires Observer permissions).",
+	"TOKENSVISIBLE.tokenMultiVisionYes":"Yes: Player has vision from multiple tokens.",
+	"TOKENSVISIBLE.tokenMultiVisionLimited":"Limited: Player has vision from multiple tokens only when they are controlling none.",
+	"TOKENSVISIBLE.tokenMultiVisionNever":"Never: Player only has vision from the most recently-controlled token."
 }

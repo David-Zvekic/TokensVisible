@@ -72,6 +72,16 @@ tokensVisible.hoverToken.hook= Hooks.on('hoverToken',(token,hoverON)=>{
   }
 });
 
+tokensVisible.hoverToken.hook= Hooks.on('controlToken',(token,controlled)=>{
+	
+  if (controlled) {
+    tokensVisible.lastControlledToken=token;
+  }
+ 
+});
+
+
+
 Hooks.once('init',async function () {
 	console.log('TokensVisible | Initializing Your Tokens Visible');
 	
@@ -169,6 +179,7 @@ tokensVisible.castRayshotkey =game.settings.get('TokensVisible', 'castRayshotkey
 tokensVisible.sightCachehotkey =game.settings.get('TokensVisible', 'sightCachehotkey');
 tokensVisible.setupCombatantMasking(game.settings.get('TokensVisible', 'combatantHidden'));
 tokensVisible.tokenAnimationSpeed=game.settings.get('TokensVisible', 'tokenAnimationSpeed') / 10.0; 
+tokensVisible.tokenMultiVision=game.settings.get('TokensVisible', 'tokenMultiVision');
 
 }
 );
@@ -334,18 +345,28 @@ libWrapper.register(moduleName,'Token.prototype._onUpdate',
  
     }, 'WRAPPER');
     
-  
    libWrapper.register(moduleName,'Token.prototype._isVisionSource', 
     function () {
        if ( !canvas.sight.tokenVision || !this.hasSight ) return false;
-       if ( this._controlled ) return true;
- 
-       const isGM = game.user.isGM;
-       if (!isGM) {
-          // if a non-GM observer-user controls no tokens with sight return true
-          const others = this.layer.controlled.find( t => t.hasSight);
-          if (this.observer && (others == undefined)) return true;
-    
+     
+       if (game.user.isGM) {
+            if ( this._controlled ) return true;  
+       }
+       else {
+           switch(tokensVisible.tokenMultiVision) {
+            case 'Yes':
+              if ( this.observer ) return true;
+            case 'Limited' :        
+              if ( this._controlled ) return true;      
+              // if a non-GM observer-user controls no tokens with sight then show vision 
+              // from all observer tokens. This acts like temporary multitoken vision.
+              const others = this.layer.controlled.find( t => t.hasSight);
+              if (this.observer && (others == undefined)) return true;
+              break; 
+          case 'Never' :
+              if (this.data._id == tokensVisible.lastControlledToken.data._id) return true;  
+          }
+          
        }
     
        return false;
