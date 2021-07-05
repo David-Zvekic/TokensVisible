@@ -98,13 +98,6 @@ Hooks.once('ready',() => {
 });
 
 
-Hooks.on('updateWall', (scene,wall,data,diff,userid) => {
-  if(diff.diff){
-    if (tokensVisible.SightCache!=undefined) tokensVisible.SightCache=new Map();
-  }
-});
-
-
 Hooks.on('canvasReady',()=>{ 
   if (tokensVisible.SightCache!=undefined) tokensVisible.SightCache=new Map();
 } );
@@ -330,6 +323,22 @@ libWrapper.register(moduleName,'Token.prototype._onUpdate',
        wrapped(data,options,userId);   
     }
     , 'WRAPPER');  
+    
+
+
+libWrapper.register(moduleName,'Wall.prototype._onUpdate',
+    function(wrapped, data, ...args ) {
+      // reset the SightCalculation cache if a token changes elevation.
+      // this means nothing for the base system, but some modules change rendering based on tokens changing elevation.
+      // triggering this rest in a Hooks.on('UpdateToken') triggers too late.        
+      
+       if (tokensVisible.SightCache!=undefined) {
+           tokensVisible.SightCache=new Map();
+       }
+       wrapped(data,args);   
+    }
+    , 'WRAPPER');  
+    
     
 
    libWrapper.register(moduleName,'Token.prototype.isVisible', 
