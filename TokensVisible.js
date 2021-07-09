@@ -375,7 +375,7 @@ libWrapper.register(moduleName,'Wall.prototype._onUpdate',
             ) return true;    
         
         
-       if ( !canvas.sight.tokenVision || !this.hasSight ) return false;
+       if ( !canvas.sight.tokenVision || !this.hasSight ) return false; // deliberately ignore hidden status on this line
      
        if (game.user.isGM) {
             if ( this._controlled ) return true;  
