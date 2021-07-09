@@ -45,7 +45,7 @@ Note: This module replicates 100% of the functionality of the moduled called Pus
 11. Token MultiVision - A setting to control how a player may have vision from multiple tokens simultaneously.  
 
 
-## COMPATABILITY
+## COMPATIBILITY
 
 For maximum compatability with other modules use the following settings:
 
