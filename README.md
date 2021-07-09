@@ -47,7 +47,7 @@ Note: This module replicates 100% of the functionality of the moduled called Pus
 
 ## COMPATIBILITY
 
-For maximum compatability with other modules use the following settings:
+For maximum compatibility with other modules use the following settings:
 
 - Token Animate Speed : 10
 - Token Multivision   : Limited
