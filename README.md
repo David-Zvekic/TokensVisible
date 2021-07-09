@@ -45,19 +45,20 @@ Note: This module replicates 100% of the functionality of the moduled called Pus
 11. Token MultiVision - A setting to control how a player may have vision from multiple tokens simultaneously.  
 
 
-COMPATABILITY
+## COMPATABILITY
+
 For maximum compatability with other modules use the following settings:
 
-Token Animate Speed : 10
-Token Multivision   : Limited
-Combat Tracker Initial Visibility : Use Standard Foundry Behavior
-Automatic Pan Mode : Recenter
-Automatic Pan Margin : 50
-Token Light : Hidden Tokens Never Radiate Light
-Hidden Token Vision : No
-Animation During GM Movement : Normal Token Animation
-Ray Casting Precision Mode : Standard
-Sight Calculations Cache : OFF
+- Token Animate Speed : 10
+- Token Multivision   : Limited
+- Combat Tracker Initial Visibility : Use Standard Foundry Behavior
+- Automatic Pan Mode : Recenter
+- Automatic Pan Margin : 50
+- Token Light : Hidden Tokens Never Radiate Light
+- Hidden Token Vision : No
+- Animation During GM Movement : Normal Token Animation
+- Ray Casting Precision Mode : Standard
+- Sight Calculations Cache : OFF
 
 
 
