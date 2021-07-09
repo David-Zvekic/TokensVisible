@@ -1,4 +1,4 @@
-# Your Tokens Visible v2.5.1
+# Your Tokens Visible v2.5.2
 *See what you need to see. No more, no less!*
 ***
 A module for Foundry VTT.
@@ -15,7 +15,7 @@ The default hotkey is lowercase "z", but this can be reconfigured.
 
 Note: This module replicates 100% of the functionality of the moduled called Push Tokens Back (which I also wrote). If you use 'Your Tokens Visible', you do not need PushTokensBack.
 
-2. "Hidden Tokens Can See" - Activate this setting and when the GM turns off visibility for a Token, it will no longer lose vision. 
+2. "Hidden Token Vision" - Activate this setting and when the GM turns off visibility for a Token, it will no longer lose vision. 
 
 3. "Hidden Tokens Can Emit Light" - Hidden tokens are no longer prevented from emitting light.  
 ![Invisible Tokens Cast Light](TokensVisible.gif)
@@ -45,8 +45,19 @@ Note: This module replicates 100% of the functionality of the moduled called Pus
 11. Token MultiVision - A setting to control how a player may have vision from multiple tokens simultaneously.  
 
 
+COMPATABILITY
+For maximum compatability with other modules use the following settings:
 
-
+Token Animate Speed : 10
+Token Multivision   : Limited
+Combat Tracker Initial Visibility : Use Standard Foundry Behavior
+Automatic Pan Mode : Recenter
+Automatic Pan Margin : 50
+Token Light : Hidden Tokens Never Radiate Light
+Hidden Token Vision : No
+Animation During GM Movement : Normal Token Animation
+Ray Casting Precision Mode : Standard
+Sight Calculations Cache : OFF
 
 
 

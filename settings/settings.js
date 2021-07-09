@@ -151,6 +151,21 @@ export function registerSettings() {
     });
 
 
+    game.settings.register(moduleName, "hiddenCanSee", {
+      name: game.i18n.localize(MODULE_ID+".hiddenCanSee"),
+      hint: game.i18n.localize(MODULE_ID+".hiddenCanSeeHint"),	
+      scope: "world",
+      config: true,
+      type: String,
+      choices: {
+           "Yes": game.i18n.localize(MODULE_ID+".hiddenCanSeeYES"),
+           "No": game.i18n.localize(MODULE_ID+".hiddenCanSeeNO"),
+      },
+      default: "Yes",
+      onChange: value => { tokensVisible.hiddenCanSee = value  }
+    });
+    
+
     game.settings.register(moduleName, "wallsCancelAnimation", {
       name: game.i18n.localize(MODULE_ID+".wallsCancelAnimation"),
       hint: game.i18n.localize(MODULE_ID+".wallsCancelAnimationHint"),

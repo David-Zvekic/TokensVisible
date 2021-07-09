@@ -167,12 +167,14 @@ tokensVisible.panMode = game.settings.get('TokensVisible', 'panMode');
 tokensVisible.pushhotkey=game.settings.get('TokensVisible', 'pushhotkey');
 tokensVisible.autopanMargin= game.settings.get('TokensVisible', 'autopanningMargin');
 tokensVisible.hiddenCanLight = game.settings.get('TokensVisible', 'hiddenCanLight');
+tokensVisible.hiddenCanSee = game.settings.get('TokensVisible', 'hiddenCanSee');
 tokensVisible.wallsCancelAnimation = game.settings.get('TokensVisible', 'wallsCancelAnimation');
 tokensVisible.castRayshotkey =game.settings.get('TokensVisible', 'castRayshotkey');
 tokensVisible.sightCachehotkey =game.settings.get('TokensVisible', 'sightCachehotkey');
 tokensVisible.setupCombatantMasking(game.settings.get('TokensVisible', 'combatantHidden'));
 tokensVisible.tokenAnimationSpeed=game.settings.get('TokensVisible', 'tokenAnimationSpeed') / 10.0; 
 tokensVisible.tokenMultiVision=game.settings.get('TokensVisible', 'tokenMultiVision');
+
 
 }
 );
@@ -363,10 +365,15 @@ libWrapper.register(moduleName,'Wall.prototype._onUpdate',
     
    libWrapper.register(moduleName,'Token.prototype._isVisionSource', 
     function (wrapped) {
-        const computerSaysYes = wrapped();
-       if  (tokensVisible.tokenMultiVision!='Never' || this.data._id == tokensVisible.lastControlledToken?.data._id){
-           if (computerSaysYes) return true;    
-       }
+      
+       
+        const computerSaysYes = wrapped(); // always chain wrapper even if we may never use the result - on the chance another module needs it's version executed
+        
+        if (tokensVisible.hiddenCanSee=='No' && tokensVisible.tokenMultiVision=='Limited') return computerSaysYes ;
+        if  (computerSaysYes && 
+             (tokensVisible.tokenMultiVision!='Never' || this.data._id == tokensVisible.lastControlledToken?.data._id)
+            ) return true;    
+        
         
        if ( !canvas.sight.tokenVision || !this.hasSight ) return false;
      
@@ -374,6 +381,7 @@ libWrapper.register(moduleName,'Wall.prototype._onUpdate',
             if ( this._controlled ) return true;  
        }
        else {
+           if (!tokenHasSight(this)) return false;
            switch(tokensVisible.tokenMultiVision) {
             case 'Yes':
               if ( this.observer ) return true;
@@ -381,7 +389,7 @@ libWrapper.register(moduleName,'Wall.prototype._onUpdate',
               if ( this._controlled ) return true;      
               // if a non-GM observer-user controls no tokens with sight then show vision 
               // from all observer tokens. This acts like temporary multitoken vision.
-              const others = this.layer.controlled.find( t => t.hasSight);
+              const others = this.layer.controlled.find( t => tokenHasSight(t));
               if (this.observer && (others == undefined)) return true;
               break; 
           case 'Never' :
@@ -391,6 +399,11 @@ libWrapper.register(moduleName,'Wall.prototype._onUpdate',
        }
     
        return false;
+       
+       function tokenHasSight (tokenInQuestion){
+           if (tokenInQuestion.data.hidden && tokensVisible.hiddenCanSee=='No') return false; 
+           return tokenInQuestion.hasSight;
+       } 
      }
     , 'MIXED');
     
