@@ -302,9 +302,8 @@ Hooks.once('init', () => {
         if (tokensVisible.tokenAnimationSpeed!=1 &&  name != undefined){
             if ((name.substring(0,6)=="Token.") && (name.substring(name.length -16) == ".animateMovement")) duration = duration / tokensVisible.tokenAnimationSpeed ; 
         };
-        wrapped(attributes,{context,name,duration,ontick});
+        return wrapped(attributes,{context,name,duration,ontick});
         
- 
     }, 'WRAPPER');
     
     
@@ -347,15 +346,28 @@ libWrapper.register(moduleName,'Wall.prototype._onUpdate',
    
       if ( this._controlled ) return true;
       if(!game.user.isGM ){
-       const canObserve = this.actor && this.actor.hasPerm(game.user, "OBSERVER");
-       if (canObserve) return true;
+          if(this.actor) {
+            let canObserve = false;
+            if (Actor.prototype.testUserPermission!=undefined) {  
+                canObserve = this.actor?.testUserPermission(game.user, "OBSERVER");
+            } else {
+               canObserve = this.actor?.hasPerm(game.user, "OBSERVER"); 
+            }
+            
+            if (canObserve) return true;
+         }
       }
       return false; 
  
     }, 'WRAPPER');
     
    libWrapper.register(moduleName,'Token.prototype._isVisionSource', 
-    function () {
+    function (wrapped) {
+        const computerSaysYes = wrapped();
+       if  (tokensVisible.tokenMultiVision!='Never' || this.data._id == tokensVisible.lastControlledToken?.data._id){
+           if (computerSaysYes) return true;    
+       }
+        
        if ( !canvas.sight.tokenVision || !this.hasSight ) return false;
      
        if (game.user.isGM) {
@@ -373,14 +385,14 @@ libWrapper.register(moduleName,'Wall.prototype._onUpdate',
               if (this.observer && (others == undefined)) return true;
               break; 
           case 'Never' :
-              if (this.data._id == tokensVisible.lastControlledToken.data._id) return true;  
+              if (this.data._id == tokensVisible.lastControlledToken?.data._id) return true;  
           }
           
        }
     
        return false;
      }
-    , 'OVERRIDE');
+    , 'MIXED');
     
 
      
@@ -402,6 +414,8 @@ libWrapper.register(moduleName,'Wall.prototype._onUpdate',
       if (!cancelAnimation)
        cancelAnimation = (tokensVisible.wallsCancelAnimation=="Yes" &&  this.checkCollision(target)); 
     }
+    
+
      this._validPosition = target;
      this._velocity = this._updateVelocity(ray);
 
@@ -420,8 +434,8 @@ libWrapper.register(moduleName,'Wall.prototype._onUpdate',
             // in Foundry 0.7.9 a 0 distance movement worked, but as of 0.8.6 we need a non-zero distance
             this.position.set(x-0.01, y-0.01);  
         }; 
-        
-        this.animateMovement(new Ray(this.position, ray.B));
+  
+        await this.animateMovement(new Ray(this.position, ray.B));
     }
     else this.position.set(x, y);
     
