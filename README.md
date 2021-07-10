@@ -1,3 +1,4 @@
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/davidzvekic)
 # Your Tokens Visible v2.5.2
 *See what you need to see. No more, no less!*
 ***
