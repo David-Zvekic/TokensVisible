@@ -301,8 +301,13 @@ Hooks.once('init', () => {
    libWrapper.register(moduleName,'CanvasAnimation.animateLinear', 
     function(wrapped, attributes, {context, name, duration, ontick} )  { 
    
-        if (tokensVisible.tokenAnimationSpeed!=1 &&  name != undefined){
-            if ((name.substring(0,6)=="Token.") && (name.substring(name.length -16) == ".animateMovement")) duration = duration / tokensVisible.tokenAnimationSpeed ; 
+        
+        if ((tokensVisible.tokenAnimationSpeed!=1 || tokensVisible.cancelTokenAnimation) &&  name != undefined){
+            if ((name.substring(0,6)=="Token.") && (name.substring(name.length -16) == ".animateMovement"))  { 
+                if (tokensVisible.cancelTokenAnimation) duration=0; 
+                else
+                duration = duration / tokensVisible.tokenAnimationSpeed ;
+             }
         };
         return wrapped(attributes,{context,name,duration,ontick});
         
@@ -438,20 +443,27 @@ libWrapper.register(moduleName,'Wall.prototype._onUpdate',
     // Conceal the HUD if it targets this Token
     if ( this.hasActiveHUD ) this.layer.hud.clear();
  
-
+    
+    
+    
     if ( animate){
-        if (cancelAnimation) {
-            // client with animate turned on assumes an animated Movement will render the destination.
-            // since we are setting the position directly, animate tiny distance Movement at the destination
-            // to satisfy that need.
-            // in Foundry 0.7.9 a 0 distance movement worked, but as of 0.8.6 we need a non-zero distance
-            this.position.set(x-0.01, y-0.01);  
-        }; 
   
+        // tokensVisible.cancelTokenAnimation causes CanvasAnimation.animateLinear (for tokens) to have a 0 duration (instant) by setting an out-of-band flag.  
+        // setPosition previously used Token.position.set() to 0-duration the animation, but Drag Ruler (and maybe other modules) depend on the animation
+        // duration without calling setPosition. They call Token.animateMovement directly (and thus CanvasAnimation.animateLinear).  
+        // tokensVisible.cancelTokenAnimation variable communicates with CanvasAnimation.animateLinear out-of-band (as it is wrapped by TokensVisible)
+        // and ensures any token animation that is triggered asynchronously prior to Foundry calling setPosition in the code is also set to 0 duration (instant) if setPosition would do so.
+                
+        tokensVisible.cancelTokenAnimation=cancelAnimation; 
+   
         await this.animateMovement(new Ray(this.position, ray.B));
+        tokensVisible.cancelTokenAnimation=false;  // let future token animations run at regular speed
+         
+       
     }
     else this.position.set(x, y);
     
+   
     // If the movement took a controlled token off-screen, adjust the view
     if (this._controlled && isVisible) {
 
