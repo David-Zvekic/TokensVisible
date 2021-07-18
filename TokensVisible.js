@@ -293,6 +293,27 @@ tokensVisible.setupRenderColors = function()
 Hooks.on('renderSceneControls', tokensVisible.setupRenderColors );
 
 
+Hooks.once('ready',() => {
+   
+    //deferred to ready - if this is wrapped in 'init'  then perfect-vision will get an error trying to redefine Token.prototype.updateSource
+    libWrapper.register(moduleName,'Token.prototype.updateSource',   
+    function(wrapped, ...args) {
+  
+      
+       if (this.data.hidden && this.emitsLight && tokensVisible.hiddenCanLight=="Yes") {   
+           this.data.hidden=false;
+           const wrappedresult = wrapped(...args);
+           this.data.hidden=true;
+           return wrappedresult;
+       } else
+       {
+           return wrapped(...args); 
+       }  
+           
+     
+    },'WRAPPER');    
+    
+});
 
 Hooks.once('init', () => {
     
@@ -508,77 +529,6 @@ libWrapper.register(moduleName,'Wall.prototype._onUpdate',
     }
     return this;
 }, 'OVERRIDE');
-
-
-
-  
- libWrapper.register(moduleName,'Token.prototype.updateSource',   
- function({defer=false, deleted=false, noUpdateFog=false}={}) {
-    // this method is derived from original Token.prototype.updateSource 
-    if ( CONFIG.debug.sight ) {
-      SightLayer._performance = { start: performance.now(), tests: 0, rays: 0 }
-    }
-
-    // Prepare some common data
-    const origin = this.getSightOrigin();
-    const sourceId = this.sourceId;
-    const d = canvas.dimensions;
-    const maxR = (d.maxR!=undefined)?(d.maxR):(Math.hypot(d.sceneWidth, d.sceneHeight)); 
-
-    // Update light source
-    const isLightSource = this.emitsLight && ((tokensVisible.hiddenCanLight=="Yes") || (!this.data.hidden));
-
-    if ( isLightSource && !deleted ) {
-      const bright = Math.min(this.getLightRadius(this.data.brightLight), maxR);
-      const dim = Math.min(this.getLightRadius(this.data.dimLight), maxR);
-      this.light.initialize({
-        x: origin.x,
-        y: origin.y,
-        dim: dim,
-        bright: bright,
-        angle: this.data.lightAngle,
-        rotation: this.data.rotation,
-        color: this.data.lightColor,
-        alpha: this.data.lightAlpha,
-        animation: this.data.lightAnimation
-      });
-      canvas.lighting.sources.set(sourceId, this.light);
-      if ( !defer ) {
-        this.light.drawLight();
-        this.light.drawColor();
-      }
-    }
-    else {
-      canvas.lighting.sources.delete(sourceId);
-      if ( isLightSource && !defer ) canvas.lighting.refresh();
-    }
-
-    // Update vision source
-    const isVisionSource = this._isVisionSource();
-    if ( isVisionSource && !deleted ) {
-      let dim =  canvas.lighting.globalLight ? maxR : Math.min(this.getLightRadius(this.data.dimSight), maxR);
-      const bright = Math.min(this.getLightRadius(this.data.brightSight), maxR);
-      //if ((dim === 0) && (bright === 0)) dim = Math.min(this.w, this.h) * 0.5;  // this line was part of 0.7.9 but I dont know why it is needed, and 0.8.6 removed it
-      this.vision.initialize({
-        x: origin.x,
-        y: origin.y,
-        dim: dim,
-        bright: bright,
-        angle: this.data.sightAngle,
-        rotation: this.data.rotation
-      });
-      canvas.sight.sources.set(sourceId, this.vision);
-      if ( !defer ) {
-        this.vision.drawLight();
-        canvas.sight.refresh({noUpdateFog});
-      }
-    }
-    else {
-      canvas.sight.sources.delete(sourceId);
-      if ( isVisionSource && !defer ) canvas.sight.refresh();
-    }
-}, 'OVERRIDE');
-
 
 }
 );
