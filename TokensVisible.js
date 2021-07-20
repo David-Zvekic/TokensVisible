@@ -396,8 +396,9 @@ libWrapper.register(moduleName,'Wall.prototype._onUpdate',
         const computerSaysYes = wrapped(); // always chain wrapper even if we may never use the result - on the chance another module needs it's version executed
         
         if (tokensVisible.hiddenCanSee=='No' && tokensVisible.tokenMultiVision=='Limited') return computerSaysYes ;
+     
         if  (computerSaysYes && 
-             (tokensVisible.tokenMultiVision!='Never' || this.data._id == tokensVisible.lastControlledToken?.data._id)
+             (tokensVisible.tokenMultiVision=='Yes' || this.data._id == tokensVisible.lastControlledToken?.data._id)
             ) return true;    
         
         
