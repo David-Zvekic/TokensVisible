@@ -166,6 +166,26 @@ export function registerSettings() {
     });
     
 
+
+    game.settings.register(moduleName, "blindTokensSeeSelf", {
+      name: game.i18n.localize(MODULE_ID+".blindTokensSeeSelf"),
+      hint: game.i18n.localize(MODULE_ID+".blindTokensSeeSelfHint"),	
+      scope: "world",
+      config: true,
+      type: String,
+      choices: {
+           "Yes": game.i18n.localize(MODULE_ID+".blindTokensSeeSelfYES"),
+           "No": game.i18n.localize(MODULE_ID+".blindTokensSeeSelfNO"),
+      },
+      default: "Yes",
+      onChange: value => { tokensVisible.blindSeeSelf  = value }
+    });
+    
+
+
+
+
+
     game.settings.register(moduleName, "wallsCancelAnimation", {
       name: game.i18n.localize(MODULE_ID+".wallsCancelAnimation"),
       hint: game.i18n.localize(MODULE_ID+".wallsCancelAnimationHint"),

@@ -174,7 +174,7 @@ tokensVisible.sightCachehotkey =game.settings.get('TokensVisible', 'sightCacheho
 tokensVisible.setupCombatantMasking(game.settings.get('TokensVisible', 'combatantHidden'));
 tokensVisible.tokenAnimationSpeed=game.settings.get('TokensVisible', 'tokenAnimationSpeed') / 10.0; 
 tokensVisible.tokenMultiVision=game.settings.get('TokensVisible', 'tokenMultiVision');
-
+tokensVisible.blindSeeSelf = game.settings.get('TokensVisible', 'blindTokensSeeSelf');
 
 }
 );
@@ -367,27 +367,39 @@ libWrapper.register(moduleName,'Wall.prototype._onUpdate',
     , 'WRAPPER');  
     
     
-
+ 
+    
    libWrapper.register(moduleName,'Token.prototype.isVisible', 
     function(wrapped)  { 
-      if (wrapped()) return true;
+       
+        if (!game.user.isGM && this._controlled  && !this._isVisionSource() && (tokensVisible.blindSeeSelf=='No')) {
+            this._controlled=false;
+            return visibilityTest.call(this);
+        }    
+        
+        return visibilityTest.call(this);
+        
+        function visibilityTest() {    
+         if (wrapped()) return true;
    
-      if ( this._controlled ) return true;
-      if(!game.user.isGM ){
-          if(this.actor) {
-            let canObserve = false;
-            if (Actor.prototype.testUserPermission!=undefined) {  
+         if ( this._controlled ) return true;
+         if(!game.user.isGM ){
+           if(this.actor) {
+             let canObserve = false;
+             if (Actor.prototype.testUserPermission!=undefined) {  
                 canObserve = this.actor?.testUserPermission(game.user, "OBSERVER");
-            } else {
-               canObserve = this.actor?.hasPerm(game.user, "OBSERVER"); 
-            }
+             } else {
+                canObserve = this.actor?.hasPerm(game.user, "OBSERVER"); 
+             }
             
-            if (canObserve) return true;
-         }
-      }
-      return false; 
+            if (canObserve && ((tokensVisible.blindSeeSelf == 'Yes') || this._isVisionSource() )) return true;
+          }
+        }
+        return false; 
+      };
+      
  
-    }, 'WRAPPER');
+    }, 'MIXED');
     
    libWrapper.register(moduleName,'Token.prototype._isVisionSource', 
     function (wrapped) {

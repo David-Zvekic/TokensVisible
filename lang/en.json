@@ -50,5 +50,9 @@
 	"TOKENSVISIBLE.tokenMultiVisionHint":"Setting to control when a player may have vision from multiple tokens simultaneously. Standard Foundry behavior is 'Limited'. (MultiVision always requires Observer permissions).",
 	"TOKENSVISIBLE.tokenMultiVisionYes":"Yes: Player has vision from multiple tokens.",
 	"TOKENSVISIBLE.tokenMultiVisionLimited":"Limited: Player has vision from multiple tokens only when they are controlling none.",
-	"TOKENSVISIBLE.tokenMultiVisionNever":"Never: Player only has vision from the most recently-controlled token."
+	"TOKENSVISIBLE.tokenMultiVisionNever":"Never: Player only has vision from the most recently-controlled token.",
+    "TOKENSVISIBLE.blindTokensSeeSelf":"Blind Tokens See Themselves",
+    "TOKENSVISIBLE.blindTokensSeeSelfHint" : "Control whether a token without vision can see itself or be controlled",
+    "TOKENSVISIBLE.blindTokensSeeSelfYES" : "Yes, Tokens with no vision can be controlled and see themselves (Foundry Default)",
+    "TOKENSVISIBLE.blindTokensSeeSelfNO" : "No, Tokens with no vision cannot be controlled and don't themselves"
 }
