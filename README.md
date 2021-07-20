@@ -1,5 +1,5 @@
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/davidzvekic)
-# Your Tokens Visible v2.5.4
+# Your Tokens Visible v2.6.0
 *See what you need to see. No more, no less!*
 ***
 A module for Foundry VTT.
@@ -45,6 +45,8 @@ Note: This module replicates 100% of the functionality of the moduled called Pus
 
 11. Token MultiVision - A setting to control how a player may have vision from multiple tokens simultaneously.  
 
+12. Blind Tokens Controllable - The GM may not want players to know exactly where their blind or unconscious character is.  Standard Foundry Behavior lets players see and control their tokens even with no vision, however by disabling this setting blind tokens will no longer be controlled by players. Players with no vision source to the blind token will not see the token on the map; They will not be able to cycle to it or control it. Players will need to rely on the GM to move their blinded tokens.  
+
 
 ## COMPATIBILITY
 
@@ -60,6 +62,7 @@ For maximum compatibility with other modules use the following settings:
 - Animation During GM Movement : Normal Token Animation
 - Ray Casting Precision Mode : Standard
 - Sight Calculations Cache : OFF
+- Blind Tokens Controllable : YES
 
 
 
