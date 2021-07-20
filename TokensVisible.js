@@ -174,7 +174,7 @@ tokensVisible.sightCachehotkey =game.settings.get('TokensVisible', 'sightCacheho
 tokensVisible.setupCombatantMasking(game.settings.get('TokensVisible', 'combatantHidden'));
 tokensVisible.tokenAnimationSpeed=game.settings.get('TokensVisible', 'tokenAnimationSpeed') / 10.0; 
 tokensVisible.tokenMultiVision=game.settings.get('TokensVisible', 'tokenMultiVision');
-tokensVisible.blindSeeSelf = game.settings.get('TokensVisible', 'blindTokensSeeSelf');
+tokensVisible.blindControllable = game.settings.get('TokensVisible', 'blindTokensControllable');
 
 }
 );
@@ -315,9 +315,38 @@ Hooks.once('ready',() => {
     
 });
 
+function tokenHasSight (tokenInQuestion){
+    if (tokenInQuestion.data.hidden && tokensVisible.hiddenCanSee=='No') return false; 
+    return tokenInQuestion.hasSight;
+} 
+
 Hooks.once('init', () => {
     
-
+    
+      libWrapper.register(moduleName,'TokenLayer.prototype._getCycleOrder',
+    function(wrapped,...args){
+        let observable = wrapped(...args);
+        if (tokensVisible.blindControllable=='No') {
+          observable = observable.filter( t => {return tokenHasSight(t) })
+        }
+        return observable;
+    }, 'WRAPPER'); 
+    
+    
+   libWrapper.register(moduleName,'Token.prototype.control', 
+    function(wrapped, ...args )  { 
+   
+        if (!game.user.isGM && canvas.sight.tokenVision && !this.hasSight && (tokensVisible.blindControllable=='No')) {
+        
+            this._controlled = true;
+            // calling the wrapped function will cause clicking a blind owned token to be act like clicking on an unowned token.
+            wrapped(...args); 
+            this._controlled = false;
+            return this._controlled;
+         }
+        return wrapped(...args);  
+        
+    }, 'WRAPPER');
 
    libWrapper.register(moduleName,'CanvasAnimation.animateLinear', 
     function(wrapped, attributes, {context, name, duration, ontick} )  { 
@@ -362,7 +391,7 @@ libWrapper.register(moduleName,'Wall.prototype._onUpdate',
        if (tokensVisible.SightCache!=undefined) {
            tokensVisible.SightCache=new Map();
        }
-       wrapped(data,args);   
+       wrapped(data,...args);   
     }
     , 'WRAPPER');  
     
@@ -372,14 +401,6 @@ libWrapper.register(moduleName,'Wall.prototype._onUpdate',
    libWrapper.register(moduleName,'Token.prototype.isVisible', 
     function(wrapped)  { 
        
-        if (!game.user.isGM && this._controlled  && !this._isVisionSource() && (tokensVisible.blindSeeSelf=='No')) {
-            this._controlled=false;
-            return visibilityTest.call(this);
-        }    
-        
-        return visibilityTest.call(this);
-        
-        function visibilityTest() {    
          if (wrapped()) return true;
    
          if ( this._controlled ) return true;
@@ -392,11 +413,11 @@ libWrapper.register(moduleName,'Wall.prototype._onUpdate',
                 canObserve = this.actor?.hasPerm(game.user, "OBSERVER"); 
              }
             
-            if (canObserve && ((tokensVisible.blindSeeSelf == 'Yes') || this._isVisionSource() )) return true;
+            if (canObserve && ((tokensVisible.blindControllable == 'Yes') || this._isVisionSource() ||  !canvas.sight.tokenVision )) return true;
           }
         }
         return false; 
-      };
+    
       
  
     }, 'MIXED');
@@ -410,7 +431,7 @@ libWrapper.register(moduleName,'Wall.prototype._onUpdate',
         if (tokensVisible.hiddenCanSee=='No' && tokensVisible.tokenMultiVision=='Limited') return computerSaysYes ;
      
         if  (computerSaysYes && 
-             (tokensVisible.tokenMultiVision=='Yes' || this.data._id == tokensVisible.lastControlledToken?.data._id)
+             (tokensVisible.tokenMultiVision=='Yes' || this.data._id == tokensVisible.lastControlledToken?.data._id || !canvas.sight.tokenVision)
             ) return true;    
         
         
@@ -438,11 +459,7 @@ libWrapper.register(moduleName,'Wall.prototype._onUpdate',
        }
     
        return false;
-       
-       function tokenHasSight (tokenInQuestion){
-           if (tokenInQuestion.data.hidden && tokensVisible.hiddenCanSee=='No') return false; 
-           return tokenInQuestion.hasSight;
-       } 
+
      }
     , 'MIXED');
     

@@ -51,8 +51,8 @@
 	"TOKENSVISIBLE.tokenMultiVisionYes":"Yes: Player has vision from multiple tokens.",
 	"TOKENSVISIBLE.tokenMultiVisionLimited":"Limited: Player has vision from multiple tokens only when they are controlling none.",
 	"TOKENSVISIBLE.tokenMultiVisionNever":"Never: Player only has vision from the most recently-controlled token.",
-    "TOKENSVISIBLE.blindTokensSeeSelf":"Blind Tokens See Themselves",
-    "TOKENSVISIBLE.blindTokensSeeSelfHint" : "Control whether a token without vision can see itself or be controlled",
-    "TOKENSVISIBLE.blindTokensSeeSelfYES" : "Yes, Tokens with no vision can be controlled and see themselves (Foundry Default)",
-    "TOKENSVISIBLE.blindTokensSeeSelfNO" : "No, Tokens with no vision cannot be controlled and don't themselves"
+    "TOKENSVISIBLE.blindTokensControllable":"Blind Tokens Controllable",
+    "TOKENSVISIBLE.blindTokensControllableHint" : "On scenes using Token Vision, can tokens without vision be controlled by players? If 'No' then hidden tokens, with no vision are hidden even from the owner.",
+    "TOKENSVISIBLE.blindTokensControllableYES" : "Yes, Tokens with no vision can be controlled normally (Foundry standard)",
+    "TOKENSVISIBLE.blindTokensControllableNO" : "No, Tokens without vision cannot be controlled by players"
 }

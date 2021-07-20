@@ -167,18 +167,18 @@ export function registerSettings() {
     
 
 
-    game.settings.register(moduleName, "blindTokensSeeSelf", {
-      name: game.i18n.localize(MODULE_ID+".blindTokensSeeSelf"),
-      hint: game.i18n.localize(MODULE_ID+".blindTokensSeeSelfHint"),	
+    game.settings.register(moduleName, "blindTokensControllable", {
+      name: game.i18n.localize(MODULE_ID+".blindTokensControllable"),
+      hint: game.i18n.localize(MODULE_ID+".blindTokensControllableHint"),	
       scope: "world",
       config: true,
       type: String,
       choices: {
-           "Yes": game.i18n.localize(MODULE_ID+".blindTokensSeeSelfYES"),
-           "No": game.i18n.localize(MODULE_ID+".blindTokensSeeSelfNO"),
+           "Yes": game.i18n.localize(MODULE_ID+".blindTokensControllableYES"),
+           "No": game.i18n.localize(MODULE_ID+".blindTokensControllableNO"),
       },
       default: "Yes",
-      onChange: value => { tokensVisible.blindSeeSelf  = value }
+      onChange: value => { tokensVisible.blindControllable  = value }
     });
     
 
