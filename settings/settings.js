@@ -13,8 +13,8 @@ export function registerSettings() {
 	   scope: 'world',   
 	   config: true,      
        type: Number,
-       default: "10", 
-  	   onChange: value => { tokensVisible.tokenAnimationSpeed = value / 10.0;  }
+       default: "10"
+
 	 });
      
      
@@ -29,8 +29,8 @@ export function registerSettings() {
            "Limited": game.i18n.localize(MODULE_ID+".tokenMultiVisionLimited"),
            "Never": game.i18n.localize(MODULE_ID+".tokenMultiVisionNever")
        },
-       default: "Limited",
-       onChange: value => { tokensVisible.tokenMultiVision= value;  }
+       default: "Limited"
+
      });
      
     
@@ -146,8 +146,7 @@ export function registerSettings() {
            "Yes": game.i18n.localize(MODULE_ID+".hiddenCanLightYES"),
            "No": game.i18n.localize(MODULE_ID+".hiddenCanLightNO"),
       },
-      default: "Yes",
-      onChange: value => { tokensVisible.hiddenCanLight = value  }
+      default: "Yes"
     });
 
 
@@ -161,8 +160,7 @@ export function registerSettings() {
            "Yes": game.i18n.localize(MODULE_ID+".hiddenCanSeeYES"),
            "No": game.i18n.localize(MODULE_ID+".hiddenCanSeeNO"),
       },
-      default: "Yes",
-      onChange: value => { tokensVisible.hiddenCanSee = value  }
+      default: "Yes"
     });
     
 
@@ -178,7 +176,7 @@ export function registerSettings() {
            "No": game.i18n.localize(MODULE_ID+".blindTokensControllableNO"),
       },
       default: "Yes",
-      onChange: value => { tokensVisible.blindControllable  = value }
+      onChange: value => { tokensVisible.blindControllable  = value ;  }
     });
     
 

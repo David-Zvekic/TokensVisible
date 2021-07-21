@@ -166,18 +166,15 @@ registerSettings();
 tokensVisible.panMode = game.settings.get('TokensVisible', 'panMode');
 tokensVisible.pushhotkey=game.settings.get('TokensVisible', 'pushhotkey');
 tokensVisible.autopanMargin= game.settings.get('TokensVisible', 'autopanningMargin');
-tokensVisible.hiddenCanLight = game.settings.get('TokensVisible', 'hiddenCanLight');
-tokensVisible.hiddenCanSee = game.settings.get('TokensVisible', 'hiddenCanSee');
 tokensVisible.wallsCancelAnimation = game.settings.get('TokensVisible', 'wallsCancelAnimation');
 tokensVisible.castRayshotkey =game.settings.get('TokensVisible', 'castRayshotkey');
 tokensVisible.sightCachehotkey =game.settings.get('TokensVisible', 'sightCachehotkey');
 tokensVisible.setupCombatantMasking(game.settings.get('TokensVisible', 'combatantHidden'));
-tokensVisible.tokenAnimationSpeed=game.settings.get('TokensVisible', 'tokenAnimationSpeed') / 10.0; 
-tokensVisible.tokenMultiVision=game.settings.get('TokensVisible', 'tokenMultiVision');
-tokensVisible.blindControllable = game.settings.get('TokensVisible', 'blindTokensControllable');
 
 }
 );
+
+
 
 
 function nameToHexA(name) {
@@ -300,7 +297,7 @@ Hooks.once('ready',() => {
     function(wrapped, ...args) {
   
       
-       if (this.data.hidden && this.emitsLight && tokensVisible.hiddenCanLight=="Yes") {   
+       if (this.data.hidden && this.emitsLight && game.settings.get('TokensVisible', 'hiddenCanLight')=="Yes") {   
            this.data.hidden=false;
            const wrappedresult = wrapped(...args);
            this.data.hidden=true;
@@ -316,7 +313,7 @@ Hooks.once('ready',() => {
 });
 
 function tokenHasSight (tokenInQuestion){
-    if (tokenInQuestion.data.hidden && tokensVisible.hiddenCanSee=='No') return false; 
+    if (tokenInQuestion.data.hidden && game.settings.get('TokensVisible', 'hiddenCanSee')=='No') return false; 
     return tokenInQuestion.hasSight;
 } 
 
@@ -325,8 +322,9 @@ Hooks.once('init', () => {
     
       libWrapper.register(moduleName,'TokenLayer.prototype._getCycleOrder',
     function(wrapped,...args){
+ 
         let observable = wrapped(...args);
-        if (tokensVisible.blindControllable=='No') {
+        if (game.settings.get('TokensVisible', 'blindTokensControllable')=='No') {
           observable = observable.filter( t => {return tokenHasSight(t) })
         }
         return observable;
@@ -336,7 +334,7 @@ Hooks.once('init', () => {
    libWrapper.register(moduleName,'Token.prototype.control', 
     function(wrapped, ...args )  { 
    
-        if (!game.user.isGM && canvas.sight.tokenVision && !this.hasSight && (tokensVisible.blindControllable=='No')) {
+        if (!game.user.isGM && canvas.sight.tokenVision && !this.hasSight && (game.settings.get('TokensVisible', 'blindTokensControllable')=='No')) {
         
             this._controlled = true;
             // calling the wrapped function will cause clicking a blind owned token to be act like clicking on an unowned token.
@@ -350,13 +348,13 @@ Hooks.once('init', () => {
 
    libWrapper.register(moduleName,'CanvasAnimation.animateLinear', 
     function(wrapped, attributes, {context, name, duration, ontick} )  { 
-   
+        const tokenAnimationSpeed=game.settings.get('TokensVisible', 'tokenAnimationSpeed') / 10.0; 
         
-        if ((tokensVisible.tokenAnimationSpeed!=1 || tokensVisible.cancelTokenAnimation) &&  name != undefined){
+        if ((tokenAnimationSpeed!=1 || tokensVisible.cancelTokenAnimation) &&  name != undefined){
             if ((name.substring(0,6)=="Token.") && (name.substring(name.length -16) == ".animateMovement"))  { 
                 if (tokensVisible.cancelTokenAnimation) duration=0; 
                 else
-                duration = duration / tokensVisible.tokenAnimationSpeed ;
+                duration = duration / tokenAnimationSpeed ;
              }
         };
         return wrapped(attributes,{context,name,duration,ontick});
@@ -400,7 +398,9 @@ libWrapper.register(moduleName,'Wall.prototype._onUpdate',
     
    libWrapper.register(moduleName,'Token.prototype.isVisible', 
     function(wrapped)  { 
-       
+         const blindTokensControllable = (game.settings.get('TokensVisible', 'blindTokensControllable') == 'Yes');
+         if (!game.user.isGM && this._controlled && !tokenHasSight(this) && !blindTokensControllable) this.release();
+     
          if (wrapped()) return true;
    
          if ( this._controlled ) return true;
@@ -413,7 +413,7 @@ libWrapper.register(moduleName,'Wall.prototype._onUpdate',
                 canObserve = this.actor?.hasPerm(game.user, "OBSERVER"); 
              }
             
-            if (canObserve && ((tokensVisible.blindControllable == 'Yes') || this._isVisionSource() ||  !canvas.sight.tokenVision )) return true;
+            if (canObserve && (blindTokensControllable || !canvas.sight.tokenVision || this._isVisionSource()    )) return true;
           }
         }
         return false; 
@@ -425,13 +425,13 @@ libWrapper.register(moduleName,'Wall.prototype._onUpdate',
    libWrapper.register(moduleName,'Token.prototype._isVisionSource', 
     function (wrapped) {
       
-       
+        const tokenMultiVision = game.settings.get('TokensVisible', 'tokenMultiVision');
         const computerSaysYes = wrapped(); // always chain wrapper even if we may never use the result - on the chance another module needs it's version executed
         
-        if (tokensVisible.hiddenCanSee=='No' && tokensVisible.tokenMultiVision=='Limited') return computerSaysYes ;
+        if (tokenMultiVision=='Limited' && game.settings.get('TokensVisible', 'hiddenCanSee')=='No' ) return computerSaysYes ;
      
         if  (computerSaysYes && 
-             (tokensVisible.tokenMultiVision=='Yes' || this.data._id == tokensVisible.lastControlledToken?.data._id || !canvas.sight.tokenVision)
+             (tokenMultiVision=='Yes' || this.data._id == tokensVisible.lastControlledToken?.data._id || !canvas.sight.tokenVision)
             ) return true;    
         
         
@@ -442,7 +442,7 @@ libWrapper.register(moduleName,'Wall.prototype._onUpdate',
        }
        else {
            if (!tokenHasSight(this)) return false;
-           switch(tokensVisible.tokenMultiVision) {
+           switch(tokenMultiVision) {
             case 'Yes':
               if ( this.observer ) return true;
             case 'Limited' :        
