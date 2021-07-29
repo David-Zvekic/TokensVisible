@@ -1,9 +1,12 @@
-// pushTokenBack
+// TokensVisible.js
 // (c) 2021 David Zvekic
 // permission granted to use and distribute as per LICENSE file
 
+"use strict";
 
-let tokensVisible= new Object();
+import {moduleName, MODULE_ID ,registerSettings, tokensVisible} from './settings/settings.js';
+import {libWrapper} from './libwrapper/shim.js'
+
 tokensVisible.hoverToken= new Object();
 tokensVisible.hoverToken.hoveredTarget=0;
 tokensVisible.pushhotkey='';
@@ -24,379 +27,448 @@ tokensVisible.pushToBack=function() {
       canvas.tokens.children[0].children.splice(position,1);
       canvas.tokens.children[0].children.unshift(token);
     }
-  } else {
- //   console.warn('TokensVisible - invalid target', tokensVisible.hoverToken.hoveredTarget);
-  } 
-
+  }; 
 };
 
 
 tokensVisible.pushTokenBackListener = function(event){
 	
-	if (event.target !== document.body && event.target !== canvas.app.view) return;
+    if (event.target !== document.body && event.target !== canvas.app.view) return;
     if ( event.isComposing || event.repeat) return;
     if (event.key==tokensVisible.pushhotkey ) tokensVisible.pushToBack();
     if (event.key==tokensVisible.castRayshotkey ) { 
 		   
-	   switch(tokensVisible.currentCastRaysmode){
-		   case "Standard" :tokensVisible.setProperCastRays('Enhanced');
-		   break;
-	   case "Enhanced" :tokensVisible.setProperCastRays('Super');
-		   break;
-	   case "Super": tokensVisible.setProperCastRays('Standard');
-		   break;
-	   default:  tokensVisible.setProperCastRays('Enhanced'); 
-	   }
-   }
+      switch(tokensVisible.currentCastRaysmode){
+        case "Standard" :tokensVisible.setProperCastRays('Enhanced');
+        break;
+        case "Enhanced" :tokensVisible.setProperCastRays('Super');
+        break;
+        case "Super": tokensVisible.setProperCastRays('Standard');
+        break;
+        default:  tokensVisible.setProperCastRays('Enhanced'); 
+      }
+    }
   
-   if (event.key==tokensVisible.sightCachehotkey ) { 
+    if (event.key==tokensVisible.sightCachehotkey ) { 
 	   
-   switch(tokensVisible.currentSightCacheMode){
-	   case "On" :tokensVisible.setProperSightCache('Off');
-	   break;
-   case "Off" :tokensVisible.setProperSightCache('On');
-	   break;
-   default:  tokensVisible.setProperSightCache('On'); 
-   }
-  }
-   
-
+      switch(tokensVisible.currentSightCacheMode){
+        case "On" :tokensVisible.setProperSightCache('Off');
+        break;
+        case "Off" :tokensVisible.setProperSightCache('On');
+        break;
+        default:  tokensVisible.setProperSightCache('On'); 
+      }
+    }
 };
  
 
 tokensVisible.hoverToken.hook= Hooks.on('hoverToken',(token,hoverON)=>{
 	
-if (hoverON) {
-	tokensVisible.hoverToken.hoveredTarget=token;
-	//window.addEventListener('keydown', tokensVisible.pushTokenBackListener );
-}
-else {
-  //  window.removeEventListener('keydown', tokensVisible.pushTokenBackListener );
-	delete tokensVisible.hoverToken.hoveredTarget;
-}
+  if (hoverON) {
+    tokensVisible.hoverToken.hoveredTarget=token;
+  }
+  else {
+    delete tokensVisible.hoverToken.hoveredTarget;
+  }
 });
 
-Hooks.on('ready',() => {
+tokensVisible.hoverToken.hook= Hooks.on('controlToken',(token,controlled)=>{
 	
-	window.addEventListener('keydown', tokensVisible.pushTokenBackListener );
+  if (controlled) {
+    tokensVisible.lastControlledToken=token;
+  }
+ 
 });
 
-Hooks.on('updateWall', (scene,wall,data,diff,userid) => {
-	if(diff.diff){
-		if (tokensVisible.SightCache!=undefined) tokensVisible.SightCache=new Map();
-	}
+
+
+Hooks.once('init',async function () {
+	console.log('TokensVisible | Initializing Your Tokens Visible');
 	
+    
+	 
 });
 
-Hooks.on('ready', () => {
+Hooks.once('ready',() => {
+  		
+   
 	
+  window.addEventListener('keydown', tokensVisible.pushTokenBackListener );
+ 
+});
 
+
+Hooks.on('canvasReady',()=>{ 
+  if (tokensVisible.SightCache!=undefined) tokensVisible.SightCache=new Map();
+} );
+
+Hooks.once('canvasReady', () => {
+		 
+  	 tokensVisible.setProperCastRays(game.settings.get('TokensVisible', 'castRays'));
+     tokensVisible.setProperSightCache(game.settings.get('TokensVisible', 'sightCache'));
+
+});
+
+
+tokensVisible.canvasInitializeSources= function() {
+   if(canvas.perception?.initialize!=undefined)
+       canvas.perception.initialize();   // Foundry VTT 0.8.6
+   else
+       canvas.initializeSources();     // Foundry 0.7.9
+};
 	
-game.settings.register('TokensVisible', 'pushhotkey', {
-  name: game.i18n.localize("TOKENSVISIBLE.SelectHotKey"),
-  hint: game.i18n.localize("TOKENSVISIBLE.SelectHotKeyHelp"),
-  scope: 'client',   
-  config: true,      
-  type: String,     
-  default: "z",
-  
-  onChange: value => { tokensVisible.pushhotkey = value // value is the new value of the setting
-  }
-});
-
-game.settings.register('TokensVisible', 'toggleActiveFG', {
-  name: game.i18n.localize("TOKENSVISIBLE.toggleActiveFG"),
-  scope: 'world',   
-  config: true,      
-  type: String,     
-  default: "",
-	onChange: value => {  document.querySelectorAll('#controls .control-tool.toggle.active').forEach(e=>e.style.setProperty('color',value ));}
-  }
-);
-
-game.settings.register('TokensVisible', 'toggleActiveBG', {
-  name: game.i18n.localize("TOKENSVISIBLE.toggleActiveBG"),
-  scope: 'world',   
-  config: true,      
-  type: String,     
-  default: "",
-  onChange: value => {
-	   document.querySelectorAll('#controls .control-tool.toggle.active').forEach(e=>e.style.setProperty('background',value ));
-	 }
-  }
-);
-
-
-
-
-game.settings.register('TokensVisible', 'activeFG', {
-  name: game.i18n.localize("TOKENSVISIBLE.activeFG"),
-  scope: 'world',   
-  config: true,      
-  type: String,     
-  default: "",
-  onChange: value => {  document.querySelectorAll('#controls .control-tool.active:not(.toggle)').forEach(e=>e.style.setProperty('color',value ));
- }
-  }
-);
-
-
-game.settings.register('TokensVisible', 'activeBG', {
-  name: game.i18n.localize("TOKENSVISIBLE.activeBG"),
-  scope: 'world',   
-  config: true,      
-  type: String,     
-  default: "",
-  
-	onChange: value => { 
-		  document.querySelectorAll('#controls .control-tool.active:not(.toggle)').forEach(e=>e.style.setProperty('background',value ));
-		 }
-  }
-);
-
-
-game.settings.register('TokensVisible', 'autopanningMargin', {
-  name: game.i18n.localize("TOKENSVISIBLE.autopanningMargin"),
-  hint: game.i18n.localize("TOKENSVISIBLE.autopanningMarginHint"),
-  scope: 'client',   
-  config: true,      
-  type: Number,     
-  default: "200",
-  
-  onChange: value => { tokensVisible.autopanMargin = value ;}
-});
-
-
-
-game.settings.register("TokensVisible", "hiddenCanLight", {
-       name: game.i18n.localize("TOKENSVISIBLE.hiddenCanLight"),
-       hint: game.i18n.localize("TOKENSVISIBLE.hiddenCanLightHint"),	
-       scope: "world",
-       config: true,
-       type: String,
-       choices: {
-           "Yes": game.i18n.localize("TOKENSVISIBLE.hiddenCanLightYES"),
-           "No": game.i18n.localize("TOKENSVISIBLE.hiddenCanLightNO"),
-           
-       },
-       default: "Yes",
-       onChange: value => { tokensVisible.hiddenCanLight = value  }
-   });
-
-
-   game.settings.register("TokensVisible", "wallsCancelAnimation", {
-          name: game.i18n.localize("TOKENSVISIBLE.wallsCancelAnimation"),
-          hint: game.i18n.localize("TOKENSVISIBLE.wallsCancelAnimationHint"),
-	      scope: "world",
-          config: true,
-          type: String,
-          choices: {
-              "Yes": game.i18n.localize("TOKENSVISIBLE.wallsCancelAnimationYES") ,
-              "No": game.i18n.localize("TOKENSVISIBLE.wallsCancelAnimationNO"),
-			  "Always": game.i18n.localize("TOKENSVISIBLE.wallsCancelAnimationAlways")
-           
-          },
-          default: "Yes",
-          onChange: value => { tokensVisible.wallsCancelAnimation= value  }
-      });
-
-
-      game.settings.register("TokensVisible", "castRays", {
-             name: game.i18n.localize("TOKENSVISIBLE.castRays"),
-             hint: game.i18n.localize("TOKENSVISIBLE.castRaysHint"),
-   	      scope: "client",
-             config: true,
-             type: String,
-             choices: {
-                 "Standard": game.i18n.localize("TOKENSVISIBLE.castRaysStandard") ,
-                 "Enhanced": game.i18n.localize("TOKENSVISIBLE.castRaysEnhanced"),
-   			  "Super": game.i18n.localize("TOKENSVISIBLE.castRaysSuper")
-           
-             },
-             default: "Standard",
-             onChange: value =>  {tokensVisible.setProperCastRays(value)} 
-		          
-             }
-         );
-		 
-		 
-		 game.settings.register('TokensVisible', 'castRayshotkey', {
-		   name: game.i18n.localize("TOKENSVISIBLE.castRayshotkey"),
-		   hint: game.i18n.localize("TOKENSVISIBLE.castRayshotkeyHint"),
-		   scope: 'client',   
-		   config: true,      
-		   type: String,     
-		   default: "e",
-  
-		   onChange: value => { tokensVisible.castRayshotkey = value }
-		 });
-		 
-		 game.settings.register('TokensVisible', 'sightCache', {
-		   name: game.i18n.localize("TOKENSVISIBLE.sightCache"),
-		   hint: game.i18n.localize("TOKENSVISIBLE.sightCacheHint"),
-		   scope: 'client',   
-		   config: true,      
-           type: String,
-             choices: {
-                 "On": game.i18n.localize("TOKENSVISIBLE.sightCacheOn") ,
-                 "Off": game.i18n.localize("TOKENSVISIBLE.sightCacheOff")
-             },
-		 default: "On", 
-  
-		   onChange: value => { tokensVisible.setProperSightCache(value)}
-		 });
-		 
-		
-		 
-		 game.settings.register('TokensVisible', 'sightCachehotkey', {
-		   name: game.i18n.localize("TOKENSVISIBLE.sightCachehotkey"),
-		   hint: game.i18n.localize("TOKENSVISIBLE.sightCachehotkeyHint"),
-		   scope: 'client',   
-		   config: true,      
-		   type: String,     
-		   default: "E",
-  
-		   onChange: value => { tokensVisible.sightCachehotkey  = value }
-		 });
-		 
-
-
-tokensVisible.pushhotkey=game.settings.get('TokensVisible', 'pushhotkey');
-tokensVisible.autopanMargin= game.settings.get('TokensVisible', 'autopanningMargin');
-tokensVisible.hiddenCanLight = game.settings.get('TokensVisible', 'hiddenCanLight');
-
-tokensVisible.wallsCancelAnimation = game.settings.get('TokensVisible', 'wallsCancelAnimation');
-tokensVisible.castRayshotkey =game.settings.get('TokensVisible', 'castRayshotkey');
-tokensVisible.sightCachehotkey =game.settings.get('TokensVisible', 'sightCachehotkey');
-
-
-
-tokensVisible.setProperCastRays(game.settings.get('TokensVisible', 'castRays'));
-tokensVisible.setProperSightCache(game.settings.get('TokensVisible', 'sightCache'));
-
-
-
-});
 
 
 tokensVisible.setProperCastRays = function(value){
-switch (value){  
- case "Standard":tokensVisible._setStandardCastRays();
-break; 
-case "Enhanced": tokensVisible._setEnhancedCastRays();
-break; 
-case "Super": tokensVisible._setExtraEnhancedCastRays();
-  break; 
-default: 
-	tokensVisible._setStandardCastRays();  
-    value="Standard";
-};
-tokensVisible.currentCastRaysmode=value;
+   switch (value){  
+     case "Standard":tokensVisible._setStandardCastRays();
+     break; 
+     case "Enhanced": tokensVisible._setEnhancedCastRays();
+     break; 
+     case "Super": tokensVisible._setExtraEnhancedCastRays();
+     break; 
+     default: 
+       tokensVisible._setStandardCastRays();  
+       value="Standard";
+   };
+   
+   tokensVisible.currentCastRaysmode=value;
+   if (game.ready ) {
+     ui.notifications.info( game.i18n.localize("TOKENSVISIBLE.castRays")+" : " + value );
+     tokensVisible.canvasInitializeSources();
+   } 
 
-
-if (game.ready ) {
-	ui.notifications.info( game.i18n.localize("TOKENSVISIBLE.castRays")+" : " + value );
-      canvas.initializeSources();
-    }
 
 };
 
 
 tokensVisible.setProperSightCache = function(value){
-switch (value){  
- case "On": tokensVisible.enableTurboSight();
-break; 
-case "Off": tokensVisible.disableTurboSight(); 
-break; 
-default: 
-	    tokensVisible.disableTurboSight();
+   switch (value){  
+     case "On": tokensVisible.enableTurboSight();
+     break; 
+     case "Off": tokensVisible.disableTurboSight(); 
+     break; 
+     default: 
+        tokensVisible.disableTurboSight();
         value="Off";
- 
-};
-tokensVisible.currentSightCacheMode=value;
+   };
+   
+   tokensVisible.currentSightCacheMode=value;
 
-
-if (game.ready ) {
-	ui.notifications.info( game.i18n.localize("TOKENSVISIBLE.sightCache")+" : " + game.i18n.localize("TOKENSVISIBLE.sightCache" + value) );
+   if (game.ready ) {
+        ui.notifications.info( game.i18n.localize("TOKENSVISIBLE.sightCache")+" : " + game.i18n.localize("TOKENSVISIBLE.sightCache" + value) );
     }
 
 };
 
+Hooks.once('renderSceneControls', function () {
+registerSettings();
+tokensVisible.panMode = game.settings.get('TokensVisible', 'panMode');
+tokensVisible.pushhotkey=game.settings.get('TokensVisible', 'pushhotkey');
+tokensVisible.autopanMargin= game.settings.get('TokensVisible', 'autopanningMargin');
+tokensVisible.wallsCancelAnimation = game.settings.get('TokensVisible', 'wallsCancelAnimation');
+tokensVisible.castRayshotkey =game.settings.get('TokensVisible', 'castRayshotkey');
+tokensVisible.sightCachehotkey =game.settings.get('TokensVisible', 'sightCachehotkey');
+tokensVisible.setupCombatantMasking(game.settings.get('TokensVisible', 'combatantHidden'));
+
+}
+);
 
 
-Hooks.on('renderSceneControls', () => {
-	
-	
-
-	  const toggleActiveBG =  game.settings.get('TokensVisible', 'toggleActiveBG');
-	  if (toggleActiveBG) {
-	     document.querySelectorAll('#controls .control-tool.toggle.active').forEach(e=>e.style.setProperty('background',toggleActiveBG ));
-      }
-	  
-	  const toggleActiveFG =  game.settings.get('TokensVisible', 'toggleActiveFG');
-	  if (toggleActiveFG) {
-		  document.querySelectorAll('#controls .control-tool.toggle.active').forEach(e=>e.style.setProperty('color',toggleActiveFG ));
-      }
-	  
-	  
-	  const activeBG =  game.settings.get('TokensVisible', 'activeBG');
-	  if (activeBG) {
-		  document.querySelectorAll('#controls .control-tool.active:not(.toggle)').forEach(e=>e.style.setProperty('background',activeBG ));
-      }
-	  
-	  const activeFG =  game.settings.get('TokensVisible', 'activeFG');
-	  if (activeFG) {
-		  document.querySelectorAll('#controls .control-tool.active:not(.toggle)').forEach(e=>e.style.setProperty('color',activeFG ));
-      }
-	  	  
-});
 
 
-// overrides of Token methods to implement the vision features of this module.
+function nameToHexA(name) {
+    return RGBToHexA(nameToRGB(name));
+}
 
-Object.defineProperty(Token.prototype,'isVisible', 
-  {
-  	get()  
-  	{
-      if (!canvas.sight.tokenVision) return true; 
+function nameToRGB(name) {
+  if (!name) return '';
+  // Create fake div
+  let fakeDiv = document.createElement("div");
+  fakeDiv.style.color = name;
+  document.body.appendChild(fakeDiv);
 
-	  if ( this._controlled ) return true;
-	  if(!game.user.isGM ){
-	   const canObserve = this.actor && this.actor.hasPerm(game.user, "OBSERVER");
-	   if (canObserve) return true;
-      }
-	
-	 if ( this.data.hidden && !game.user.isGM )  return false; 
-	 // if we get here then the token's visibility depends on whether it is 
-	 // visible via line of sight, field of view and lighting to another token that gives us vision
-	  const tolerance = Math.min(this.w, this.h) / 4;
-      return canvas.sight.testVisibility(this.center, {tolerance, object: this});
-	}
-  });
+  // Get color of div
+  let cs = window.getComputedStyle(fakeDiv),
+      pv = cs.getPropertyValue("color");
+
+  // Remove div after obtaining desired color value
+  document.body.removeChild(fakeDiv);
+
+  return pv;
+}
+
+function RGBToHexA(rgb) {
+    if (rgb.startsWith('rgba')) return RGBAToHexA(rgb);
+  // Choose correct separator
+  let sep = rgb.indexOf(",") > -1 ? "," : " ";
+  // Turn "rgb(r,g,b)" into [r,g,b]
+  rgb = rgb.substr(4).split(")")[0].split(sep);
+
+  let r = (+rgb[0]).toString(16),
+      g = (+rgb[1]).toString(16),
+      b = (+rgb[2]).toString(16);
+
+  if (r.length == 1)
+    r = "0" + r;
+  if (g.length == 1)
+    g = "0" + g;
+  if (b.length == 1)
+    b = "0" + b;
+
+  return "#" + r + g + b+'ff';
+}
 
 
-Token.prototype._isVisionSource = function () {
-	
-    if ( !canvas.sight.tokenVision || !this.hasSight ) return false;
-    if ( this._controlled ) return true;
- 
-    const isGM = game.user.isGM;
- 
-  
-	if (!isGM) {
-
-	// if a non-GM observer-user controls no tokens with sight return true
-      const others = this.layer.controlled.find( t => !t.data.hidden && t.hasSight);
-      if (this.observer && (others == undefined)) return true;
+function RGBAToHexA(rgba) {
     
-	}
-	
-	return false;
+  let sep = rgba.indexOf(",") > -1 ? "," : " "; 
+  rgba = rgba.substr(5).split(")")[0].split(sep);
+                
+  // Strip the slash if using space-separated syntax
+  if (rgba.indexOf("/") > -1)
+    rgba.splice(3,1);
+
+  for (let R in rgba) {
+    let r = rgba[R];
+    if (r.toString().indexOf("%") > -1) {
+      let p = r.substr(0,r.length - 1) / 100;
+
+      if (R < 3) {
+        rgba[R] = Math.round(p * 255);
+      } else {
+        rgba[R] = p;
+      }
+    }
+  }
+  
+  let r = (+rgba[0]).toString(16),
+      g = (+rgba[1]).toString(16),
+      b = (+rgba[2]).toString(16),
+      a = Math.round(+rgba[3] * 255).toString(16);
+
+  if (r.length == 1)
+    r = "0" + r;
+  if (g.length == 1)
+    g = "0" + g;
+  if (b.length == 1)
+    b = "0" + b;
+  if (a.length == 1)
+    a = "0" + a;
+
+  return "#" + r + g + b + a;
+  
+}
+tokensVisible.defaultcolors= new Map();
+
+tokensVisible.setupRenderColors = function() 
+{
+    
+  if (tokensVisible.defaultcolors['toggleActiveFG']== undefined ) tokensVisible.defaultcolors['toggleActiveFG']  = $('li.control-tool.active.toggle').css('color'); 
+  if (tokensVisible.defaultcolors['toggleActiveBG']== undefined ) tokensVisible.defaultcolors['toggleActiveBG']  = $('li.control-tool.active.toggle').css('background-color');
+  if (tokensVisible.defaultcolors['activeFG']== undefined ) tokensVisible.defaultcolors['activeFG']  = $('li.control-tool.active:not(.toggle)').css('color');
+  if (tokensVisible.defaultcolors['activeBG']== undefined ) tokensVisible.defaultcolors['activeBG']  = $('li.control-tool.active:not(.toggle)').css('background-color');
+    
+  setColor( 'toggleActiveFG', '#controls .control-tool.toggle.active', 'color' );
+  setColor(  'toggleActiveBG','#controls .control-tool.toggle.active', 'background-color' );
+  setColor(  'activeFG','#controls .control-tool.active:not(.toggle)', 'color' );
+  setColor(  'activeBG', '#controls .control-tool.active:not(.toggle)', 'background-color' );
+
+
+  function setColor( settingName, jQuerySpec, cssProperty){
+  
+  const colorValue=game.settings.get('TokensVisible', settingName);
+  if ( colorValue && !(nameToHexA(colorValue).endsWith('00')) ) {
+           document.querySelectorAll(jQuerySpec).forEach(e=>e.style.setProperty(cssProperty,colorValue));
+          } else
+           document.querySelectorAll(jQuerySpec).forEach(e=>e.style.setProperty(cssProperty,tokensVisible.defaultcolors[settingName]  ));
+  } 
+ 
 
 };
   
+Hooks.on('renderSceneControls', tokensVisible.setupRenderColors );
 
-Token.prototype.setPosition=  async function ReplaceTokenSetPosition(x, y, {animate=true}={}) {
+
+Hooks.once('ready',() => {
+   
+    //deferred to ready - if this is wrapped in 'init'  then perfect-vision will get an error trying to redefine Token.prototype.updateSource
+    libWrapper.register(moduleName,'Token.prototype.updateSource',   
+    function(wrapped, ...args) {
+  
+      
+       if (this.data.hidden && this.emitsLight && game.settings.get('TokensVisible', 'hiddenCanLight')=="Yes") {   
+           this.data.hidden=false;
+           const wrappedresult = wrapped(...args);
+           this.data.hidden=true;
+           return wrappedresult;
+       } else
+       {
+           return wrapped(...args); 
+       }  
+           
+     
+    },'WRAPPER');    
+    
+});
+
+function tokenHasSight (tokenInQuestion){
+    if (tokenInQuestion.data.hidden && game.settings.get('TokensVisible', 'hiddenCanSee')=='No') return false; 
+    return tokenInQuestion.hasSight;
+} 
+
+Hooks.once('init', () => {
+    
+    
+      libWrapper.register(moduleName,'TokenLayer.prototype._getCycleOrder',
+    function(wrapped,...args){
+ 
+        let observable = wrapped(...args);
+        if (game.settings.get('TokensVisible', 'blindTokensControllable')=='No') {
+          observable = observable.filter( t => {return tokenHasSight(t) })
+        }
+        return observable;
+    }, 'WRAPPER'); 
+    
+    
+   libWrapper.register(moduleName,'Token.prototype.control', 
+    function(wrapped, ...args )  { 
+   
+        if (!game.user.isGM && canvas.sight.tokenVision && !this.hasSight && (game.settings.get('TokensVisible', 'blindTokensControllable')=='No')) {
+        
+            this._controlled = true;
+            // calling the wrapped function will cause clicking a blind owned token to be act like clicking on an unowned token.
+            wrapped(...args); 
+            this._controlled = false;
+            return this._controlled;
+         }
+        return wrapped(...args);  
+        
+    }, 'WRAPPER');
+
+   libWrapper.register(moduleName,'CanvasAnimation.animateLinear', 
+    function(wrapped, attributes, {context, name, duration, ontick} )  { 
+        const tokenAnimationSpeed=game.settings.get('TokensVisible', 'tokenAnimationSpeed') / 10.0; 
+        
+        if ((tokenAnimationSpeed!=1 || tokensVisible.cancelTokenAnimation) &&  name != undefined){
+            if ((name.substring(0,6)=="Token.") && (name.substring(name.length -16) == ".animateMovement"))  { 
+                if (tokensVisible.cancelTokenAnimation) duration=0; 
+                else
+                duration = duration / tokenAnimationSpeed ;
+             }
+        };
+        return wrapped(attributes,{context,name,duration,ontick});
+        
+    }, 'WRAPPER');
+    
+    
+
+libWrapper.register(moduleName,'Token.prototype._onUpdate',
+    function(wrapped, data, options, userId ) {
+      // reset the SightCalculation cache if a token changes elevation.
+      // this means nothing for the base system, but some modules change rendering based on tokens changing elevation.
+      // triggering this rest in a Hooks.on('UpdateToken') triggers too late.        
+      
+       if (tokensVisible.SightCache!=undefined) {
+         const keys = Object.keys(data);
+         const changed = new Set(keys);
+         if ( changed.has("elevation") ) tokensVisible.SightCache=new Map();
+       }
+       wrapped(data,options,userId);   
+    }
+    , 'WRAPPER');  
+    
+
+
+libWrapper.register(moduleName,'Wall.prototype._onUpdate',
+    function(wrapped, data, ...args ) {
+      // reset the SightCalculation cache if a token changes elevation.
+      // this means nothing for the base system, but some modules change rendering based on tokens changing elevation.
+      // triggering this rest in a Hooks.on('UpdateToken') triggers too late.        
+      
+       if (tokensVisible.SightCache!=undefined) {
+           tokensVisible.SightCache=new Map();
+       }
+       wrapped(data,...args);   
+    }
+    , 'WRAPPER');  
+    
+    
+ 
+    
+   libWrapper.register(moduleName,'Token.prototype.isVisible', 
+    function(wrapped)  { 
+         const blindTokensControllable = (game.settings.get('TokensVisible', 'blindTokensControllable') == 'Yes');
+         if (!game.user.isGM && this._controlled && !tokenHasSight(this) && !blindTokensControllable) this.release();
+     
+         if (wrapped()) return true;
+   
+         if ( this._controlled ) return true;
+         if(!game.user.isGM ){
+           if(this.actor) {
+             let canObserve = false;
+             if (Actor.prototype.testUserPermission!=undefined) {  
+                canObserve = this.actor?.testUserPermission(game.user, "OBSERVER");
+             } else {
+                canObserve = this.actor?.hasPerm(game.user, "OBSERVER"); 
+             }
+            
+            if (canObserve && (blindTokensControllable || !canvas.sight.tokenVision || this._isVisionSource()    )) return true;
+          }
+        }
+        return false; 
+    
+      
+ 
+    }, 'MIXED');
+    
+   libWrapper.register(moduleName,'Token.prototype._isVisionSource', 
+    function (wrapped) {
+      
+        const tokenMultiVision = game.settings.get('TokensVisible', 'tokenMultiVision');
+        const computerSaysYes = wrapped(); // always chain wrapper even if we may never use the result - on the chance another module needs it's version executed
+        
+        if (tokenMultiVision=='Limited' && game.settings.get('TokensVisible', 'hiddenCanSee')=='No' ) return computerSaysYes ;
+     
+        if  (computerSaysYes && 
+             (tokenMultiVision=='Yes' || this.data._id == tokensVisible.lastControlledToken?.data._id || !canvas.sight.tokenVision)
+            ) return true;    
+        
+        
+       if ( !canvas.sight.tokenVision || !this.hasSight ) return false; // deliberately ignore hidden status on this line
+     
+       if (game.user.isGM) {
+            if ( this._controlled ) return true;  
+       }
+       else {
+           if (!tokenHasSight(this)) return false;
+           switch(tokenMultiVision) {
+            case 'Yes':
+              if ( this.observer ) return true;
+            case 'Limited' :        
+              if ( this._controlled ) return true;      
+              // if a non-GM observer-user controls no tokens with sight then show vision 
+              // from all observer tokens. This acts like temporary multitoken vision.
+              const others = this.layer.controlled.find( t => tokenHasSight(t));
+              if (this.observer && (others == undefined)) return true;
+              break; 
+          case 'Never' :
+              if (this.data._id == tokensVisible.lastControlledToken?.data._id) return true;  
+          }
+          
+       }
+    
+       return false;
+
+     }
+    , 'MIXED');
+    
+
+     
+     
+
+ libWrapper.register(moduleName,'Token.prototype.setPosition',   
+    async function (x, y, {animate=true}={}) {
  
     // Create a Ray for the requested movement
     let origin = this._movement ? this.position : this._validPosition,
@@ -405,12 +477,14 @@ Token.prototype.setPosition=  async function ReplaceTokenSetPosition(x, y, {anim
 
     // Create the movement ray
     let ray = new Ray(origin, target);
-	let cancelAnimation = false;
-	if(animate){
-	  if (tokensVisible.wallsCancelAnimation=="Always") cancelAnimation=true;
-	  if (!cancelAnimation)
+    let cancelAnimation = false;
+    if(animate){
+      if (tokensVisible.wallsCancelAnimation=="Always") cancelAnimation=true;
+      if (!cancelAnimation)
        cancelAnimation = (tokensVisible.wallsCancelAnimation=="Yes" &&  this.checkCollision(target)); 
     }
+    
+
      this._validPosition = target;
      this._velocity = this._updateVelocity(ray);
 
@@ -420,333 +494,364 @@ Token.prototype.setPosition=  async function ReplaceTokenSetPosition(x, y, {anim
     // Conceal the HUD if it targets this Token
     if ( this.hasActiveHUD ) this.layer.hud.clear();
  
-
+    
+    
+    
     if ( animate){
-		if (cancelAnimation) {
-	     	// client with animate turned on assumes an animated Movement will render the destination.
-    		// since are setting the position directoy, so animate a 0 distance Movement at the destination
-			// to satisfy that need.
-	    	this.position.set(x, y);
-		    // no 'await' needed here because this movement is not changing the position so we dont care if it completes
-			// aynchronously
-			this.animateMovement(new Ray(this.position, ray.B));
-        } 
-		else
-		 await this.animateMovement(new Ray(this.position, ray.B));
+  
+        // tokensVisible.cancelTokenAnimation causes CanvasAnimation.animateLinear (for tokens) to have a 0 duration (instant) by setting an out-of-band flag.  
+        // setPosition previously used Token.position.set() to 0-duration the animation, but Drag Ruler (and maybe other modules) depend on the animation
+        // duration without calling setPosition. They call Token.animateMovement directly (and thus CanvasAnimation.animateLinear).  
+        // tokensVisible.cancelTokenAnimation variable communicates with CanvasAnimation.animateLinear out-of-band (as it is wrapped by TokensVisible)
+        // and ensures any token animation that is triggered asynchronously prior to Foundry calling setPosition in the code is also set to 0 duration (instant) if setPosition would do so.
+                
+        tokensVisible.cancelTokenAnimation=cancelAnimation; 
+   
+        await this.animateMovement(new Ray(this.position, ray.B));
+        tokensVisible.cancelTokenAnimation=false;  // let future token animations run at regular speed
+         
+       
     }
-	else this.position.set(x, y);
-	
-    // If the movement took a controlled token off-screen, re-center the view
+    else this.position.set(x, y);
+    
+   
+    // If the movement took a controlled token off-screen, adjust the view
     if (this._controlled && isVisible) {
 
       const pad = tokensVisible.autopanMargin;
-      let gp = this.getGlobalPosition();
-      if ((gp.x < pad) || (gp.x > window.innerWidth - pad) || (gp.y < pad) || (gp.y > window.innerHeight - pad)) {
-        canvas.animatePan(this.center);
+     
+      
+      
+      if (tokensVisible.panMode=="Recenter") {
+         let gp = this.getGlobalPosition();
+         if ((gp.x < pad) || (gp.x > window.innerWidth - pad) || (gp.y < pad) || (gp.y > window.innerHeight - pad)) {
+             canvas.animatePan(this.center);
+         } 
+      } else {
+          
+          async function relativePan({dx,dy}){
+              canvas.animatePan({x:canvas.scene._viewPosition.x+dx, y: canvas.scene._viewPosition.y+dy})
+          };
+          
+          
+          let bounds = this.getBounds();
+          let dx = 0;
+          let dy = 0;
 
-
+          if ( bounds.x < pad ) {
+              dx = bounds.x- pad;
+          } else
+          if ( ( bounds.x+bounds.width ) > ( window.innerWidth - pad ) ) {
+              dx = ( bounds.x + bounds.width ) - ( window.innerWidth - pad );
+          };
+    
+          if ( bounds.y < pad ){
+              dy = bounds.y - pad;
+          } else
+          if ( ( bounds.y + bounds.height) > ( window.innerHeight - pad ) ) {
+               dy =  (bounds.y + bounds.height) - ( window.innerHeight - pad );
+          } ;
+          
+          if  (dx || dy){
+              relativePan({dx,dy});
+          }
       }
     }
     return this;
-  }
-  
-  
+}, 'OVERRIDE');
 
-Token.prototype.updateSource = function({defer=false, deleted=false, noUpdateFog=false}={}) {
-    if ( CONFIG.debug.sight ) {
-      SightLayer._performance = { start: performance.now(), tests: 0, rays: 0 }
+}
+);
+
+
+ // the conditional assignment is for legacy 0.7.x support
+tokensVisible.SightLayer = {_defaultcastRays : ((WallsLayer.castRays!=undefined) ? WallsLayer.castRays : SightLayer._castRays), 
+                            _defaultcomputeSight : ((WallsLayer.prototype.computePolygon !=undefined) ? WallsLayer.prototype.computePolygon:SightLayer.computeSight)
+                           };
+ // the conditional assignment is for legacy 0.7.x support                         
+tokensVisible.Combat = {_defaultcreateEmbeddedEntity:  (Combat.prototype.createEmbeddedDocuments!=undefined)?(Combat.prototype.createEmbeddedDocuments):(Combat.prototype.createEmbeddedEntity)};
+
+
+tokensVisible.SightLayer._turboComputeSight = function(wrapped, origin, radius, { type, angle = 360, density = 6, rotation = 0,  unrestricted = false } = {}) {
+    if (type == undefined || (type != undefined && type == "sight")) {
+
+        // this key is generated roughly using a cheap and fast hash function of combining some values relevant to the calculation.  Better hash functions will be slower than this with extremely rare benefits.
+        let key = radius * 34.34 + origin.x + (origin.y * 7.654) + canvas.dimensions.width * 1.1 + canvas.dimensions.height * 3.3 + density * 11 + (unrestricted ? 33 : -1) + angle * 1.1 + rotation + (canvas.walls.endpoints.length * 12.2);
+        let sightResult = tokensVisible.SightCache.get(key);
+        if (sightResult != undefined) {
+            return sightResult;
+        }
+
+        sightResult = wrapped(origin, radius, { type,  angle, density, rotation, unrestricted  });
+
+        if (tokensVisible.SightCache.size > 1000) 
+            tokensVisible.SightCache.delete(tokensVisible.SightCache.keys().next().value);
+
+        tokensVisible.SightCache.set(key, sightResult);
+        return sightResult;
+
+    } else {
+        return wrapped(origin, radius, { type, angle, density, rotation,unrestricted });
     }
-
-    // Prepare some common data
-    const origin = this.getSightOrigin();
-    const sourceId = this.sourceId;
-    const d = canvas.dimensions;
-    const maxR = Math.hypot(d.sceneWidth, d.sceneHeight);
-
-    // Update light source
-	const isLightSource = this.emitsLight && ((tokensVisible.hiddenCanLight=="Yes") || (!this.data.hidden));
-
-    if ( isLightSource && !deleted ) {
-      const bright = Math.min(this.getLightRadius(this.data.brightLight), maxR);
-      const dim = Math.min(this.getLightRadius(this.data.dimLight), maxR);
-      this.light.initialize({
-        x: origin.x,
-        y: origin.y,
-        dim: dim,
-        bright: bright,
-        angle: this.data.lightAngle,
-        rotation: this.data.rotation,
-        color: this.data.lightColor,
-        alpha: this.data.lightAlpha,
-        animation: this.data.lightAnimation
-      });
-      canvas.lighting.sources.set(sourceId, this.light);
-      if ( !defer ) {
-        this.light.drawLight();
-        this.light.drawColor();
-      }
-    }
-    else {
-      canvas.lighting.sources.delete(sourceId);
-      if ( isLightSource && !defer ) canvas.lighting.refresh();
-    }
-
-    // Update vision source
-    const isVisionSource = this._isVisionSource();
-    if ( isVisionSource && !deleted ) {
-      let dim =  canvas.lighting.globalLight ? maxR : Math.min(this.getLightRadius(this.data.dimSight), maxR);
-      const bright = Math.min(this.getLightRadius(this.data.brightSight), maxR);
-	  if ((dim === 0) && (bright === 0)) dim = Math.min(this.w, this.h) * 0.5;
-      this.vision.initialize({
-        x: origin.x,
-        y: origin.y,
-        dim: dim,
-        bright: bright,
-        angle: this.data.sightAngle,
-        rotation: this.data.rotation
-      });
-      canvas.sight.sources.set(sourceId, this.vision);
-      if ( !defer ) {
-        this.vision.drawLight();
-        canvas.sight.refresh({noUpdateFog});
-      }
-    }
-    else {
-      canvas.sight.sources.delete(sourceId);
-      if ( isVisionSource && !defer ) canvas.sight.refresh();
-    }
-  }
-
-  
-tokensVisible.SightLayer = {_defaultcastRay:SightLayer._castRays, _defaultcomputeSight:SightLayer.computeSight};
-
-tokensVisible.SightLayer._turboComputeSight = function (origin, radius, {angle=360, density=6, rotation=0, unrestricted=false}={}){
-
-   
-     let key =  radius*34.34 +origin.x+(origin.y*7.654)+ canvas.dimensions.width*1.1 + canvas.dimensions.height*3.3 + density*11+ (unrestricted?33:-1) +angle*1.1 + rotation  +(canvas.walls.endpoints.length * 12.2);  
-     let sightResult = tokensVisible.SightCache.get(key);
-     if(sightResult!=undefined) {
-  	  		return sightResult;
-  	 }
-  
-	
-	sightResult = tokensVisible.SightLayer._defaultcomputeSight.call(this, origin, radius, {angle, density, rotation, unrestricted} );
-	
-	
-    if(tokensVisible.SightCache.size>1000) tokensVisible.SightCache.delete(tokensVisible.SightCache.keys().next().value);
-    tokensVisible.SightCache.set(key, sightResult);
-	
-    return sightResult;
 
 };
 
+
 tokensVisible.enableTurboSight = function() {
-	tokensVisible.SightCache=new Map();
-	SightLayer.computeSight=tokensVisible.SightLayer._turboComputeSight;
-	 
-	
-}
+    tokensVisible.SightCache = new Map();
+
+    if (WallsLayer.prototype.computePolygon != undefined)
+        patch('WallsLayer.prototype.computePolygon', tokensVisible.SightLayer._turboComputeSight, 'MIXED');
+    else
+        patch('SightLayer.computeSight', tokensVisible.SightLayer._turboComputeSight, 'MIXED'); // legacy 0.7.x support
+
+};
 
 tokensVisible.disableTurboSight = function() {
-	delete tokensVisible.SightCache;
-	SightLayer.computeSight=tokensVisible.SightLayer._defaultcomputeSight;
-	
-}
+    delete tokensVisible.SightCache;
+    
+    if(WallsLayer.prototype.computePolygon !=undefined) {
+       unpatch('WallsLayer.prototype.computePolygon', tokensVisible.SightLayer._defaultcomputeSight);
+    } 
+    else {
+     // legacy 0.7.x support
+        unpatch('SightLayer.computeSight', tokensVisible.SightLayer._defaultcomputeSight);
+    }
+    
+    
+};
 
 
 tokensVisible.SightLayer._DI_castRays=function(x, y, distance, {density=4, endpoints, limitAngle=false, aMin, aMax}={}, cast, standardArray, rayAccuracy, rays,sorter) {
-
    
     const rOffset = 0.02;
-
-	
 
     // Enforce that all rays increase in angle from minimum towards maximum
     const rMin = limitAngle ? Ray.fromAngle(x, y, aMin, distance) : null;
     const rMax = limitAngle ? Ray.fromAngle(x, y, aMax, distance) : null;
    
 
-
-	if(endpoints.length || standardArray.length) {
-		const originaldensity = density;
-		
-		if(rayAccuracy<1.5)	density = density* (2/3) * rayAccuracy;  // density can never be worse than standard
-		if(density<Math.min(2,originaldensity))density=Math.min(2,originaldensity);  // dont want to make the quality too good/expensive. Use Supermode for that.
-		
-     // First prioritize rays which are cast directly at wall endpoints
-    for ( let e of endpoints ) {
-      const ray = Ray.fromAngle(x, y, Math.atan2(e[1]-y, e[0]-x), distance);
-      if ( limitAngle ) {
-        ray.angle = this._adjustRayAngle(aMin, ray.angle);  // Standardize the angle
-        if (!Number.between(ray.angle, aMin, aMax)) continue;
+    if(endpoints.length || standardArray.length) {
+      const originaldensity = density;
+        
+      if(rayAccuracy<1.5)   density = density* (2/3) * rayAccuracy;  // density can never be worse than standard
+      if(density<Math.min(2,originaldensity))density=Math.min(2,originaldensity);  // dont want to make the quality too good/expensive. Use Supermode for that.
+        
+      // First prioritize rays which are cast directly at wall endpoints
+      for ( let e of endpoints ) {
+        const ray = Ray.fromAngle(x, y, Math.atan2(e[1]-y, e[0]-x), distance);
+        if ( limitAngle ) {
+          ray.angle = this._adjustRayAngle(aMin, ray.angle);  // Standardize the angle
+          if (!Number.between(ray.angle, aMin, aMax)) continue;
+        }
+        cast(ray);
       }
-      cast(ray);
-    }
 
+      if (rayAccuracy<1.5) {
+        let varx = 0;
+        for(varx=0;varx<standardArray.length;varx++){
+          let currentAngle = standardArray[varx];
+          if(!limitAngle || (currentAngle>=rMin && currentAngle<=rMax)){
+            cast(Ray.fromAngle(x,y,currentAngle,distance),500);
+          }
+        }
+      }
 
-
-if (rayAccuracy<1.5) 
- {
-
-  let varx = 0;
-  for(varx=0;varx<standardArray.length;varx++){
-     let currentAngle = standardArray[varx];
-     if(!limitAngle || (currentAngle>=rMin && currentAngle<=rMax)){
-             cast(Ray.fromAngle(x,y,currentAngle,distance),500);
-     }
-  }
-}
-
-
-    const nr = rays.length;
-    for ( let i=0; i<nr; i++ ) {
-      const r = rays[i];
-//	  let newdistance = r.distance ;
-//      let nOffset = (rOffset * 12000) / r.distance; 
-
-//console.warn('noff',nOffset);
-      cast(r.shiftAngle(rOffset),1000);
-      cast(r.shiftAngle(-rOffset ),1000);
-
-    }
-
-    // Add additional limiting and central rays
-    if ( limitAngle ) {
-      const aCenter = aMin + ((aMax - aMin) / 2) + Math.PI;
-      const rCenter = Ray.fromAngle(x, y, aCenter, 0);
-      rCenter._isCenter = true;
-      cast(rMin);
-      cast(rCenter);
-      cast(rMax);
-    }
+      const nr = rays.length;
+      for ( let i=0; i<nr; i++ ) {
+        const r = rays[i];
  
-}
+        cast(r.shiftAngle(rOffset),1000);
+        cast(r.shiftAngle(-rOffset ),1000);
+      }
+
+      // Add additional limiting and central rays
+      if ( limitAngle ) {
+        const aCenter = aMin + ((aMax - aMin) / 2) + Math.PI;
+        const rCenter = Ray.fromAngle(x, y, aCenter, 0);
+        rCenter._isCenter = true;
+        cast(rMin);
+        cast(rCenter);
+        cast(rMax);
+      }
+ 
+    }
 
     function extraRays(density,tol=50){
-    // Add additional approximate rays to reach a desired radial density
-    if ( !!density ) {
+      // Add additional approximate rays to reach a desired radial density
+      if ( !!density ) {
 
-	  const rDensity = toRadians(density);
+        const rDensity = Math.toRadians(density);
         const nFill = Math.ceil((aMax - aMin) / rDensity);
  
-      for ( let a of Array.fromRange(nFill) ) {
-        cast(Ray.fromAngle(x, y, aMin + (a * rDensity), distance), tol);
+        for ( let a of Array.fromRange(nFill) ) {
+          cast(Ray.fromAngle(x, y, aMin + (a * rDensity), distance), tol);
+        }
       }
-    }
-
     };
 
 
     extraRays(density);
 
     // Sort rays counter-clockwise (increasing radians)
+    // sorter is defined here via dependancy injection. 
     sorter(rays);
-	//console.warn('rays',rays.length);
     return rays;
-  };
+};
   
-  tokensVisible._setEnhancedCastRays=function()
-  {
-         
-          const standardArray = [-3.141592, -1.5707964,0,1.5707964];
+tokensVisible._setEnhancedCastRays = function() {
+
+    const standardArray = [-3.141592, -1.5707964, 0, 1.5707964];
 
     // Track rays and unique emission angles
-
-	
-	      const sorter = (rays)=>{rays.sort((r1, r2) => r1.angle - r2.angle);};
-	  //     RayCache=new Map();
-		   if (tokensVisible.SightCache!=undefined) tokensVisible.SightCache=new Map();
-	       SightLayer._castRays=function(x, y, distance, {density=4, endpoints, limitAngle=false, aMin, aMax}={}) {
-		 
-		
-	      // const key =  x.toString(16)+y.toString(16)+distance.toString(16)+limitAngle.toString()+aMin.toString()+aMax.toString();
-		  // we need a fast hash... if there is a collision (which is extremely unlikely), its even more unlikely that it will matter
-		  // because the placeable that is rendered incorrectly will probably be on separate places of the map
-	   //    const key =  x+(y*7.654)+distance+(limitAngle?1:0)+aMin+aMax;  
-	//	   let rays = RayCache.get(key);
-	let rays;
-	//	   if(rays!=undefined) {
-	//           // cache hit!
-	//		   return rays;
-	//	   }
-		   
-		   
-		   const rayAccuracy = canvas.sight.tokenVision?(canvas.scene._viewPosition.scale):5;
-	       const angles = new Set();
-	       rays = [];
-		  
-		   
-		   const cast = (ray, tol=50) => {
+    const sorter = (rays) => {
+        rays.sort((r1, r2) => r1.angle - r2.angle);
+    };
+    if (tokensVisible.SightCache != undefined) tokensVisible.SightCache = new Map();
+       
+    if (WallsLayer.castRays != undefined) 
+        patch('WallsLayer.castRays', enhancedCastRays, 'OVERRIDE');
+    else 
+        patch('SightLayer._castRays', enhancedCastRays, 'OVERRIDE'); // legacy 0.7.x support
    
-	            tol = tol *50 /(rayAccuracy * 10);
-	            let a = Math.round(ray.angle *tol  );// / tol;
-	            if ( angles.has(a) ) return;
-	            rays.push(ray);
-	            angles.add(a);
-	          };
+    function enhancedCastRays (x, y, distance, { density = 4, endpoints,limitAngle = false, aMin,aMax } = {}) {
 
-		   rays =tokensVisible.SightLayer._DI_castRays.call(this, x,y,distance,{density,endpoints,limitAngle,aMin,aMax},cast,standardArray, rayAccuracy, rays, sorter );
-	  //     if(RayCache.size>1000) RayCache.delete(RayCache.keys().next().value);
-	       
-	  //	   RayCache.set(key,rays);
-		   return rays;
-		   
-	   } 
-	   
-	   
-  }
+        let rays = [];
+        const rayAccuracy = canvas.sight.tokenVision ? (canvas.scene._viewPosition.scale) : 5;
+        const angles = new Set();
+        const cast = (ray, tol = 50) => {
+            tol = tol * 50 / (rayAccuracy * 10);
+            let a = Math.round(ray.angle * tol); 
+            if (angles.has(a)) return;
+            rays.push(ray);
+            angles.add(a);
+        };
+
+        rays = tokensVisible.SightLayer._DI_castRays.call(this, x, y, distance, {
+            density,
+            endpoints,
+            limitAngle,
+            aMin,
+            aMax
+        }, cast, standardArray, rayAccuracy, rays, sorter);
+        return rays;
+    }; 
+};
+
   
-  tokensVisible._setExtraEnhancedCastRays=function()
-  {
-	  
-       const stubsorter = (rays)=>{ /* nothing to do because the rays are cast in sorted order in this mode */ };
-       const realsorter = (rays)=>{rays.sort((r1, r2) => r1.angle - r2.angle);};
-	//   RayCache=new Map();
-	   if (tokensVisible.SightCache!=undefined) tokensVisible.SightCache=new Map();
-	  					    
-	   SightLayer._castRays=function(x, y, distance, {density, endpoints, limitAngle=false, aMin, aMax}={}){
-		 
-		   if (!canvas.sight.tokenVision) return tokensVisible.SightLayer._defaultcastRay.call(this,x,y,distance,{density:density+3,endpoints,limitAngle,aMin,aMax});
-	
-	//	const key =  x+(y*7.654)+distance+(limitAngle?1:0)+aMin+aMax;  
-	let rays;
-	//	   let rays = RayCache.get(key);
-	//	   if(rays!=undefined) {
-	//		   return rays;
-	//	   }
+tokensVisible._setExtraEnhancedCastRays = function() {
 
-		   let sorter;
-		   rays=[];
-		   const cast = (ray )=> rays.push(ray);
-		   const rayAccuracy = canvas.scene._viewPosition.scale;
-           if (!limitAngle){
-           // endpoints and sorting are not needed for unlimited angle light or vision since we are casting rays in all directions anyway.
-		 	   endpoints=[]; 
-			   sorter=stubsorter;
-		   }
-		   else {
-           // endpoints and real sorting appear to be needed for limited angle light or vision to render correctly
-		   	   sorter=realsorter;
-		   }
-		   rays = tokensVisible.SightLayer._DI_castRays.call(this,x,y,distance,{"density":Math.min(1.0,density),endpoints,limitAngle,aMin,aMax},cast,[],rayAccuracy,rays, sorter);
-	  //     if(RayCache.size>1000) RayCache.delete(RayCache.keys().next().value);
-	       
-	  //	   RayCache.set(key,rays);
-		   return rays;
-	   } 
-	   
-	    
-  };
+    const stubsorter = (rays) => { /* nothing to do because the rays are cast in sorted order in this mode */ };
+    const realsorter = (rays) => {
+        rays.sort((r1, r2) => r1.angle - r2.angle);
+    };
+    if (tokensVisible.SightCache != undefined) tokensVisible.SightCache = new Map();
+
+    if (WallsLayer.castRays != undefined) {
+        patch('WallsLayer.castRays', superCastRays, 'MIXED'); 
+    } else {
+        patch('SightLayer._castRays', superCastRays, 'MIXED'); // legacy 0.7.x support
+    }
+    
+    function superCastRays (wrapped, x, y, distance, { density, endpoints, limitAngle = false, aMin, aMax  } = {}) {
+
+        if (!canvas.sight.tokenVision) return wrapped(x, y, distance, { density: density + 3, endpoints, limitAngle, aMin, aMax });
+
+        let rays = [];
+
+        let sorter;
+        const cast = (ray) => rays.push(ray);
+        const rayAccuracy = canvas.scene._viewPosition.scale;
+
+        if (!limitAngle) {
+            // endpoints and sorting are not needed for unlimited angle light or vision since we are casting rays in all directions anyway.
+            endpoints = [];
+            sorter = stubsorter;
+        } else {
+            // endpoints and real sorting needed for limited angle to render correctly
+            sorter = realsorter;
+        }
+        density = rayAccuracy;
+
+        rays = tokensVisible.SightLayer._DI_castRays.call(this, x, y, distance, { "density": Math.min(2.0, density), endpoints, limitAngle, aMin, aMax }, cast, [], rayAccuracy, rays, sorter);
+        return rays;
+    };
+
+};
+
   
-tokensVisible._setStandardCastRays=function()
-  {
-	   if (tokensVisible.SightCache!=undefined) tokensVisible.SightCache=new Map();
-       SightLayer._castRays=tokensVisible.SightLayer._defaultcastRay;
-	  
-	   	   
-  };
+tokensVisible._setStandardCastRays = function() {
+    
+    if (tokensVisible.SightCache != undefined) tokensVisible.SightCache = new Map();
+    if (WallsLayer.castRays != undefined) {
+        unpatch('WallsLayer.castRays', tokensVisible.SightLayer._defaultcastRays);
+    } else {
+        // legacy 0.7.x support
+        unpatch('SightLayer._castRays', tokensVisible.SightLayer._defaultcastRays);
+
+    }
+};
+
+
+
   
+  
+tokensVisible.setupCombatantMasking = function(settingValue) {
+
+    switch (settingValue) {
+        case "hostile":
+        case "neutral":
+        case "all":
+            if (Combat.prototype.createEmbeddedDocuments != undefined)
+                patch('Combat.prototype.createEmbeddedDocuments', combatMaskedEntities, 'WRAPPER');
+            else
+                patch('Combat.prototype.createEmbeddedEntity', combatMaskedEntities, 'WRAPPER'); // legacy 0.7.x support
+            break;
+        default:
+            if (Combat.prototype.createEmbeddedDocuments != undefined)
+                unpatch('Combat.prototype.createEmbeddedDocuments', tokensVisible.Combat._defaultcreateEmbeddedEntity);
+            else
+                unpatch('Combat.prototype.createEmbeddedEntity', tokensVisible.Combat._defaultcreateEmbeddedEntity); // legacy 0.7.x support
+    }
+    
+    async function combatMaskedEntities(wrapped, embeddedName, data, options) {
+        if (embeddedName == 'Combatant') {
+
+            // combatants created via the token HUD are always in an array - otherwise NOT. We only want to 
+            // look at the token disposition when the combatant is created directly from the Token therefore
+            // do nothing if the data isn't an array. 
+            if (Array.isArray(data))
+                data.forEach((i) => {
+                    let TOKEN = canvas.scene.data.tokens.find((k) => k._id == i.tokenId);
+
+                    // break statements deliberately missing 
+                    const disposition = (TOKEN.disposition != undefined) ? (TOKEN.disposition) : (TOKEN.data.disposition);
+
+                    switch (disposition) {
+                        case -1:
+                            if (settingValue == "hostile") i.hidden = true;
+                        case 0:
+                            if (settingValue == "neutral") i.hidden = true;
+                        case 1:
+                            if (settingValue == "all") i.hidden = true;
+                    }
+
+                });
+        }
+        return wrapped(embeddedName, data, options);
+    };
+}
+
+function patch(libraryID, replacementfunction, mode) {
+    if (!libWrapper.is_fallback) libWrapper.unregister(moduleName, libraryID, false);
+    libWrapper.register(moduleName, libraryID, replacementfunction, mode);
+}
 
 
+function unpatch(libraryID, originalfunction) {
+    if (libWrapper.is_fallback) libWrapper.register(moduleName, libraryID, originalfunction, 'OVERRIDE');
+    else
+        libWrapper.unregister(moduleName, libraryID, false);
+}
 
-	  
+      
