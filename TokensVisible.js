@@ -11,6 +11,8 @@ tokensVisible.hoverToken= new Object();
 tokensVisible.hoverToken.hoveredTarget=0;
 tokensVisible.pushhotkey='';
 
+
+    
 tokensVisible.pushToBack=function() {
 
   if ( tokensVisible?.hoverToken?.hoveredTarget instanceof Token) { 
@@ -82,21 +84,6 @@ tokensVisible.hoverToken.hook= Hooks.on('controlToken',(token,controlled)=>{
 
 
 
-Hooks.once('init',async function () {
-	console.log('TokensVisible | Initializing Your Tokens Visible');
-	
-    
-	 
-});
-
-Hooks.once('ready',() => {
-  		
-   
-	
-  window.addEventListener('keydown', tokensVisible.pushTokenBackListener );
- 
-});
-
 
 Hooks.on('canvasReady',()=>{ 
   if (tokensVisible.SightCache!=undefined) tokensVisible.SightCache=new Map();
@@ -160,21 +147,6 @@ tokensVisible.setProperSightCache = function(value){
     }
 
 };
-
-Hooks.once('renderSceneControls', function () {
-registerSettings();
-tokensVisible.panMode = game.settings.get('TokensVisible', 'panMode');
-tokensVisible.pushhotkey=game.settings.get('TokensVisible', 'pushhotkey');
-tokensVisible.autopanMargin= game.settings.get('TokensVisible', 'autopanningMargin');
-tokensVisible.wallsCancelAnimation = game.settings.get('TokensVisible', 'wallsCancelAnimation');
-tokensVisible.castRayshotkey =game.settings.get('TokensVisible', 'castRayshotkey');
-tokensVisible.sightCachehotkey =game.settings.get('TokensVisible', 'sightCachehotkey');
-tokensVisible.setupCombatantMasking(game.settings.get('TokensVisible', 'combatantHidden'));
-
-}
-);
-
-
 
 
 function nameToHexA(name) {
@@ -291,7 +263,7 @@ Hooks.on('renderSceneControls', tokensVisible.setupRenderColors );
 
 
 Hooks.once('ready',() => {
-   
+     window.addEventListener('keydown', tokensVisible.pushTokenBackListener );
     //deferred to ready - if this is wrapped in 'init'  then perfect-vision will get an error trying to redefine Token.prototype.updateSource
     libWrapper.register(moduleName,'Token.prototype.updateSource',   
     function(wrapped, ...args) {
@@ -317,10 +289,26 @@ function tokenHasSight (tokenInQuestion){
     return tokenInQuestion.hasSight;
 } 
 
+
+    
+Hooks.once('setup', ()=>{
+      console.warn('TokensVisible | Registering Settings');
+      registerSettings();
+      tokensVisible.panMode = game.settings.get('TokensVisible', 'panMode');
+      tokensVisible.pushhotkey=game.settings.get('TokensVisible', 'pushhotkey');
+      tokensVisible.autopanMargin= game.settings.get('TokensVisible', 'autopanningMargin');
+      tokensVisible.wallsCancelAnimation = game.settings.get('TokensVisible', 'wallsCancelAnimation');
+      tokensVisible.castRayshotkey =game.settings.get('TokensVisible', 'castRayshotkey');
+      tokensVisible.sightCachehotkey =game.settings.get('TokensVisible', 'sightCachehotkey');
+      tokensVisible.setupCombatantMasking(game.settings.get('TokensVisible', 'combatantHidden'));
+});
+
 Hooks.once('init', () => {
+   
+	console.warn('TokensVisible | Initializing');
+  
     
-    
-      libWrapper.register(moduleName,'TokenLayer.prototype._getCycleOrder',
+    libWrapper.register(moduleName,'TokenLayer.prototype._getCycleOrder',
     function(wrapped,...args){
  
         let observable = wrapped(...args);
