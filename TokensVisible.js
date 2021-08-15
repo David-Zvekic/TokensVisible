@@ -453,11 +453,43 @@ libWrapper.register(moduleName,'Wall.prototype._onUpdate',
     
 
      
-     
+
+
+    function isSuperset(set, subset) {
+        for (let elem of subset) {
+            if (!set.has(elem)) {
+                return false
+            }
+        }
+        return true
+    }
+    
+    function isAlt(){
+       // check if Alt and only Alt is being pressed 
+       const alt = new Set(["Alt"]);
+       return (isSuperset(alt,game.keyboard._downKeys) && isSuperset(game.keyboard._downKeys,alt));
+    }
+    
+
+
+libWrapper.register(moduleName,'Entity.prototype.updateEmbeddedEntity',
+    async function(wrapped, embeddedName, data, options={}) {
+      
+        console.warn('got here!');
+       if (embeddedName=="Token") {
+           if (isAlt()) options.YTVcancelAnimate=true;
+           else options.YTVcancelAnimate=false;
+       }
+       return wrapped( embeddedName, data, options);   
+    }
+    , 'WRAPPER');  
+    
+    
+
 
  libWrapper.register(moduleName,'Token.prototype.setPosition',   
-    async function (x, y, {animate=true}={}) {
- 
+    async function (x, y, {animate=true,YTVcancelAnimate=false}={}) {
+        
     // Create a Ray for the requested movement
     let origin = this._movement ? this.position : this._validPosition,
         target = {x: x, y: y},
@@ -466,8 +498,10 @@ libWrapper.register(moduleName,'Wall.prototype._onUpdate',
     // Create the movement ray
     let ray = new Ray(origin, target);
     let cancelAnimation = false;
+    
+    
     if(animate){
-      if (tokensVisible.wallsCancelAnimation=="Always") cancelAnimation=true;
+      if ((YTVcancelAnimate) ||  (tokensVisible.wallsCancelAnimation=="Always") ) cancelAnimation=true;    
       if (!cancelAnimation)
        cancelAnimation = (tokensVisible.wallsCancelAnimation=="Yes" &&  this.checkCollision(target)); 
     }
