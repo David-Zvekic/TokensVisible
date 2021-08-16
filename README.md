@@ -47,7 +47,7 @@ Note: This module replicates 100% of the functionality of the moduled called Pus
 
 12. Blind Tokens Controllable - The GM may not want players to know exactly where their blind or unconscious character is.  Standard Foundry Behavior lets players see and control their tokens even with no vision, however by disabling this setting blind tokens will no longer be controlled by players. Players with no vision source to the blind token will not see the token on the map; They will not be able to cycle to it or control it. Players will need to rely on the GM to move their blinded tokens.  
 
-13. Misty Step - pressing Alt while moving a token will cause the token animation to be cancelled for that movement. This is most useful for players to teleport to a place on the map which they could move to, but to temporarily cancel animation to not render the token moving across the intervening space. 
+13. Misty Step - pressing Alt while moving a token will cause the token animation to be cancelled for that movement. This is useful for players to move a token, but to temporarily cancel animation as if teleporting.  
 
 
 
