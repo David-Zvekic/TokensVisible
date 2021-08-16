@@ -471,12 +471,11 @@ libWrapper.register(moduleName,'Wall.prototype._onUpdate',
     }
     
 
-    if (ClientDatabaseBackend.prototype._updateEmbeddedDocuments!=undefined) {
+    if (!(typeof ClientDatabaseBackend==="undefined")) {
 
        libWrapper.register(moduleName,'ClientDatabaseBackend.prototype._updateEmbeddedDocuments',
         async function(wrapped, documentClass, parent, {updates, options, pack}, user) {
       
-            console.warn('got here!');
            if (documentClass.name=="TokenDocument") {
                if (isAlt()) options.YTVcancelAnimate=true;
                else options.YTVcancelAnimate=false;
@@ -490,17 +489,16 @@ libWrapper.register(moduleName,'Wall.prototype._onUpdate',
         
     } else {
 
-libWrapper.register(moduleName,'Entity.prototype.updateEmbeddedEntity',
-    async function(wrapped, embeddedName, data, options={}) {
-      
-        console.warn('got here!');
-       if (embeddedName=="Token") {
-           if (isAlt()) options.YTVcancelAnimate=true;
-           else options.YTVcancelAnimate=false;
-       }
-       return wrapped( embeddedName, data, options);   
-    }
-    , 'WRAPPER');  
+      libWrapper.register(moduleName,'Entity.prototype.updateEmbeddedEntity',
+        async function(wrapped, embeddedName, data, options={}) {
+     
+           if (embeddedName=="Token") {
+              if (isAlt()) options.YTVcancelAnimate=true;
+              else options.YTVcancelAnimate=false;
+           }
+           return wrapped( embeddedName, data, options);   
+        }
+      , 'WRAPPER');  
   };
     
 
