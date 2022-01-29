@@ -4,7 +4,7 @@
   "description": "Usability and vision enhancements for Tokens",
   "author": "David Zvekic",
   "version": "2.7.1",
-  "compatibleCoreVersion": "0.8.8",
+  "compatibleCoreVersion": "0.8.9",
   "minimumCoreVersion": "0.7.9",
   "url":"https://github.com/David-Zvekic/TokensVisible",
   "manifest": "https://github.com/David-Zvekic/TokensVisible/releases/download/v2.7.1/module.json",
