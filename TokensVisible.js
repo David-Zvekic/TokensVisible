@@ -464,12 +464,25 @@ libWrapper.register(moduleName,'Wall.prototype._onUpdate',
         return true
     }
     
-    function isAlt(){
-       // check if Alt and only Alt is being pressed 
-       const alt = new Set(["Alt"]);
-       return (isSuperset(alt,game.keyboard._downKeys) && isSuperset(game.keyboard._downKeys,alt));
-    }
     
+    function isAlt(){
+       // check if Alt and only Alt is being pressed during the drop event.
+
+        let downKeys;
+        let alt;
+  
+        if (typeof game.keyboard.downKeys !== 'undefined') {
+          // FoundyVTT v9+ compatible  
+          downKeys = game.keyboard.downKeys;
+          alt = new Set(['AltLeft']);
+        } else {
+          // FoundryVTT v7, v8 compatible  
+          downKeys = game.keyboard._downKeys;
+          alt = new Set(['Alt']);
+        }
+
+       return (isSuperset(alt,downKeys) && isSuperset(downKeys,alt));
+    }
 
     if (!(typeof ClientDatabaseBackend==="undefined")) {
 
