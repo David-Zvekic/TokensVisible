@@ -265,22 +265,31 @@ Hooks.on('renderSceneControls', tokensVisible.setupRenderColors );
 Hooks.once('ready',() => {
      window.addEventListener('keydown', tokensVisible.pushTokenBackListener );
     //deferred to ready - if this is wrapped in 'init'  then perfect-vision will get an error trying to redefine Token.prototype.updateSource
-    libWrapper.register(moduleName,'Token.prototype.updateSource',   
-    function(wrapped, ...args) {
+  
+    
+    function lightwrapper (wrapped, ...args) {
   
       
-       if (this.data.hidden && this.emitsLight && game.settings.get('TokensVisible', 'hiddenCanLight')=="Yes") {   
+         if (this.data.hidden && this.emitsLight && game.settings.get('TokensVisible', 'hiddenCanLight')=="Yes") {   
            this.data.hidden=false;
            const wrappedresult = wrapped(...args);
            this.data.hidden=true;
            return wrappedresult;
-       } else
-       {
-           return wrapped(...args); 
-       }  
-           
+         } else
+         {
+             return wrapped(...args); 
+         }  
+      };  
      
-    },'WRAPPER');    
+    libWrapper.register(moduleName,'Token.prototype.updateSource', lightwrapper,'WRAPPER');     
+      
+    if(Token.prototype.updateLightSource!=undefined){
+        libWrapper.register(moduleName,'Token.prototype.updateLightSource', lightwrapper,'WRAPPER');
+        tokensVisible.canvasInitializeSources();
+         
+    };
+    
+   
     
 });
 

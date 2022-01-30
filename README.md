@@ -1,5 +1,5 @@
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/davidzvekic)
-# Your Tokens Visible v2.7.2
+# Your Tokens Visible v2.7.3
 *See what you need to see. No more, no less!*
 ***
 A module for Foundry VTT.
