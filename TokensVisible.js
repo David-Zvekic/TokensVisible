@@ -873,7 +873,7 @@ tokensVisible.setupCombatantMasking = function(settingValue) {
             // do nothing if the data isn't an array. 
             if (Array.isArray(data))
                 data.forEach((i) => {
-                    let TOKEN = canvas.scene.data.tokens.find((k) => k._id == i.tokenId);
+                    let TOKEN = canvas.scene.data.tokens.find((k) => ((k._id!=undefined)?k._id:k.id) == i.tokenId);
 
                     // break statements deliberately missing 
                     const disposition = (TOKEN.disposition != undefined) ? (TOKEN.disposition) : (TOKEN.data.disposition);
