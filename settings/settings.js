@@ -199,32 +199,63 @@ export function registerSettings() {
       onChange: value => { tokensVisible.wallsCancelAnimation= value  }
     });
 
-
-    game.settings.register(moduleName, "castRays", {
-      name: game.i18n.localize(MODULE_ID+".castRays"),
-      hint: game.i18n.localize(MODULE_ID+".castRaysHint"),
-      scope: "client",
-      config: true,
-      type: String,
-      choices: {
-           "Standard": game.i18n.localize(MODULE_ID+".castRaysStandard") ,
-           "Enhanced": game.i18n.localize(MODULE_ID+".castRaysEnhanced"),
-           "Super": game.i18n.localize(MODULE_ID+".castRaysSuper")
-      },
-      default: "Standard",
-      onChange: value =>  {tokensVisible.setProperCastRays(value)} 
-      });
+    if (((game.version!=undefined) && game.version >= 9)) { 
+       
+        
+        game.settings.register(moduleName, "castRays", {
+          name: game.i18n.localize(MODULE_ID+".castRays"),
+          hint: game.i18n.localize(MODULE_ID+".castRaysHint"),
+          scope: "client",
+          config: false,
+          type: String,
+          default: "Standard"
+          
+        });
+        
+        
+        game.settings.register(moduleName, 'castRayshotkey', {
+          name: game.i18n.localize(MODULE_ID+".castRayshotkey"),
+   	      hint: game.i18n.localize(MODULE_ID+".castRayshotkeyHint"),
+   	      scope: 'client',   
+   	      config: false,      
+   	      type: String,     
+   	      default: "",
+        });
+    
+        tokensVisible.castRayshotkey = ""; 
+        tokensVisible.setProperCastRays("Standard");    
+    } 
+    else {
+        
+        game.settings.register(moduleName, "castRays", {
+          name: game.i18n.localize(MODULE_ID+".castRays"),
+          hint: game.i18n.localize(MODULE_ID+".castRaysHint"),
+          scope: "client",
+          config: true,
+          type: String,
+          choices: {
+             "Standard": game.i18n.localize(MODULE_ID+".castRaysStandard") ,
+             "Enhanced": game.i18n.localize(MODULE_ID+".castRaysEnhanced"),
+             "Super": game.i18n.localize(MODULE_ID+".castRaysSuper")
+          },
+          default: "Standard",
+          onChange: value =>  {tokensVisible.setProperCastRays(value)} 
+        });
+	
+        game.settings.register(moduleName, 'castRayshotkey', {
+          name: game.i18n.localize(MODULE_ID+".castRayshotkey"),
+ 	      hint: game.i18n.localize(MODULE_ID+".castRayshotkeyHint"),
+ 	      scope: 'client',   
+          config: true,      
+          type: String,     
+          default: "e",
+          onChange: value => { tokensVisible.castRayshotkey = value }
+ 	    });
+    
+    	 
+     }
 		 
-		 
-      game.settings.register(moduleName, 'castRayshotkey', {
- 	   name: game.i18n.localize(MODULE_ID+".castRayshotkey"),
- 	   hint: game.i18n.localize(MODULE_ID+".castRayshotkeyHint"),
- 	   scope: 'client',   
- 	   config: true,      
- 	   type: String,     
- 	   default: "e",
-       onChange: value => { tokensVisible.castRayshotkey = value }
- 	 });
+    
 		 
  	 game.settings.register(moduleName, 'sightCache', {
          name: game.i18n.localize(MODULE_ID+".sightCache"),

@@ -1,5 +1,5 @@
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/davidzvekic)
-# Your Tokens Visible v2.7.3
+# Your Tokens Visible v3.0.0
 *See what you need to see. No more, no less!*
 ***
 A module for Foundry VTT.
@@ -34,6 +34,8 @@ Note: This module replicates 100% of the functionality of the moduled called Pus
 **Enhanced mode is approximately the same speed as standard but with improved sight-lines.
 
 **Super mode is about 25% slower, but with even more improvement to sight-lines
+
+(note this feature is disabled in Foundry 0.9 because it is no longer required)
 
 ![Ray Casting](RayCasting.png)
 
