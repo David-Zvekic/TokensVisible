@@ -223,6 +223,7 @@ export function registerSettings() {
         });
     
         tokensVisible.castRayshotkey = ""; 
+        game.settings.set(moduleName, 'castRays','Standard') ;
         tokensVisible.setProperCastRays("Standard");    
     } 
     else {
