@@ -392,7 +392,26 @@ libWrapper.register(moduleName,'Wall.prototype._onUpdate',
     
     
  
-    
+   function tokenTestPerm(token,user,permission){
+     // test permission compatible with Foundry V7,8,9
+     if (Actor.prototype.testUserPermission!=undefined) {  
+        return token.actor?.testUserPermission(user, permission);
+     } else 
+     {
+        return token.actor?.hasPerm(user, permission); 
+     }
+   };
+   
+   
+   function tokenTestPartyPerm(token,permission){
+     let partyMemberHasPermission = false;    
+     game.users["players"].forEach(f=> {console.warn(f); partyMemberHasPermission = partyMemberHasPermission  ||  tokenTestPerm(token,f,permission);} );
+     
+     return partyMemberHasPermission;
+   }
+   
+   
+   
    libWrapper.register(moduleName,'Token.prototype.isVisible', 
     function(wrapped)  { 
          const blindTokensControllable = (game.settings.get('TokensVisible', 'blindTokensControllable') == 'Yes');
@@ -403,14 +422,8 @@ libWrapper.register(moduleName,'Wall.prototype._onUpdate',
          if ( this._controlled ) return true;
          if(!game.user.isGM ){
            if(this.actor) {
-             let canObserve = false;
-             if (Actor.prototype.testUserPermission!=undefined) {  
-                canObserve = this.actor?.testUserPermission(game.user, "OBSERVER");
-             } else {
-                canObserve = this.actor?.hasPerm(game.user, "OBSERVER"); 
-             }
-            
-            if (canObserve && (blindTokensControllable || !canvas.sight.tokenVision || this._isVisionSource()    )) return true;
+             let canObserve = tokenTestPerm(this,game.user,"OBSERVER");
+             if (canObserve && (blindTokensControllable || !canvas.sight.tokenVision || this._isVisionSource()    )) return true;
           }
         }
         return false; 
@@ -418,6 +431,8 @@ libWrapper.register(moduleName,'Wall.prototype._onUpdate',
       
  
     }, 'MIXED');
+    
+ 
     
    libWrapper.register(moduleName,'Token.prototype._isVisionSource', 
     function (wrapped) {
@@ -440,6 +455,7 @@ libWrapper.register(moduleName,'Wall.prototype._onUpdate',
        else {
            if (!tokenHasSight(this)) return false;
            switch(tokenMultiVision) {
+            case 'Party': return (tokenTestPartyPerm(this,"OBSERVER") && ((this.data.disposition == tokensVisible.lastControlledToken?.data.disposition) || (this.observer && tokensVisible.lastControlledToken==undefined)));   
             case 'Yes':
               if ( this.observer ) return true;
             case 'Limited' :        

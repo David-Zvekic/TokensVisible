@@ -25,9 +25,11 @@ export function registerSettings() {
        config: true,
        type: String,
        choices: {
-           "Yes": game.i18n.localize(MODULE_ID+".tokenMultiVisionYes") ,
            "Limited": game.i18n.localize(MODULE_ID+".tokenMultiVisionLimited"),
-           "Never": game.i18n.localize(MODULE_ID+".tokenMultiVisionNever")
+           "Yes": game.i18n.localize(MODULE_ID+".tokenMultiVisionYes") ,
+           "Never": game.i18n.localize(MODULE_ID+".tokenMultiVisionNever"),
+           "Party": game.i18n.localize(MODULE_ID+".tokenMultiVisionParty")
+           
        },
        default: "Limited"
 

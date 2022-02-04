@@ -1,5 +1,5 @@
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/davidzvekic)
-# Your Tokens Visible v3.0.1
+# Your Tokens Visible v3.1.0
 *See what you need to see. No more, no less!*
 ***
 A module for Foundry VTT.
@@ -51,6 +51,7 @@ Note: This module replicates 100% of the functionality of the moduled called Pus
 
 13. Misty Step - pressing Alt while moving a token will cause the token animation to be cancelled for that movement. This is useful for players to move a token, but to temporarily cancel animation as if teleporting.  
 
+14. Party Vision - A new kind of Token Multivision where a player has vision from their controlled token, plus any Player token with with same Disposition (Friendly/Neutral/Hostile)
 
 
 ## COMPATIBILITY
