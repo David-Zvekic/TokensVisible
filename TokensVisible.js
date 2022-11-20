@@ -513,8 +513,8 @@ libWrapper.register(moduleName,'Wall.prototype._onUpdate',
 
        libWrapper.register(moduleName,'ClientDatabaseBackend.prototype._updateEmbeddedDocuments',
         async function(wrapped, documentClass, parent, {updates, options, pack}, user) {
-      
-           if (documentClass.name=="TokenDocument") {
+        
+           if (documentClass.name.substring(0,13)=="TokenDocument") {
                if (isAlt()) options.YTVcancelAnimate=true;
                else options.YTVcancelAnimate=false;
            }
