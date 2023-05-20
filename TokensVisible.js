@@ -713,6 +713,23 @@ tokensVisible.SightLayer._DI_castRays=function(x, y, distance, {density=4, endpo
       if(rayAccuracy<1.5)   density = density* (2/3) * rayAccuracy;  // density can never be worse than standard
       if(density<Math.min(2,originaldensity))density=Math.min(2,originaldensity);  // dont want to make the quality too good/expensive. Use Supermode for that.
         
+        
+    if(typeof(this._adjustRayAngle) == "undefined") { 
+        // FoundryVTT8,9 code  (not tested for 9 yet)  
+       // First prioritize rays which are cast directly at wall endpoints
+        for ( let e of endpoints ) {
+          let angle = Math.atan2(e[1]-y, e[0]-x);
+          if ( limitAngle ) {
+            angle = this._normalizeAngle(aMin, angle);
+            if ( !angle.between(aMin, aMax) ) continue;
+          }
+          const ray = Ray.fromAngle(x, y, angle, distance);
+          cast(ray, false);
+        }
+      
+    }
+    else
+    { // FoundryVTT7 code      
       // First prioritize rays which are cast directly at wall endpoints
       for ( let e of endpoints ) {
         const ray = Ray.fromAngle(x, y, Math.atan2(e[1]-y, e[0]-x), distance);
@@ -722,6 +739,7 @@ tokensVisible.SightLayer._DI_castRays=function(x, y, distance, {density=4, endpo
         }
         cast(ray);
       }
+    }
 
       if (rayAccuracy<1.5) {
         let varx = 0;

@@ -3,12 +3,12 @@
   "title": "Your Tokens Visible",
   "description": "Usability and vision enhancements for Tokens",
   "author": "David Zvekic",
-  "version": "3.1.1",
+  "version": "3.1.2",
   "compatibleCoreVersion": "9.280",
   "minimumCoreVersion": "0.7.9",
   "url":"https://github.com/David-Zvekic/TokensVisible",
-  "manifest": "https://github.com/David-Zvekic/TokensVisible/releases/download/v3.1.1/module.json",
-  "download": "https://github.com/David-Zvekic/TokensVisible/releases/download/v3.1.1/TokensVisible.zip",
+  "manifest": "https://github.com/David-Zvekic/TokensVisible/releases/download/v3.1.2/module.json",
+  "download": "https://github.com/David-Zvekic/TokensVisible/releases/download/v3.1.2/TokensVisible.zip",
   "esmodules": [
   		"./lib/colorsettings/colorSetting.js", "TokensVisible.js" 
   	],
